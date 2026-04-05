@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LVL UP">
+<meta name="theme-color" content="#08080f">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Home screen icon (iOS will use this as the app icon) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%2308080f'/><text y='340' x='60' font-size='320' font-family='system-ui'>⚡</text><text y='460' x='256' text-anchor='middle' font-size='90' font-family='system-ui,sans-serif' font-weight='700' fill='%2300f5a0' letter-spacing='8'>LVL UP</text></svg>">
+
+<!-- Manifest for Android + modern browsers -->
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;LVL UP&quot;,&quot;short_name&quot;:&quot;LVL UP&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%2308080f&quot;,&quot;theme_color&quot;:&quot;%2308080f&quot;,&quot;orientation&quot;:&quot;portrait&quot;}">
+
+<!-- Splash screen background color while app loads -->
+<style>
+  html { background: #08080f; }
+</style>
+<title>LVL UP</title>
+
+<!-- Inline SVG favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2308080f'/><text y='.9em' font-size='80' x='10'>⚡</text></svg>">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap');
+
+:root {
+  --bg:       #08080f;
+  --bg2:      #0f0f1a;
+  --bg3:      #161625;
+  --card:     #111120;
+  --border:   #1e1e35;
+  --border2:  #2a2a48;
+  --accent:   #00f5a0;
+  --accent2:  #00d4ff;
+  --gold:     #ffd700;
+  --red:      #ff3860;
+  --purple:   #8b5cf6;
+  --orange:   #ff6b35;
+  --text:     #f0f0ff;
+  --muted:    #555577;
+  --muted2:   #3a3a5c;
+  --safe-b:   env(safe-area-inset-bottom, 0px);
+  --nav-h:    calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', system-ui, sans-serif;
+  min-height: 100%;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── LAYOUT ── */
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  padding-bottom: var(--nav-h);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,8,15,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: env(safe-area-inset-top, 0px) 16px 0;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.total-chip {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.total-chip-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--accent);
+  transition: color 0.3s;
+}
+.total-chip-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: rgba(8,8,15,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-tab.active { color: var(--accent); }
+.nav-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 25%; right: 25%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 0 8px var(--accent);
+}
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── PAGES ── */
+.page { display: none; padding: 12px 12px 0; }
+.page.active { display: block; }
+
+/* ── DAILY SCORE BAR ── */
+.day-score-bar {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.day-score-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,245,160,0.04), rgba(0,212,255,0.02));
+  pointer-events: none;
+}
+.day-score-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.day-score-breakdown {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+.day-score-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── SECTION CARDS ── */
+.sec {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.sec.hot { border-color: rgba(0,245,160,0.25); }
+.sec.penalized { border-color: rgba(255,56,96,0.25); }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: 52px;
+  cursor: pointer;
+  user-select: none;
+}
+.sec-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-right { display: flex; align-items: center; gap: 10px; }
+.sec-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--muted);
+  transition: color 0.3s;
+  min-width: 55px;
+  text-align: right;
+}
+.sec-score.pos { color: var(--accent); }
+.sec-score.neg { color: var(--red); }
+.sec-score.max { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.4); }
+
+.chevron {
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.25s;
+}
+.sec.collapsed .chevron { transform: rotate(-90deg); }
+
+/* Progress bar under header */
+.sec-prog {
+  height: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+.sec-prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.sec-body { padding: 8px 10px 12px; }
+
+/* ── GROUP LABEL ── */
+.glabel {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 8px 4px 4px;
+}
+
+.divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ── ITEMS ── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  min-height: 46px;
+}
+.item:active { transform: scale(0.98); background: rgba(255,255,255,0.04); }
+
+.cb {
+  width: 24px; height: 24px;
+  border-radius: 7px;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  font-size: 13px;
+  color: transparent;
+}
+.item.on .cb {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 12px rgba(0,245,160,0.5);
+  transform: scale(1.1);
+}
+.item.penalty.on .cb {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  box-shadow: 0 0 12px rgba(255,56,96,0.5);
+}
+.item.radio .cb { border-radius: 50%; }
+.item.radio.on .cb { transform: scale(1.15); }
+
+.item-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.3;
+  transition: color 0.2s;
+}
+.item.on .item-text { color: var(--text); }
+
+.item-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--muted2);
+  transition: color 0.2s;
+  white-space: nowrap;
+  min-width: 32px;
+  text-align: right;
+}
+.item.on .item-pts { color: var(--accent); }
+.item.penalty.on .item-pts { color: var(--red); }
+
+/* ── WEEKLY PAGE ── */
+.week-hero {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.week-hero-left .wlabel {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.week-hero-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 56px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--gold), #ffaa00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.week-hero-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.week-hero-right {
+  text-align: right;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 2;
+}
+
+.wsec {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.wsec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.wsec-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.wsec-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--gold);
+}
+.wsec-pts.neg { color: var(--red); }
+.wsec-body { padding: 6px 10px 10px; }
+
+.witem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 46px;
+}
+.witem:active { background: rgba(255,255,255,0.04); }
+.witem .cb { border-color: rgba(255,215,0,0.25); }
+.witem.on .cb {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 0 12px rgba(255,215,0,0.4);
+}
+.witem.penalty .cb { border-color: rgba(255,56,96,0.25); }
+.witem.penalty.on .cb {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  box-shadow: 0 0 12px rgba(255,56,96,0.4);
+}
+.witem.multi { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 10px 12px; }
+.multi-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.multi-label { font-size: 14px; font-weight: 500; color: var(--muted); }
+.multi-pts { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted2); }
+.multi-boxes { display: flex; gap: 8px; padding-left: 2px; }
+.multi-cb {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.multi-cb.on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 0 10px rgba(255,215,0,0.35);
+  transform: scale(1.1);
+}
+.multi-cb.penalty-cb.on {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  box-shadow: 0 0 10px rgba(255,56,96,0.35);
+}
+.witem.auto.earned { opacity: 1; }
+.witem.auto { cursor: default; }
+.streak-dots { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+.sdot {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border2);
+  background: var(--bg3);
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+.sdot.lit {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 6px rgba(255,215,0,0.4);
+}
+.witem.auto .item-pts { color: var(--muted2); }
+.witem.auto.earned .item-pts { color: var(--gold); }
+.witem.auto.earned .item-text { color: var(--text); }
+.witem.on .item-text { color: var(--text); }
+.witem .item-pts { color: var(--muted2); }
+.witem.on .item-pts { color: var(--gold); }
+.witem.penalty.on .item-pts { color: var(--red); }
+
+/* ── DASHBOARD ── */
+.dash-alltime {
+  background: linear-gradient(135deg, rgba(0,245,160,0.08), rgba(0,212,255,0.04));
+  border: 1px solid rgba(0,245,160,0.2);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dash-alltime-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.dash-alltime-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255,215,0,0.3);
+}
+.dash-alltime-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Rewards */
+.rewards-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.rewards-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.reward-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.reward-row:last-child { border-bottom: none; }
+.reward-info { flex: 1; }
+.reward-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.reward-cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--gold);
+}
+.redeem-btn {
+  background: none;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.redeem-btn:hover, .redeem-btn:active { background: var(--accent); color: var(--bg); }
+.redeem-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: var(--muted); color: var(--muted); }
+.redeem-btn:disabled:hover { background: none; color: var(--muted); }
+
+/* Stat grid */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.stat-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--accent2);
+}
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* Chart */
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+.chart-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 100px;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: var(--bg3);
+  min-height: 3px;
+  transition: height 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  overflow: hidden;
+}
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+.bar-col.has-score .bar-fill {
+  background: linear-gradient(180deg, var(--purple), #1f5c3a);
+}
+.bar-col.is-today .bar-fill {
+  background: linear-gradient(180deg, var(--accent), #00a36e);
+  box-shadow: 0 0 10px rgba(0,245,160,0.3);
+}
+.bar-day {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.bar-col.is-today .bar-day { color: var(--accent); }
+.bar-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+}
+.bar-col.is-today .bar-score { color: var(--accent); }
+
+/* Cat breakdown */
+.cat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cat-row:last-child { margin-bottom: 0; }
+.cat-emoji { font-size: 16px; width: 22px; text-align: center; }
+.cat-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  width: 62px;
+  flex-shrink: 0;
+}
+.cat-track { flex: 1; height: 6px; background: var(--border2); border-radius: 99px; overflow: hidden; }
+.cat-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+.cat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  width: 36px;
+  text-align: right;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 70px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 10px 22px;
+  border-radius: 99px;
+  z-index: 9000;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Score pop animation */
+@keyframes pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.popping { animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* Reset btn */
+.reset-btn {
+  display: block;
+  width: 100%;
+  margin: 4px 0 12px;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:active { border-color: var(--red); color: var(--red); }
+
+/* Streak badges */
+.streak-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+.streak-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sbadge {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+.sbadge.lit {
+  background: rgba(255,215,0,0.08);
+  border-color: rgba(255,215,0,0.3);
+  color: var(--gold);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">LVL UP</div>
+      <div class="header-right">
+        <div class="header-date" id="hDate"></div>
+        <div class="total-chip">
+          <div class="total-chip-num" id="hTotal">0</div>
+          <div class="total-chip-label">pts</div>
+        </div>
+        <button onclick="goRewards()" style="background:none;border:none;cursor:pointer;font-size:22px;padding:4px 2px;line-height:1;position:relative;z-index:1" title="Rewards">🎁</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ DAILY PAGE ══ -->
+  <div class="page active" id="page-daily">
+
+    <div class="day-score-bar">
+      <div>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px">
+          <button onclick="shiftDay(-1)" style="background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:6px 10px;line-height:1;position:relative;z-index:1">‹</button>
+          <div class="day-score-label" id="dayLabel">TODAY</div>
+          <button onclick="shiftDay(1)" id="btn-next" style="background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:6px 10px;line-height:1;opacity:0.2;pointer-events:none;position:relative;z-index:1">›</button>
+        </div>
+        <div class="day-score-breakdown" id="dBreakdown">—</div>
+      </div>
+      <div class="day-score-num" id="dTotal">0</div>
+    </div>
+
+    <!-- MORNING -->
+    <div class="sec" id="sec-morning">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">🌅 Morning</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-morning">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-morning" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-morning">
+
+        <div class="glabel">Wake Up — pick one</div>
+        <div class="item radio" data-radio="wake" data-key="wake_first" data-pts="20" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">First alarm</div><div class="item-pts">+20</div>
+        </div>
+        <div class="item radio" data-radio="wake" data-key="wake_once" data-pts="15" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Snoozed once</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item radio" data-radio="wake" data-key="wake_twice" data-pts="5" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Snoozed twice</div><div class="item-pts">+5</div>
+        </div>
+        <div class="item radio" data-radio="wake" data-key="wake_many" data-pts="0" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Snoozed multiple times</div><div class="item-pts">0</div>
+        </div>
+
+        <div class="glabel">Late penalty — pick if applicable</div>
+        <div class="item radio penalty" data-radio="late" data-key="late_30" data-pts="-5" onclick="radioTap(this)">
+          <div class="cb">✕</div><div class="item-text">30+ min past target</div><div class="item-pts">−5</div>
+        </div>
+        <div class="item radio penalty" data-radio="late" data-key="late_60" data-pts="-10" onclick="radioTap(this)">
+          <div class="cb">✕</div><div class="item-text">1hr past target</div><div class="item-pts">−10</div>
+        </div>
+        <div class="item radio penalty" data-radio="late" data-key="late_60p" data-pts="-20" onclick="radioTap(this)">
+          <div class="cb">✕</div><div class="item-text">1hr+ past target</div><div class="item-pts">−20</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="glabel">Hygiene</div>
+        <div class="item" data-key="am_hyg" data-pts="15" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Teeth + shower + sunscreen within 45 min</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item penalty" data-key="am_doom_bath" data-pts="-5" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Doomscrolled in bathroom</div><div class="item-pts">−5</div>
+        </div>
+        <div class="item penalty" data-key="am_zone" data-pts="-5" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Zoned out in shower</div><div class="item-pts">−5</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="glabel">Start the Day</div>
+        <div class="item" data-key="am_breath" data-pts="3" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Breathwork 2–3 min</div><div class="item-pts">+3</div>
+        </div>
+        <div class="item" data-key="am_move" data-pts="2" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Movement — stretches / pushups</div><div class="item-pts">+2</div>
+        </div>
+        <div class="item" data-key="am_bed" data-pts="3" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Made bed + tidied room</div><div class="item-pts">+3</div>
+        </div>
+        <div class="item" data-key="am_jrnl" data-pts="3" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Journal check-in</div><div class="item-pts">+3</div>
+        </div>
+        <div class="item" data-key="am_lunch" data-pts="4" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Made lunch <span style="color:var(--muted)">(work days)</span></div><div class="item-pts">+4</div>
+        </div>
+        <div class="item penalty" data-key="am_nolunch" data-pts="-5" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Didn't make lunch on a work day</div><div class="item-pts">−5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FITNESS -->
+    <div class="sec" id="sec-fitness">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">💪 Fitness</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-fitness">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-fitness" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-fitness">
+
+        <div class="glabel">Steps — pick one</div>
+        <div class="item radio" data-radio="steps" data-key="st_10k" data-pts="20" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">10k+ steps</div><div class="item-pts">+20</div>
+        </div>
+        <div class="item radio" data-radio="steps" data-key="st_8k" data-pts="15" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">8k–10k steps</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item radio" data-radio="steps" data-key="st_5k" data-pts="10" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">5k–8k steps</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item radio penalty" data-radio="steps" data-key="st_low" data-pts="-10" onclick="radioTap(this)">
+          <div class="cb">✕</div><div class="item-text">Under 5k steps</div><div class="item-pts">−10</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="glabel">Movement</div>
+        <div class="item" data-key="fit_push" data-pts="5" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Pushups</div><div class="item-pts">+5</div>
+        </div>
+        <div class="item" data-key="fit_stretch" data-pts="5" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Stretching</div><div class="item-pts">+5</div>
+        </div>
+        <div class="item" data-key="fit_core" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Core <span style="color:var(--muted)">(non-gym day)</span></div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="fit_gym" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Gym visit</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item penalty" data-key="fit_none" data-pts="-10" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">No movement at all</div><div class="item-pts">−10</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="glabel">Gym Bonuses — stacks beyond 50</div>
+        <div class="item" data-key="fit_goodwrk" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Good workout</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="fit_cardio" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Cardio</div><div class="item-pts">+10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUTRITION -->
+    <div class="sec" id="sec-nutrition">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">🥗 Nutrition</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-nutrition">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-nutrition" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-nutrition">
+        <div class="item" data-key="nut_cal" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Hit calorie goal <span style="color:var(--muted)">(≤2,200)</span></div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="nut_prot" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Hit protein goal <span style="color:var(--muted)">(≥162g)</span></div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="nut_log" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Logged all food</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="nut_9pm" data-pts="8" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">No eating after 9pm</div><div class="item-pts">+8</div>
+        </div>
+        <div class="item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:12px 10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+            <span style="font-size:14px;font-weight:500;color:var(--muted)">💧 Water</span>
+            <span id="water-pts" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--muted2)">0 pts</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;width:100%">
+            <button onclick="waterAdj(-1)" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s" ontouchstart="">−</button>
+            <div style="flex:1;text-align:center">
+              <div id="water-cups" style="font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;color:var(--accent2)">0</div>
+              <div id="water-l" style="font-size:11px;color:var(--muted);margin-top:2px">0.0 L</div>
+            </div>
+            <button onclick="waterAdj(1)" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--accent2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s" ontouchstart="">+</button>
+          </div>
+          <div style="display:flex;gap:8px;width:100%">
+            <div id="water-bar-2l" style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-2l" style="height:100%;background:var(--accent2);border-radius:99px;transition:width 0.3s;width:0%"></div></div>
+            <div id="water-bar-3l" style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-3l" style="height:100%;background:var(--gold);border-radius:99px;transition:width 0.3s;width:0%"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;width:100%;font-size:10px;color:var(--muted)">
+            <span id="water-2l-label">2L — +5pts</span>
+            <span id="water-3l-label">3L — +5pts bonus</span>
+          </div>
+        </div>
+
+        <div class="item" data-key="nut_psyl" data-pts="3" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Metamucil before dinner</div><div class="item-pts">+3</div>
+        </div>
+        <div class="item" data-key="nut_fruit" data-pts="2" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Ate fruit</div><div class="item-pts">+2</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item penalty" data-key="nut_out" data-pts="-20" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Ordered out (unplanned)</div><div class="item-pts">−20</div>
+        </div>
+        <div class="item penalty" data-key="nut_junk" data-pts="-10" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">200+ cal of junk food</div><div class="item-pts">−10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORK -->
+    <div class="sec" id="sec-work">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">💼 Work</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-work">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-work" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-work">
+        <div class="item" data-key="wrk_time" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Got to work on time</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="wrk_task" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Started + reviewed task list within 20 min</div><div class="item-pts">+10</div>
+        </div>
+        <div class="glabel">Productivity — pick one</div>
+        <div class="item radio" data-radio="prod" data-key="wrk_min" data-pts="10" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Showed up, did the minimum</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item radio" data-radio="prod" data-key="wrk_good" data-pts="20" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Productive, got meaningful work done</div><div class="item-pts">+20</div>
+        </div>
+        <div class="item radio" data-radio="prod" data-key="wrk_crush" data-pts="30" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">Crushed it 🔥</div><div class="item-pts">+30</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item penalty" data-key="wrk_doom" data-pts="-15" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Excessive doom scrolling</div><div class="item-pts">−15</div>
+        </div>
+        <div class="item penalty" data-key="wrk_lunch" data-pts="-10" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Excessive lunch break</div><div class="item-pts">−10</div>
+        </div>
+        <div class="item penalty" data-key="wrk_skip" data-pts="-20" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Didn't do what needed to be done</div><div class="item-pts">−20</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHOOL -->
+    <div class="sec" id="sec-school">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">📚 School</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-school">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-school" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-school">
+        <div class="glabel">Pomodoros — pick one</div>
+        <div class="item radio" data-radio="pomo" data-key="sch_1p" data-pts="10" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">1 pomodoro</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item radio" data-radio="pomo" data-key="sch_2p" data-pts="20" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">2 pomodoros</div><div class="item-pts">+20</div>
+        </div>
+        <div class="item radio" data-radio="pomo" data-key="sch_3p" data-pts="30" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">3 pomodoros</div><div class="item-pts">+30</div>
+        </div>
+        <div class="item radio" data-radio="pomo" data-key="sch_4p" data-pts="35" onclick="radioTap(this)">
+          <div class="cb">✓</div><div class="item-text">4+ pomodoros</div><div class="item-pts">+35</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item" data-key="sch_code" data-pts="15" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Completed coding or problem set</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item penalty" data-key="sch_none" data-pts="-25" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">No school work done</div><div class="item-pts">−25</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENING -->
+    <div class="sec" id="sec-evening">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">🌙 Evening</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-evening">0/50</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-evening" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-evening">
+        <div class="item" data-key="pm_jrnl" data-pts="15" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Journal — day recap + tomorrow's tasks</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item" data-key="pm_bed" data-pts="15" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">In bed on time</div><div class="item-pts">+15</div>
+        </div>
+        <div class="item" data-key="pm_nophone" data-pts="10" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">No phone after cutoff</div><div class="item-pts">+10</div>
+        </div>
+        <div class="item" data-key="pm_teeth" data-pts="5" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Brushed teeth</div><div class="item-pts">+5</div>
+        </div>
+        <div class="item" data-key="pm_tidy" data-pts="5" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">Dishes / tidied up</div><div class="item-pts">+5</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item penalty" data-key="pm_doom" data-pts="-15" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Doom scrolling 10+ min at night</div><div class="item-pts">−15</div>
+        </div>
+        <div class="item penalty" data-key="pm_late" data-pts="-15" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">In bed 30+ min past target</div><div class="item-pts">−15</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MISC -->
+    <div class="sec" id="sec-misc">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <div class="sec-title">⚡ Misc</div>
+        <div class="sec-right">
+          <div class="sec-score" id="ss-misc">0</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="sec-prog"><div class="sec-prog-fill" id="sp-misc" style="width:0%"></div></div>
+      <div class="sec-body" id="sb-misc">
+        <div class="item" data-key="misc_news" data-pts="15" onclick="tapItem(this)">
+          <div class="cb">✓</div><div class="item-text">20 min current events</div><div class="item-pts">+15</div>
+        </div>
+        <div class="divider"></div>
+        <div class="item penalty" data-key="misc_sm" data-pts="-20" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Over 2hr social media</div><div class="item-pts">−20</div>
+        </div>
+        <div class="item penalty" data-key="misc_release" data-pts="-50" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">******* ** ****</div><div class="item-pts">−50</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetDay()">↺ Reset Today</button>
+  </div>
+
+  <!-- ══ WEEKLY PAGE ══ -->
+  <div class="page" id="page-weekly">
+
+    <div class="week-hero">
+      <div class="week-hero-left">
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px">
+          <button onclick="shiftWeek(-1)" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1">‹</button>
+          <div class="wlabel" id="wDateLabel">THIS WEEK</div>
+          <button onclick="shiftWeek(1)" id="btn-week-next" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;opacity:0.2;pointer-events:none">›</button>
+        </div>
+        <div class="week-hero-num" id="wTotal">0</div>
+        <div class="week-hero-sub" id="wSub">—</div>
+      </div>
+
+    </div>
+
+    <!-- MANUAL section label -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:4px 4px 6px">✋ Tap to log manually</div>
+
+    <!-- Nutrition Tasks — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🛒 Nutrition Tasks</span><span class="wsec-pts" id="wp-nuttask">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Meal prep</span><span class="multi-pts">+50 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_mp1" data-wpts="50" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_mp2" data-wpts="50" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Got groceries in person</span><span class="multi-pts">+50</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_groc_in" data-wpts="50" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Ordered groceries</span><span class="multi-pts">+10</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_groc_ord" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grooming — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🪒 Grooming</span><span class="wsec-pts" id="wp-groom">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Shave</span><span class="multi-pts">+10</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_shave" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Wash hair</span><span class="multi-pts">+10 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_hair1" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_hair2" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_hair3" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finance — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">💰 Finance</span><span class="wsec-pts" id="wp-finance">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Checked finance app</span><span class="multi-pts">+10 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_fin1" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_fin2" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_fin3" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_fin4" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_fin5" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🤝 Social</span><span class="wsec-pts" id="wp-social">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Left the house — something social</span><span class="multi-pts">+20 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_soc1" data-wpts="20" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_soc2" data-wpts="20" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Gamed or called with friends</span><span class="multi-pts">+10 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_game1" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_game2" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Penalties — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">❌ Weekly Penalties</span><span class="wsec-pts neg" id="wp-pen">0</span></div>
+      <div class="wsec-body">
+        <div class="witem" data-wkey="wp_out2" data-wpts="-100" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">Ordered out more than once</div><div class="item-pts">−100</div></div>
+        <div class="witem" data-wkey="wp_nofin" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">Didn't check finance app at all</div><div class="item-pts">−50</div></div>
+        <div class="witem" data-wkey="wp_nogym" data-wpts="-100" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No gym visits at all</div><div class="item-pts">−100</div></div>
+        <div class="witem" data-wkey="wp_nomp" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No meal prep done</div><div class="item-pts">−50</div></div>
+        <div class="witem" data-wkey="wp_nosch" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No school work 2+ days in a row</div><div class="item-pts">−50</div></div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Unnecessary Uber</span><span class="multi-pts">−10 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb penalty-cb" data-wkey="wp_uber1" data-wpts="-10" onclick="multiTap(this)">✕</div>
+            <div class="multi-cb penalty-cb" data-wkey="wp_uber2" data-wpts="-10" onclick="multiTap(this)">✕</div>
+          </div>
+        </div>
+        <div class="witem" data-wkey="wp_sm" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">Over 2hr social media (per day flagged)</div><div class="item-pts">−50</div></div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetWeek()">↺ Reset Manual Items</button>
+
+    <!-- AUTO STREAKS label -->
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 4px 6px">⚡ Auto-tracked from daily</div>
+
+    <!-- Morning Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🌅 Morning Streaks</span><span class="wsec-pts" id="wp-morning">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-alarm6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">First alarm</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-alarm6"></div>
+        </div>
+        <div class="witem auto" id="ws-hyg6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Perfect hygiene</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-hyg6"></div>
+        </div>
+        <div class="witem auto" id="ws-start6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Full Start the Day</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-start6"></div>
+        </div>
+        <div class="witem auto" id="ws-lunch5" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Made lunch every work day</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-lunch5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fitness Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">💪 Fitness Streaks</span><span class="wsec-pts" id="wp-fitness">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-gym3" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Gym 3× this week</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-gym3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evening Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🌙 Evening Streaks</span><span class="wsec-pts" id="wp-evening">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-bed6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">In bed on time</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-bed6"></div>
+        </div>
+        <div class="witem auto" id="ws-jrnl6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Journal</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-jrnl6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- School Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">📚 School Streaks</span><span class="wsec-pts" id="wp-school">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-3pomo6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">3+ pomodoros</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-3pomo6"></div>
+        </div>
+        <div class="witem auto" id="ws-code6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Coding / problem sets</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-code6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Work Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">💼 Work Streaks</span><span class="wsec-pts" id="wp-work">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-good5" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Meaningful work 5/5 days</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-good5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutrition Streaks — AUTO -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🥗 Nutrition Streaks</span><span class="wsec-pts" id="wp-nutstreak">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem auto" id="ws-log6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Logged food</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-log6"></div>
+        </div>
+        <div class="witem auto" id="ws-cal6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Hit calorie goal</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-cal6"></div>
+        </div>
+        <div class="witem auto" id="ws-3l6" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div style="display:flex;justify-content:space-between;width:100%"><span class="item-text">Hit 3L water</span><span class="item-pts">+100</span></div>
+          <div class="streak-dots" id="sc-3l6"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ DASHBOARD PAGE ══ -->
+  <div class="page" id="page-dashboard">
+
+    <div class="dash-alltime" onclick="goPointHistory()" style="cursor:pointer">
+      <div>
+        <div class="dash-alltime-label">All-Time Points</div>
+        <div class="dash-alltime-num" id="dAllTime">0</div>
+        <div class="dash-alltime-sub">tap for history</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:6px">REWARD PROGRESS</div>
+        <div style="font-size:12px;color:var(--muted)" id="dRewardProg">—</div>
+      </div>
+    </div>
+
+
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="dToday">0</div>
+        <div class="stat-sub">daily pts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-value" id="dWeek">0</div>
+        <div class="stat-sub">bonus pts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Best Day</div>
+        <div class="stat-value" id="dBest">0</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days Tracked</div>
+        <div class="stat-value" id="dDays">0</div>
+        <div class="stat-sub">total days</div>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="chart-card">
+      <div class="chart-label">Last 3 Months</div>
+      <div id="heatmap" style="overflow-x:auto;padding-bottom:4px;display:flex;flex-direction:column;align-items:center">
+        <div id="heatmap-inner" style="display:flex;gap:3px;min-width:max-content"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)" id="heatmap-months"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:9px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
+          <span>LESS</span>
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--bg3);border:1px solid var(--border2)"></div>
+          <div style="width:10px;height:10px;border-radius:2px;background:#1a3a2a;"></div>
+          <div style="width:10px;height:10px;border-radius:2px;background:#1f5c3a;"></div>
+          <div style="width:10px;height:10px;border-radius:2px;background:#28844f;"></div>
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--accent)"></div>
+          <span>MORE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 day chart -->
+    <div class="chart-card">
+      <div class="chart-label">Last 7 Days</div>
+      <div class="bar-chart" id="dChart"></div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="cat-card">
+      <div class="chart-label">Today by Category</div>
+      <div id="dCats"></div>
+    </div>
+
+    <!-- Streaks -->
+    <div class="streak-card">
+      <div class="chart-label">Weekly Streaks</div>
+      <div class="streak-wrap" id="dStreaks"></div>
+    </div>
+
+    <!-- To Do -->
+    <div class="rewards-card" style="margin-bottom:8px">
+      <div class="rewards-head" style="display:flex;justify-content:space-between;align-items:center">
+        <span>✅ One-Time Tasks</span>
+        <button onclick="toggleAddTodo(true)" id="btn-add-todo" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;cursor:pointer">+ ADD</button>
+      </div>
+      <div id="todo-list"></div>
+      <div id="add-todo-form" style="display:none;padding:12px 14px;border-top:1px solid var(--border)">
+        <input id="todo-name-input" type="text" placeholder="Task name" maxlength="60"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 12px;margin-bottom:8px;outline:none;box-sizing:border-box">
+        <input id="todo-pts-input" type="number" placeholder="Points on completion" min="1"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 12px;margin-bottom:10px;outline:none;box-sizing:border-box">
+        <div style="display:flex;gap:8px">
+          <button onclick="saveNewTodo()" style="flex:1;background:var(--accent);border:none;border-radius:8px;color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:11px;cursor:pointer">SAVE</button>
+          <button onclick="toggleAddTodo(false)" style="flex:1;background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:11px;cursor:pointer">CANCEL</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ REWARDS PAGE ══ -->
+  <div class="page" id="page-rewards">
+    <div style="padding: 4px 0 16px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Your Balance</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:1;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,0.3)" id="rBalance">0</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--muted)">pts available</div>
+      </div>
+    </div>
+
+    <div class="rewards-card" id="rewards-list">
+      <div class="rewards-head">🎁 Reward Store</div>
+      <div id="all-rewards"></div>
+    </div>
+
+    <!-- Add reward form -->
+    <div id="add-reward-form" style="display:none;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-top:10px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">New Reward</div>
+      <input id="reward-name-input" type="text" placeholder="Reward name" maxlength="40"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 12px;margin-bottom:10px;outline:none;box-sizing:border-box">
+      <input id="reward-cost-input" type="number" placeholder="Point cost" min="1"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 12px;margin-bottom:12px;outline:none;box-sizing:border-box">
+      <div style="display:flex;gap:8px">
+        <button onclick="saveNewReward()" style="flex:1;background:var(--accent);border:none;border-radius:8px;color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:12px;cursor:pointer">SAVE</button>
+        <button onclick="toggleAddReward(false)" style="flex:1;background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:12px;cursor:pointer">CANCEL</button>
+      </div>
+    </div>
+
+    <button onclick="toggleAddReward(true)" id="btn-add-reward" style="display:block;width:100%;margin-top:10px;background:none;border:1px dashed var(--border2);border-radius:14px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px;cursor:pointer">+ Add Reward</button>
+  </div>
+
+  <!-- ══ POINT HISTORY PAGE ══ -->
+  <div class="page" id="page-history">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 0 16px">
+      <button onclick="goPage('dashboard',document.querySelector('.nav-tab:nth-child(3)'))" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1">‹</button>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--text)">Point History</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">TAP ALL-TIME TO RETURN</div>
+      </div>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-tab active" onclick="goPage('daily',this)">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Daily</span>
+  </button>
+  <button class="nav-tab" onclick="goPage('weekly',this)">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">Weekly</span>
+  </button>
+  <button class="nav-tab" onclick="goPage('dashboard',this)">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Dashboard</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════
+function localDateStr(d) {
+  const dd = d || new Date();
+  const y = dd.getFullYear();
+  const m = String(dd.getMonth() + 1).padStart(2, '0');
+  const day = String(dd.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+const todayStr = localDateStr();
+
+function getWeekKey() {
+  const d = new Date();
+  const day = d.getDay() || 7;
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - day + 1);
+  return 'week_' + localDateStr(mon);
+}
+const weekKey = getWeekKey();
+
+const LS = {
+  day: () => { try { return JSON.parse(localStorage.getItem('d_' + todayStr) || '{}'); } catch(e) { return {}; } },
+  saveDay: (s) => localStorage.setItem('d_' + todayStr, JSON.stringify(s)),
+  week: () => { try { return JSON.parse(localStorage.getItem(weekKey) || '{}'); } catch(e) { return {}; } },
+  saveWeek: (s) => localStorage.setItem(weekKey, JSON.stringify(s)),
+  allTime: () => parseInt(localStorage.getItem('alltime') || '0'),
+  saveAllTime: (v) => localStorage.setItem('alltime', String(v)),
+  history: () => { try { return JSON.parse(localStorage.getItem('history') || '{}'); } catch(e) { return {}; } },
+  saveHistory: (h) => localStorage.setItem('history', JSON.stringify(h)),
+};
+
+let DS = LS.day();
+let WS = LS.week();
+
+// ═══════════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════════
+function tapItem(el) {
+  const key = el.dataset.key;
+  const pts = parseInt(el.dataset.pts);
+  const on = el.classList.toggle('on');
+  if (on) DS[key] = pts; else delete DS[key];
+  LS.saveDay(DS);
+  popEl(el.querySelector('.cb'));
+  recalc();
+}
+
+function radioTap(el) {
+  const group = el.dataset.radio;
+  const key = el.dataset.key;
+  const pts = parseInt(el.dataset.pts);
+  const wasOn = el.classList.contains('on');
+
+  // Clear group
+  document.querySelectorAll(`[data-radio="${group}"]`).forEach(e => {
+    e.classList.remove('on');
+    delete DS[e.dataset.key];
+  });
+
+  if (!wasOn) {
+    el.classList.add('on');
+    DS[key] = pts;
+    popEl(el.querySelector('.cb'));
+  }
+  LS.saveDay(DS);
+  recalc();
+}
+
+function wTap(el) {
+  const key = el.dataset.wkey;
+  const pts = parseInt(el.dataset.wpts);
+  const on = el.classList.toggle('on');
+  if (on) WS[key] = pts; else delete WS[key];
+  saveViewWeekState(WS);
+  popEl(el.querySelector('.cb'));
+  syncAllTime();
+  recalcWeek();
+  refreshDash();
+}
+
+function multiTap(el) {
+  const key = el.dataset.wkey;
+  const pts = parseInt(el.dataset.wpts);
+  const on = el.classList.toggle('on');
+  if (on) WS[key] = pts; else delete WS[key];
+  saveViewWeekState(WS);
+  el.classList.remove('popping');
+  void el.offsetWidth;
+  el.classList.add('popping');
+  setTimeout(() => el.classList.remove('popping'), 400);
+  syncAllTime();
+  recalcWeek();
+  refreshDash();
+}
+
+// ═══════════════════════════════════════════════════
+// WEEK NAVIGATION
+// ═══════════════════════════════════════════════════
+let weekOffset = 0; // 0 = current week, -1 = last week, etc.
+
+function getWeekMonday(offset) {
+  const d = new Date();
+  const dow = d.getDay() || 7;
+  d.setDate(d.getDate() - dow + 1 + (offset * 7));
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function getViewWeekKey() {
+  const mon = getWeekMonday(weekOffset);
+  return 'week_' + localDateStr(mon);
+}
+
+function shiftWeek(delta) {
+  const newOffset = weekOffset + delta;
+  if (newOffset > 0) return;
+  weekOffset = newOffset;
+  WS = loadViewWeekState();
+  // Restore manual checkboxes for this week
+  document.querySelectorAll('.witem[data-wkey], .multi-cb[data-wkey]').forEach(el => {
+    el.classList.toggle('on', !!WS[el.dataset.wkey]);
+  });
+  updateWeekNav();
+  recalcWeek();
+}
+
+function loadViewWeekState() {
+  const key = getViewWeekKey();
+  try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {}; }
+}
+
+function saveViewWeekState(s) {
+  localStorage.setItem(getViewWeekKey(), JSON.stringify(s));
+}
+
+function updateWeekNav() {
+  const isCurrentWeek = weekOffset === 0;
+  const mon = getWeekMonday(weekOffset);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
+  document.getElementById('wDateLabel').textContent = isCurrentWeek ? 'THIS WEEK' : fmt(mon) + ' – ' + fmt(sun);
+  const nextBtn = document.getElementById('btn-week-next');
+  nextBtn.style.opacity = isCurrentWeek ? '0.2' : '1';
+  nextBtn.style.pointerEvents = isCurrentWeek ? 'none' : 'auto';
+  // Disable manual taps on past weeks
+  const pastWeek = !isCurrentWeek;
+  document.querySelectorAll('.witem[data-wkey], .multi-cb[data-wkey]').forEach(el => {
+    el.style.pointerEvents = pastWeek ? 'none' : '';
+    el.style.opacity = pastWeek ? '0.7' : '';
+  });
+}
+
+
+let viewOffset = 0; // 0 = today, -1 = yesterday, etc.
+
+function getViewDateStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + viewOffset);
+  return localDateStr(d);
+}
+
+function shiftDay(delta) {
+  const newOffset = viewOffset + delta;
+  if (newOffset > 0) return; // can't go to future
+  viewOffset = newOffset;
+  loadViewDay();
+}
+
+function loadViewDay() {
+  const dateStr = getViewDateStr();
+  const isToday = viewOffset === 0;
+
+  // Update day label in score bar
+  const d = new Date(dateStr + 'T12:00:00');
+  const label = isToday ? 'TODAY' : d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+  document.getElementById('dayLabel').textContent = label;
+
+  // Update header date (always shows actual today)
+  const today = new Date();
+  document.getElementById('hDate').textContent = today.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+
+  // Show/hide next arrow
+  const nextBtn = document.getElementById('btn-next');
+  if (nextBtn) { nextBtn.style.opacity = isToday ? '0.2' : '1'; nextBtn.style.pointerEvents = isToday ? 'none' : 'auto'; }
+
+  // Load that day's data
+  let viewDS = {};
+  try { viewDS = JSON.parse(localStorage.getItem('d_' + dateStr) || '{}'); } catch(e) {}
+
+  // Reflect checkboxes — on for past days, interactive for today
+  document.querySelectorAll('#page-daily .item[data-key]').forEach(el => {
+    const key = el.dataset.key;
+    el.classList.toggle('on', !!viewDS[key]);
+    el.style.pointerEvents = isToday ? '' : 'none';
+    el.style.opacity = isToday ? '' : '0.85';
+  });
+
+  // Reflect radio items
+  document.querySelectorAll('#page-daily .item[data-radio]').forEach(el => {
+    const key = el.dataset.key;
+    el.classList.toggle('on', !!viewDS[key]);
+    el.style.pointerEvents = isToday ? '' : 'none';
+    el.style.opacity = isToday ? '' : '0.85';
+  });
+
+  // Water counter
+  const cups = viewDS['water_cups'] || 0;
+  updateWaterUI(cups);
+  document.querySelectorAll('#sb-nutrition button').forEach(b => {
+    b.style.pointerEvents = isToday ? '' : 'none';
+    b.style.opacity = isToday ? '' : '0.5';
+  });
+
+  // Show view day score
+  const h = LS.history();
+  const sc = h[dateStr] || {total:0,am:0,fit:0,nut:0,wrk:0,sch:0,pm:0,misc:0};
+  document.getElementById('dTotal').textContent = sc.total || 0;
+  document.getElementById('dailyBreakdown') && (document.getElementById('dBreakdown').textContent =
+    sc.total ? `AM:${sc.am} · Fit:${sc.fit} · Nut:${sc.nut} · Wrk:${sc.wrk} · Sch:${sc.sch} · PM:${sc.pm}` : '—');
+
+  // Section scores
+  const secs = [
+    {id:'morning', val:sc.am||0, max:50},
+    {id:'fitness', val:sc.fit||0, max:50},
+    {id:'nutrition', val:sc.nut||0, max:50},
+    {id:'work', val:sc.wrk||0, max:50},
+    {id:'school', val:sc.sch||0, max:50},
+    {id:'evening', val:sc.pm||0, max:50},
+    {id:'misc', val:sc.misc||0, max:15},
+  ];
+  secs.forEach(({id, val, max}) => {
+    const ss = document.getElementById('ss-'+id);
+    const sp = document.getElementById('sp-'+id);
+    const sec = document.getElementById('sec-'+id);
+    if (ss) { ss.textContent = val + '/' + max; ss.className = 'sec-score' + (val>0?' pos':val<0?' neg':'') + (val>=max?' max':''); }
+    if (sp) sp.style.width = Math.max(0,Math.min(100,(val/max)*100)) + '%';
+    if (sec) { sec.classList.toggle('hot', val>0); sec.classList.toggle('penalized', val<0); }
+  });
+
+  // If today, use live DS
+  if (isToday) DS = LS.day();
+}
+
+function waterAdj(delta) {
+  const current = DS['water_cups'] || 0;
+  const next = Math.max(0, Math.min(12, current + delta));
+  DS['water_cups'] = next;
+  LS.saveDay(DS);
+  updateWaterUI(next);
+  recalc();
+}
+
+function updateWaterUI(cups) {
+  const l = (cups * 0.2366).toFixed(1);
+  document.getElementById('water-cups').textContent = cups;
+  document.getElementById('water-l').textContent = l + ' L';
+
+  const pts2l = cups >= 8 ? 5 : 0;
+  const pts3l = cups >= 12 ? 5 : 0;
+  const totalPts = pts2l + pts3l;
+  const ptsEl = document.getElementById('water-pts');
+  ptsEl.textContent = totalPts > 0 ? '+' + totalPts + ' pts' : '0 pts';
+  ptsEl.style.color = totalPts > 0 ? 'var(--accent2)' : 'var(--muted2)';
+
+  const fill2l = Math.min(100, (cups / 8) * 100);
+  const fill3l = cups >= 8 ? Math.min(100, ((cups - 8) / 4) * 100) : 0;
+  document.getElementById('water-fill-2l').style.width = fill2l + '%';
+  document.getElementById('water-fill-3l').style.width = fill3l + '%';
+
+  const label2l = document.getElementById('water-2l-label');
+  const label3l = document.getElementById('water-3l-label');
+  label2l.style.color = cups >= 8 ? 'var(--accent2)' : 'var(--muted)';
+  label3l.style.color = cups >= 12 ? 'var(--gold)' : 'var(--muted)';
+}
+
+function popEl(el) {
+  el.classList.remove('popping');
+  void el.offsetWidth;
+  el.classList.add('popping');
+  setTimeout(() => el.classList.remove('popping'), 400);
+}
+
+// ═══════════════════════════════════════════════════
+// CALCULATIONS
+// ═══════════════════════════════════════════════════
+function sum(...keys) { return keys.reduce((t, k) => t + (DS[k] || 0), 0); }
+
+function calcScores() {
+  const am = sum('wake_first','wake_once','wake_twice','wake_many',
+    'late_30','late_60','late_60p',
+    'am_hyg','am_doom_bath','am_zone',
+    'am_breath','am_move','am_bed','am_jrnl','am_lunch','am_nolunch');
+
+  const fit = sum('st_10k','st_8k','st_5k','st_low',
+    'fit_push','fit_stretch','fit_core','fit_gym','fit_none',
+    'fit_goodwrk','fit_cardio');
+
+  const waterCups = DS['water_cups'] || 0;
+  const nut = sum('nut_cal','nut_prot','nut_log','nut_9pm','nut_psyl','nut_fruit','nut_out','nut_junk')
+    + (waterCups >= 8 ? 5 : 0) + (waterCups >= 12 ? 5 : 0);
+
+  const wrk = sum('wrk_time','wrk_task',
+    'wrk_min','wrk_good','wrk_crush',
+    'wrk_doom','wrk_lunch','wrk_skip');
+
+  const sch = sum('sch_1p','sch_2p','sch_3p','sch_4p','sch_code','sch_none');
+
+  const pm = sum('pm_jrnl','pm_bed','pm_nophone','pm_teeth','pm_tidy','pm_doom','pm_late');
+
+  const misc = sum('misc_news','misc_sm','misc_release');
+
+  return { am, fit, nut, wrk, sch, pm, misc, total: am+fit+nut+wrk+sch+pm+misc };
+}
+
+// ═══════════════════════════════════════════════════
+// POINT EVENT LOG
+// ═══════════════════════════════════════════════════
+function getPointLog() {
+  try { return JSON.parse(localStorage.getItem('point_log') || '[]'); } catch(e) { return []; }
+}
+function savePointLog(log) { localStorage.setItem('point_log', JSON.stringify(log)); }
+
+function logPointEvent(dateStr, type, pts, label) {
+  // type: 'daily' | 'weekly' | 'todo' | 'redeem'
+  const log = getPointLog();
+  // Find existing entry for this date+type
+  const existing = log.find(e => e.date === dateStr && e.type === type && (type !== 'todo' && type !== 'redeem'));
+  if (existing) {
+    existing.pts = pts;
+    existing.label = label;
+  } else {
+    log.push({ date: dateStr, type, pts, label, ts: Date.now() });
+  }
+  savePointLog(log);
+}
+
+function logRedeem(name, cost) {
+  const log = getPointLog();
+  log.push({ date: localDateStr(), type: 'redeem', pts: -cost, label: name, ts: Date.now() });
+  savePointLog(log);
+}
+
+function goPointHistory() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-history').classList.add('active');
+  renderPointHistory();
+}
+
+function renderPointHistory() {
+  const el = document.getElementById('history-list');
+  if (!el) return;
+
+  const h = LS.history();
+  const log = getPointLog();
+
+  // Build a map of date → events
+  const byDate = {};
+
+  // Daily scores from history
+  for (const [date, sc] of Object.entries(h)) {
+    if (!byDate[date]) byDate[date] = [];
+    if (sc.total !== undefined) {
+      byDate[date].push({ type: 'daily', pts: sc.total, breakdown: sc });
+    }
+  }
+
+  // Weekly manual points — read from all week keys
+  const allKeys = Object.keys(localStorage);
+  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'];
+  for (const key of allKeys) {
+    if (!key.startsWith('week_')) continue;
+    const weekMon = key.replace('week_', '');
+    try {
+      const ws = JSON.parse(localStorage.getItem(key) || '{}');
+      const weekTotal = manualWeekKeys.reduce((t, k) => t + (ws[k] || 0), 0);
+      if (weekTotal !== 0) {
+        // Attribute to the Monday of that week
+        if (!byDate[weekMon]) byDate[weekMon] = [];
+        byDate[weekMon].push({ type: 'weekly', pts: weekTotal });
+      }
+    } catch(e) {}
+  }
+
+  // Todo completions and redeems from event log
+  for (const event of log) {
+    if (event.type === 'todo' || event.type === 'redeem') {
+      if (!byDate[event.date]) byDate[event.date] = [];
+      byDate[event.date].push({ type: event.type, pts: event.pts, label: event.label });
+    }
+  }
+
+  // Sort dates descending
+  const dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+
+  if (!dates.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No history yet — start logging!</div>';
+    return;
+  }
+
+  el.innerHTML = dates.map(date => {
+    const events = byDate[date];
+    const d = new Date(date + 'T12:00:00');
+    const dateLabel = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    const daily = events.find(e => e.type === 'daily');
+    const weekly = events.find(e => e.type === 'weekly');
+    const todos = events.filter(e => e.type === 'todo');
+    const redeems = events.filter(e => e.type === 'redeem');
+
+    // Net total for the day
+    const dayNet = events.reduce((t, e) => t + (e.pts || 0), 0);
+
+    // Build breakdown lines
+    let lines = [];
+    if (daily && daily.pts !== 0) {
+      const sc = daily.breakdown || {};
+      const parts = [];
+      if (sc.am) parts.push(`${sc.am} AM`);
+      if (sc.fit) parts.push(`${sc.fit} Fitness`);
+      if (sc.nut) parts.push(`${sc.nut} Nutrition`);
+      if (sc.wrk) parts.push(`${sc.wrk} Work`);
+      if (sc.sch) parts.push(`${sc.sch} School`);
+      if (sc.pm) parts.push(`${sc.pm} Evening`);
+      if (sc.misc) parts.push(`${sc.misc} Misc`);
+      lines.push({ pts: daily.pts, desc: 'Daily', sub: parts.join(' · ') || null });
+    }
+    if (weekly) lines.push({ pts: weekly.pts, desc: 'Weekly tasks' });
+    todos.forEach(t => lines.push({ pts: t.pts, desc: t.label, tag: 'TODO' }));
+    redeems.forEach(r => lines.push({ pts: r.pts, desc: r.label, tag: 'REDEEMED' }));
+
+    const netColor = dayNet >= 0 ? 'var(--accent)' : 'var(--red)';
+    const netSign = dayNet >= 0 ? '+' : '';
+
+    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase">${dateLabel}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${netColor}">${netSign}${dayNet}</div>
+      </div>
+      ${lines.map(l => `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:9px 14px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${l.tag ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;background:rgba(124,106,247,0.15);color:var(--purple);border-radius:4px;padding:2px 5px">${l.tag}</span>` : ''}
+              <span style="font-size:13px;color:var(--text)">${l.desc}</span>
+            </div>
+            ${l.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">${l.sub}</div>` : ''}
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${l.pts >= 0 ? 'var(--accent)' : 'var(--red)'};white-space:nowrap;margin-left:12px">${l.pts >= 0 ? '+' : ''}${l.pts}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function syncAllTime() {
+  const h = LS.history();
+  const dailySum = Object.values(h).reduce((t, d) => t + (d.total || 0), 0);
+  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'];
+  const weeklyManual = manualWeekKeys.reduce((t, k) => t + (WS[k] || 0), 0);
+  const total = dailySum + weeklyManual;
+  LS.saveAllTime(total);
+  document.getElementById('hTotal').textContent = total;
+}
+
+function recalc() {
+  const sc = calcScores();
+
+  // Section scores + bars
+  const secs = [
+    {id:'morning', val:sc.am, max:50},
+    {id:'fitness', val:sc.fit, max:50},
+    {id:'nutrition', val:sc.nut, max:50},
+    {id:'work', val:sc.wrk, max:50},
+    {id:'school', val:sc.sch, max:50},
+    {id:'evening', val:sc.pm, max:50},
+    {id:'misc',    val:sc.misc, max:15},
+  ];
+  secs.forEach(({id, val, max}) => {
+    const ss = document.getElementById('ss-'+id);
+    const sp = document.getElementById('sp-'+id);
+    const sec = document.getElementById('sec-'+id);
+    ss.textContent = val + '/' + max;
+    ss.className = 'sec-score' + (val > 0 ? ' pos' : val < 0 ? ' neg' : '') + (val >= max ? ' max' : '');
+    if (sp) sp.style.width = Math.max(0, Math.min(100, (val/max)*100)) + '%';
+    if (sec) {
+      sec.classList.toggle('hot', val > 0);
+      sec.classList.toggle('penalized', val < 0);
+    }
+  });
+
+  // Daily total
+  document.getElementById('dTotal').textContent = sc.total;
+  document.getElementById('hTotal').textContent = LS.allTime();
+  document.getElementById('dBreakdown').textContent =
+    `AM:${sc.am} · Fit:${sc.fit} · Nut:${sc.nut} · Wrk:${sc.wrk} · Sch:${sc.sch} · PM:${sc.pm} · Misc:${sc.misc}`;
+
+  // Save history
+  const h = LS.history();
+  h[todayStr] = sc;
+  LS.saveHistory(h);
+
+  // Sync alltime
+  syncAllTime();
+
+  recalcWeek();
+  refreshDash();
+}
+
+function getWeekDays() {
+  const mon = getWeekMonday(weekOffset);
+  const now = new Date();
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mon);
+    d.setDate(mon.getDate() + i);
+    if (d > now) break;
+    days.push(localDateStr(d));
+  }
+  return days;
+}
+
+function recalcWeek() {
+  const h = LS.history();
+  const days = getWeekDays();
+
+  // Helper: count days where a daily key was truthy (non-zero)
+  function countDays(key) {
+    return days.filter(d => h[d] && h[d][key] !== undefined && h[d][key] !== 0).length;
+  }
+  // For keys stored directly in daily DS (not in history scores object)
+  // We need to read raw daily localStorage for each day
+  function countRawDays(key) {
+    return days.filter(d => {
+      try {
+        const raw = JSON.parse(localStorage.getItem('d_' + d) || '{}');
+        return !!raw[key];
+      } catch(e) { return false; }
+    }).length;
+  }
+
+  // ── AUTO STREAKS ──────────────────────────────────
+  const streaks = [
+    // id, label count/target, target, check fn, pts
+    { id: 'alarm6',  target: 6, total: 7,  count: countRawDays('wake_first'),           pts: 100 },
+    { id: 'hyg6',    target: 6, total: 7,  count: countRawDays('am_hyg'),               pts: 100 },
+    { id: 'start6',  target: 6, total: 7,
+      count: days.filter(d => {
+        try {
+          const r = JSON.parse(localStorage.getItem('d_' + d) || '{}');
+          // "Full Start the Day" = all 4 items done
+          return r['am_breath'] && r['am_move'] && r['am_bed'] && r['am_jrnl'];
+        } catch(e) { return false; }
+      }).length,
+      pts: 100
+    },
+    { id: 'lunch5',  target: 5, total: 5,  count: countRawDays('am_lunch'),             pts: 100 },
+    { id: 'gym3',    target: 3, total: 3,  count: countRawDays('fit_gym'),              pts: 100 },
+    { id: 'bed6',    target: 6, total: 7,  count: countRawDays('pm_bed'),               pts: 100 },
+    { id: 'jrnl6',   target: 6, total: 7,  count: countRawDays('pm_jrnl'),              pts: 100 },
+    { id: '3pomo6',  target: 6, total: 6,
+      count: days.filter(d => {
+        try {
+          const r = JSON.parse(localStorage.getItem('d_' + d) || '{}');
+          return r['sch_3p'] || r['sch_4p'];
+        } catch(e) { return false; }
+      }).length,
+      pts: 100
+    },
+    { id: 'code6',   target: 6, total: 6,  count: countRawDays('sch_code'),             pts: 100 },
+    { id: 'good5',   target: 5, total: 5,
+      count: days.filter(d => {
+        try {
+          const r = JSON.parse(localStorage.getItem('d_' + d) || '{}');
+          return r['wrk_good'] || r['wrk_crush'];
+        } catch(e) { return false; }
+      }).length,
+      pts: 100
+    },
+    { id: 'log6',    target: 6, total: 7,  count: countRawDays('nut_log'),              pts: 100 },
+    { id: 'cal6',    target: 6, total: 7,  count: countRawDays('nut_cal'),              pts: 100 },
+    { id: '3l6',     target: 6, total: 7,  count: countRawDays('nut_3l'),               pts: 100 },
+  ];
+
+  let streakTotal = 0;
+  streaks.forEach(s => {
+    const earned = s.count >= s.target;
+    const el = document.getElementById('ws-' + s.id);
+    const dotsEl = document.getElementById('sc-' + s.id);
+    if (el) el.classList.toggle('earned', earned);
+
+    // Build per-day dots
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      // Show target number of dots total, filling in days logged so far
+      // For streaks with total > target (e.g. 6/7), show all 7 days but only need 6 lit
+      const totalDots = s.total;
+      const perDay = days.slice(0, totalDots).map(d => {
+        try {
+          const r = JSON.parse(localStorage.getItem('d_' + d) || '{}');
+          // Use the same check logic as countRawDays
+          switch(s.id) {
+            case 'start6': return !!(r['am_breath'] && r['am_move'] && r['am_bed'] && r['am_jrnl']);
+            case '3pomo6': return !!(r['sch_3p'] || r['sch_4p']);
+            case 'good5':  return !!(r['wrk_good'] || r['wrk_crush']);
+            case '3l6':    return !!(r['nut_3l']);
+            default:
+              const keyMap = {
+                alarm6:'wake_first', hyg6:'am_hyg', lunch5:'am_lunch',
+                gym3:'fit_gym', bed6:'pm_bed', jrnl6:'pm_jrnl',
+                code6:'sch_code', log6:'nut_log', cal6:'nut_cal',
+              };
+              return !!(r[keyMap[s.id]]);
+          }
+        } catch(e) { return false; }
+      });
+      perDay.forEach(hit => {
+        const dot = document.createElement('div');
+        dot.className = 'sdot' + (hit ? ' lit' : '');
+        dotsEl.appendChild(dot);
+      });
+      // Pad empty dots up to totalDots for days not yet reached
+      const remaining = totalDots - days.length;
+      for (let i = 0; i < Math.max(0, remaining); i++) {
+        const dot = document.createElement('div');
+        dot.className = 'sdot';
+        dotsEl.appendChild(dot);
+      }
+    }
+    if (earned) streakTotal += s.pts;
+  });
+
+  // Section pts for auto streaks
+  const sectionStreaks = {
+    morning:   ['alarm6','hyg6','start6','lunch5'],
+    fitness:   ['gym3'],
+    evening:   ['bed6','jrnl6'],
+    school:    ['3pomo6','code6'],
+    work:      ['good5'],
+    nutstreak: ['log6','cal6','3l6'],
+  };
+  for (const [sec, ids] of Object.entries(sectionStreaks)) {
+    const v = ids.reduce((t, id) => {
+      const s = streaks.find(x => x.id === id);
+      return t + (s && s.count >= s.target ? s.pts : 0);
+    }, 0);
+    const el = document.getElementById('wp-' + sec);
+    if (el) {
+      el.textContent = (v > 0 ? '+' : '') + v;
+      el.className = 'wsec-pts' + (v < 0 ? ' neg' : '');
+    }
+  }
+
+  // ── MANUAL ITEMS ──────────────────────────────────
+  const manualGroups = {
+    nuttask:  ['w_mp1','w_mp2','w_groc_in','w_groc_ord'],
+    groom:    ['w_shave','w_hair1','w_hair2','w_hair3'],
+    finance:  ['w_fin1','w_fin2','w_fin3','w_fin4','w_fin5'],
+    social:   ['w_soc1','w_soc2','w_game1','w_game2'],
+    pen:      ['wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'],
+  };
+
+  let manualTotal = 0;
+  for (const [g, keys] of Object.entries(manualGroups)) {
+    const v = keys.reduce((t,k) => t + (WS[k]||0), 0);
+    manualTotal += v;
+    const el = document.getElementById('wp-' + g);
+    if (el) {
+      el.textContent = (v >= 0 ? '+' : '') + v;
+      el.className = 'wsec-pts' + (v < 0 ? ' neg' : '');
+    }
+  }
+
+  const total = streakTotal + manualTotal;
+  document.getElementById('wTotal').textContent = total;
+  document.getElementById('wSub').textContent =
+    total > 0 ? `+${total} bonus pts this week` :
+    total < 0 ? `${total} pts this week` :
+    'Log daily habits to earn streak bonuses';
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════
+function refreshDash() {
+  const h = LS.history();
+  const sc = calcScores();
+  const allTime = LS.allTime();
+  const weekBonus = Object.values(WS).reduce((t,v)=>t+v,0);
+
+  document.getElementById('dAllTime').textContent = allTime;
+  document.getElementById('dToday').textContent = sc.total;
+  document.getElementById('dWeek').textContent = weekBonus;
+
+  const scores = Object.values(h).map(d => d.total || 0);
+  const best = scores.length ? Math.max(...scores) : 0;
+  document.getElementById('dBest').textContent = best;
+  document.getElementById('dDays').textContent = Object.keys(h).length;
+
+  // Reward progress
+  const next = allTime < 1000 ? `${1000-allTime} to gaming/dining` : allTime < 10000 ? `${10000-allTime} to massage` : 'All rewards unlocked!';
+  document.getElementById('dRewardProg').textContent = next;
+
+  // Heatmap — past 3 months including today
+  const heatEl = document.getElementById('heatmap-inner');
+  const heatMonths = document.getElementById('heatmap-months');
+  if (heatEl) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayStr2 = localDateStr(today);
+
+    // Go back 180 days from today (inclusive)
+    const startRaw = new Date(today);
+    startRaw.setDate(today.getDate() - 179);
+
+    // Rewind to Monday of that week
+    const startMon = new Date(startRaw);
+    const dow = startMon.getDay() || 7; // Mon=1, Sun=7
+    startMon.setDate(startMon.getDate() - (dow - 1));
+
+    // Max score for color scaling
+    const allScores = [];
+    for (let i = 179; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      allScores.push((h[localDateStr(d)] || {}).total || 0);
+    }
+    const maxScore = Math.max(...allScores, 1);
+
+    function heatColor(pts) {
+      if (!pts || pts <= 0) return { bg: 'var(--bg3)', border: '1px solid var(--border2)' };
+      const pct = pts / maxScore;
+      if (pct < 0.25) return { bg: '#1a3a2a', border: 'none' };
+      if (pct < 0.5)  return { bg: '#1f5c3a', border: 'none' };
+      if (pct < 0.75) return { bg: '#28844f', border: 'none' };
+      return { bg: 'var(--accent)', border: 'none' };
+    }
+
+    heatEl.innerHTML = '';
+    const monthsMap = {};
+    let col = 0;
+    const cursor = new Date(startMon);
+
+    while (cursor <= today) {
+      const weekCol = document.createElement('div');
+      weekCol.style.cssText = 'display:flex;flex-direction:column;gap:3px';
+
+      for (let d = 0; d < 7; d++) {
+        const cell = document.createElement('div');
+        const ds = localDateStr(cursor);
+        const isFuture = cursor > today;
+        const pts = isFuture ? 0 : ((h[ds] || {}).total || 0);
+        const isToday2 = ds === todayStr2;
+
+        let style;
+        if (isFuture) {
+          style = 'width:10px;height:10px;border-radius:2px;background:transparent;flex-shrink:0';
+        } else {
+          const { bg, border } = heatColor(pts);
+          const outline = isToday2 ? 'outline:1.5px solid var(--accent2);outline-offset:1px;' : '';
+          style = `width:10px;height:10px;border-radius:2px;background:${bg};${border ? 'border:' + border + ';' : ''}${outline}flex-shrink:0`;
+        }
+        cell.style.cssText = style;
+        cell.title = ds + (pts ? ': ' + pts + ' pts' : ' — no data');
+        weekCol.appendChild(cell);
+
+        // Month label: first day of a new month, any row
+        if (cursor.getDate() === 1) {
+          monthsMap[col] = cursor.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        }
+
+        cursor.setDate(cursor.getDate() + 1);
+        if (cursor > today) break;
+      }
+
+      heatEl.appendChild(weekCol);
+      col++;
+    }
+
+    // Render month labels
+    if (heatMonths) {
+      let labelsHtml = `<div style="position:relative;height:12px;width:${col * 13}px">`;
+      for (const [c, label] of Object.entries(monthsMap)) {
+        labelsHtml += `<span style="position:absolute;left:${c * 13}px">${label}</span>`;
+      }
+      labelsHtml += '</div>';
+      heatMonths.innerHTML = labelsHtml;
+    }
+    // Scroll to today
+    setTimeout(() => {
+      const heatContainer = document.getElementById('heatmap');
+      if (heatContainer) heatContainer.scrollLeft = heatContainer.scrollWidth;
+    }, 50);
+  }
+
+  // 7-day chart
+  const days = Array.from({length:7}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6-i));
+    return localDateStr(d);
+  });
+  const maxPts = Math.max(...days.map(d => (h[d]||{}).total || 0), 1);
+  const chart = document.getElementById('dChart');
+  chart.innerHTML = '';
+  days.forEach(d => {
+    const pts = (h[d]||{}).total || 0;
+    const isToday = d === todayStr;
+    const pct = Math.max(pts > 0 ? 5 : 0, (pts / maxPts) * 100);
+    const dayLabel = new Date(d + 'T12:00').toLocaleDateString('en-US',{weekday:'short'}).slice(0,2).toUpperCase();
+    const col = document.createElement('div');
+    col.className = 'bar-col' + (isToday ? ' is-today' : '') + (pts > 0 ? ' has-score' : '');
+    col.innerHTML = `<div class="bar-score">${pts||''}</div><div class="bar-fill" style="height:${pct}%"></div><div class="bar-day">${dayLabel}</div>`;
+    chart.appendChild(col);
+  });
+
+  // Category breakdown
+  const cats = [
+    {e:'🌅', n:'Morning',   v:sc.am,   max:50,  c:'#ffd700'},
+    {e:'💪', n:'Fitness',   v:sc.fit,  max:50,  c:'#8b5cf6'},
+    {e:'🥗', n:'Nutrition', v:sc.nut,  max:50,  c:'#00f5a0'},
+    {e:'💼', n:'Work',      v:sc.wrk,  max:50,  c:'#00d4ff'},
+    {e:'📚', n:'School',    v:sc.sch,  max:50,  c:'#ff6b35'},
+    {e:'🌙', n:'Evening',   v:sc.pm,   max:50,  c:'#a78bfa'},
+    {e:'⚡', n:'Misc',      v:sc.misc, max:15,  c:'#f97316'},
+  ];
+  document.getElementById('dCats').innerHTML = cats.map(c => {
+    const pct = Math.max(0, Math.min(100, (c.v / c.max) * 100));
+    return `<div class="cat-row">
+      <div class="cat-emoji">${c.e}</div>
+      <div class="cat-name">${c.n}</div>
+      <div class="cat-track"><div class="cat-fill" style="width:${pct}%;background:${c.c}"></div></div>
+      <div class="cat-val" style="color:${c.v<0?'var(--red)':c.c}">${c.v}</div>
+    </div>`;
+  }).join('');
+
+  // Streaks
+  const streaks = [
+    {n:'First Alarm', k:'w_alarm6'},{n:'Hygiene', k:'w_hyg6'},
+    {n:'Bed On Time', k:'w_bed6'},{n:'Journal', k:'w_jrnl6'},
+    {n:'3+ Pomos', k:'w_3pomo6'},{n:'Gym 3×', k:'w_gym3'},
+    {n:'Calories', k:'w_cal6'},{n:'Logged', k:'w_log6'},
+    {n:'Meaningful Wrk', k:'w_good5'},
+  ];
+  document.getElementById('dStreaks').innerHTML = streaks.map(s => {
+    const lit = !!WS[s.k];
+    return `<div class="sbadge${lit?' lit':''}">${lit?'🔥':'○'} ${s.n}</div>`;
+  }).join('');
+  renderTodos();
+}
+
+// ═══════════════════════════════════════════════════
+// REDEEM
+// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// TO DO
+// ═══════════════════════════════════════════════════
+function getTodos() {
+  try { return JSON.parse(localStorage.getItem('todos') || '[]'); } catch(e) { return []; }
+}
+function saveTodos(t) { localStorage.setItem('todos', JSON.stringify(t)); }
+
+function toggleAddTodo(show) {
+  document.getElementById('add-todo-form').style.display = show ? 'block' : 'none';
+  if (show) {
+    document.getElementById('todo-name-input').value = '';
+    document.getElementById('todo-pts-input').value = '';
+    document.getElementById('todo-name-input').focus();
+  }
+}
+
+function saveNewTodo() {
+  const name = document.getElementById('todo-name-input').value.trim();
+  const pts = parseInt(document.getElementById('todo-pts-input').value);
+  if (!name || !pts || pts < 1) { toast('Enter a task and points!'); return; }
+  const todos = getTodos();
+  todos.push({ id: 't_' + Date.now(), name, pts, done: false });
+  saveTodos(todos);
+  toggleAddTodo(false);
+  renderTodos();
+  toast('Task added!');
+}
+
+function completeTodo(id) {
+  const todos = getTodos();
+  const todo = todos.find(t => t.id === id);
+  if (!todo || todo.done) return;
+  todo.done = true;
+  saveTodos(todos);
+  const newTotal = LS.allTime() + todo.pts;
+  LS.saveAllTime(newTotal);
+  document.getElementById('hTotal').textContent = newTotal;
+  // Log the event
+  const log = getPointLog();
+  log.push({ date: localDateStr(), type: 'todo', pts: todo.pts, label: todo.name, ts: Date.now() });
+  savePointLog(log);
+  toast('+' + todo.pts + ' pts — ' + todo.name + ' ✓');
+  renderTodos();
+  syncAllTime();
+}
+
+function deleteTodo(id) {
+  saveTodos(getTodos().filter(t => t.id !== id));
+  renderTodos();
+}
+
+function renderTodos() {
+  const el = document.getElementById('todo-list');
+  if (!el) return;
+  const todos = getTodos();
+  if (!todos.length) {
+    el.innerHTML = '<div style="padding:12px 14px;font-size:13px;color:var(--muted)">No tasks yet — add one above</div>';
+    return;
+  }
+  const pending = todos.filter(t => !t.done);
+  const done = todos.filter(t => t.done);
+  const rows = [...pending, ...done].map(t => `
+    <div class="reward-row" style="${t.done ? 'opacity:0.4' : ''}">
+      <div class="reward-info">
+        <div class="reward-name" style="${t.done ? 'text-decoration:line-through' : ''}">${t.name}</div>
+        <div class="reward-cost">${t.pts.toLocaleString()} pts</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${!t.done ? `<button class="redeem-btn" onclick="completeTodo('${t.id}')">DONE</button>` : '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:12px;color:var(--accent);letter-spacing:1px">EARNED</span>'}
+        <button onclick="deleteTodo('${t.id}')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕</button>
+      </div>
+    </div>`).join('');
+  el.innerHTML = rows;
+}
+
+const DEFAULT_REWARDS = [
+  { id: 'r_gaming', name: '1 hour of gaming', cost: 1000 },
+  { id: 'r_eatout', name: 'Eating out', cost: 1000 },
+  { id: 'r_massage', name: 'Massage', cost: 10000 },
+];
+
+function toggleAddReward(show) {
+  document.getElementById('add-reward-form').style.display = show ? 'block' : 'none';
+  document.getElementById('btn-add-reward').style.display = show ? 'none' : 'block';
+  if (show) {
+    document.getElementById('reward-name-input').value = '';
+    document.getElementById('reward-cost-input').value = '';
+    document.getElementById('reward-name-input').focus();
+  }
+}
+
+function getCustomRewards() {
+  try {
+    const stored = localStorage.getItem('custom_rewards');
+    if (stored) return JSON.parse(stored);
+    // First time — seed with defaults
+    saveCustomRewards(DEFAULT_REWARDS);
+    return DEFAULT_REWARDS;
+  } catch(e) { return DEFAULT_REWARDS; }
+}
+
+function saveCustomRewards(rewards) {
+  localStorage.setItem('custom_rewards', JSON.stringify(rewards));
+}
+
+function saveNewReward() {
+  const name = document.getElementById('reward-name-input').value.trim();
+  const cost = parseInt(document.getElementById('reward-cost-input').value);
+  if (!name || !cost || cost < 1) { toast('Enter a name and cost!'); return; }
+  const rewards = getCustomRewards();
+  rewards.push({ id: 'c_' + Date.now(), name, cost });
+  saveCustomRewards(rewards);
+  toggleAddReward(false);
+  renderCustomRewards();
+  toast('Reward added! 🎁');
+}
+
+function deleteCustomReward(id) {
+  const rewards = getCustomRewards().filter(r => r.id !== id);
+  saveCustomRewards(rewards);
+  renderCustomRewards();
+  toast('Reward removed');
+}
+
+function renderCustomRewards() {
+  const el = document.getElementById('all-rewards');
+  if (!el) return;
+  const rewards = getCustomRewards();
+  const allTime = LS.allTime();
+  el.innerHTML = rewards.map(r => `
+    <div class="reward-row">
+      <div class="reward-info">
+        <div class="reward-name">${r.name}</div>
+        <div class="reward-cost">${r.cost.toLocaleString()} pts</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="redeem-btn" onclick="redeem('${r.id}',${r.cost},'${r.name.replace(/'/g, "\\'")}'" ${allTime < r.cost ? 'disabled' : ''}>REDEEM</button>
+        <button onclick="deleteCustomReward('${r.id}')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function redeem(id, cost, name) {
+  const curr = LS.allTime();
+  if (curr < cost) { toast('Need ' + (cost-curr).toLocaleString() + ' more pts!'); return; }
+  LS.saveAllTime(curr - cost);
+  logRedeem(name, cost);
+  document.getElementById('hTotal').textContent = LS.allTime();
+  toast('Enjoy your reward! 🎉');
+  goRewards();
+  renderCustomRewards();
+  refreshDash();
+}
+
+// ═══════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════
+function goRewards() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-rewards').classList.add('active');
+  document.getElementById('rBalance').textContent = LS.allTime().toLocaleString();
+  renderCustomRewards();
+}
+
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'dashboard') refreshDash();
+}
+
+function toggleSec(head) {
+  const sec = head.closest('.sec');
+  const body = sec.querySelector('.sec-body');
+  const collapsed = sec.classList.toggle('collapsed');
+  body.style.display = collapsed ? 'none' : '';
+}
+
+function resetDay() {
+
+  DS = {};
+  LS.saveDay(DS);
+  document.querySelectorAll('#page-daily .item').forEach(el => el.classList.remove('on'));
+  recalc();
+  toast('Day reset ✓');
+}
+
+function resetWeek() {
+
+  WS = {};
+  saveViewWeekState(WS);
+  document.querySelectorAll('.witem, .multi-cb').forEach(el => el.classList.remove('on'));
+  recalcWeek();
+  refreshDash();
+  toast('Week reset ✓');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function init() {
+  // Load week state for current week
+  WS = loadViewWeekState();
+
+  // Restore weekly
+  for (const key of Object.keys(WS)) {
+    const el = document.querySelector(`[data-wkey="${key}"]`);
+    if (el) el.classList.add('on');
+  }
+  updateWeekNav();
+  loadViewDay();
+  recalc();
+  recalcWeek();
+}
+
+init();
+</script>
+
+
+</body>
+</html>
