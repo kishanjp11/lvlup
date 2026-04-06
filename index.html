@@ -48,7 +48,6 @@
         --muted: #555577;
         --muted2: #3a3a5c;
         --header-h: calc(56px + env(safe-area-inset-top, 0px));
-        --nav-h: calc(64px + env(safe-area-inset-bottom, 0px));
       }
       *,
       *::before,
@@ -91,7 +90,6 @@
         max-width: 430px;
         margin: 0 auto;
         padding-top: var(--header-h);
-        padding-bottom: var(--nav-h);
         min-height: 100vh;
         min-height: 100dvh;
         scroll-padding-top: var(--header-h);
@@ -161,70 +159,12 @@
         color: var(--muted);
         letter-spacing: 1px;
       }
-      .nav {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 430px;
-        z-index: 200;
-        background: rgba(8, 8, 15, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid var(--border);
-        display: flex;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-      }
       @media (display-mode: standalone) {
-        .header,
-        .nav {
+        .header {
           background: var(--bg);
           backdrop-filter: none;
           -webkit-backdrop-filter: none;
         }
-      }
-      .nav-tab {
-        flex: 1;
-        background: none;
-        border: none;
-        color: var(--muted);
-        padding: 12px 4px;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        transition: color 0.2s;
-        position: relative;
-        min-width: 0;
-        overflow: hidden;
-      }
-      .nav-tab.active {
-        color: var(--accent);
-      }
-      .nav-tab.active::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 25%;
-        right: 25%;
-        height: 2px;
-        background: var(--accent);
-        border-radius: 0 0 2px 2px;
-        box-shadow: 0 0 8px var(--accent);
-      }
-      .nav-icon {
-        font-size: 20px;
-        line-height: 1;
-      }
-      .nav-label {
-        font-family: "Barlow Condensed", sans-serif;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
       }
       .page {
         display: none;
@@ -264,11 +204,6 @@
         color: var(--muted);
         text-transform: uppercase;
         margin-bottom: 2px;
-      }
-      .day-score-breakdown {
-        font-size: 11px;
-        color: var(--muted);
-        letter-spacing: 0.5px;
       }
       .day-score-num {
         font-family: "Bebas Neue", sans-serif;
@@ -405,11 +340,30 @@
         box-shadow: 0 0 12px rgba(0, 245, 160, 0.5);
         transform: scale(1.1);
       }
+      .item.penalty .cb {
+        border-color: rgba(255, 56, 96, 0.5);
+      }
       .item.penalty.on .cb {
         background: var(--red);
         border-color: var(--red);
         color: white;
         box-shadow: 0 0 12px rgba(255, 56, 96, 0.5);
+      }
+      .item.penalty .item-text {
+        color: var(--red);
+        opacity: 0.5;
+      }
+      .item.penalty.on .item-text {
+        color: var(--red);
+        opacity: 1;
+      }
+      .item.penalty .item-pts {
+        color: var(--red);
+        opacity: 0.5;
+      }
+      .item.penalty.on .item-pts {
+        color: var(--red);
+        opacity: 1;
       }
       .item.radio .cb {
         border-radius: 50%;
@@ -439,9 +393,6 @@
       }
       .item.on .item-pts {
         color: var(--accent);
-      }
-      .item.penalty.on .item-pts {
-        color: var(--red);
       }
       .water-widget {
         padding: 12px 10px;
@@ -479,11 +430,11 @@
       }
       .wsec-title {
         font-family: "Barlow Condensed", sans-serif;
-        font-size: 13px;
+        font-size: 17px;
         font-weight: 700;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: var(--muted);
+        color: var(--text);
       }
       .wsec-pts {
         font-family: "Bebas Neue", sans-serif;
@@ -520,7 +471,7 @@
         box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
       }
       .witem.penalty .cb {
-        border-color: rgba(255, 56, 96, 0.25);
+        border-color: rgba(255, 56, 96, 0.5);
       }
       .witem.penalty.on .cb {
         background: var(--red);
@@ -534,14 +485,27 @@
       .witem.on .item-text {
         color: var(--text);
       }
+      .witem.penalty .item-text {
+        color: var(--red);
+        opacity: 0.5;
+      }
+      .witem.penalty.on .item-text {
+        color: var(--red);
+        opacity: 1;
+      }
       .witem .item-pts {
         color: var(--muted2);
       }
       .witem.on .item-pts {
         color: var(--gold);
       }
+      .witem.penalty .item-pts {
+        color: var(--red);
+        opacity: 0.5;
+      }
       .witem.penalty.on .item-pts {
         color: var(--red);
+        opacity: 1;
       }
       .witem.delete-mode {
         border: 1px dashed var(--border2);
@@ -595,7 +559,7 @@
       }
       .multi-pts {
         font-family: "Bebas Neue", sans-serif;
-        font-size: 14px;
+        font-size: 18px;
         color: var(--muted2);
       }
       .multi-boxes {
@@ -604,10 +568,10 @@
         padding-left: 2px;
       }
       .multi-cb {
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 24px;
         border-radius: 7px;
-        border: 2px solid var(--border2);
+        border: 2px solid rgba(255, 215, 0, 0.25);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -985,27 +949,6 @@
       .popping {
         animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
-      .reset-btn {
-        display: block;
-        width: 100%;
-        margin: 4px 0 12px;
-        background: none;
-        border: 1px solid var(--border2);
-        color: var(--muted);
-        font-family: "Barlow Condensed", sans-serif;
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        padding: 12px;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .reset-btn:active {
-        border-color: var(--red);
-        color: var(--red);
-      }
       .streak-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -1275,7 +1218,7 @@
       <!-- HEADER -->
       <header class="header">
         <div class="header-inner">
-          <div class="logo">LVL UP</div>
+          <div class="logo" data-action="back-to-dashboard" style="cursor:pointer;">LVL UP</div>
           <div class="header-right">
             <div class="header-date" id="hDate"></div>
             <div class="total-chip">
@@ -1302,7 +1245,11 @@
         </div>
       </header>
       <!-- ══ DAILY PAGE ══ -->
-      <div class="page active" id="page-daily">
+      <div class="page" id="page-daily">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
+          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;">Today</span>
+        </div>
         <div class="day-score-bar">
           <div>
             <div
@@ -1354,7 +1301,6 @@
                 ›
               </button>
             </div>
-            <div class="day-score-breakdown" id="dBreakdown">—</div>
           </div>
           <div class="day-score-num" id="dTotal">0</div>
         </div>
@@ -1447,65 +1393,33 @@
             </button>
           </div>
         </div>
-        <button class="reset-btn" data-action="reset-day">↺ Reset Today</button>
       </div>
       <!-- ══ WEEKLY PAGE ══ -->
       <div class="page" id="page-weekly">
-        <div class="week-hero">
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              margin-bottom: 4px;
-            "
-          >
-            <button
-              data-action="shift-week"
-              data-delta="-1"
-              aria-label="Previous week"
-              style="
-                background: none;
-                border: none;
-                color: var(--muted);
-                font-size: 20px;
-                cursor: pointer;
-                padding: 2px 6px;
-                line-height: 1;
-              "
-            >
-              ‹
-            </button>
-            <div class="dash-alltime-label" id="wDateLabel" style="margin: 0">
-              THIS WEEK
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
+          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;">This Week</span>
+        </div>
+        <div class="week-hero" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <button
+                data-action="shift-week"
+                data-delta="-1"
+                aria-label="Previous week"
+                style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;"
+              >‹</button>
+              <div class="dash-alltime-label" id="wDateLabel" style="margin:0;">THIS WEEK</div>
+              <button
+                data-action="shift-week"
+                data-delta="1"
+                id="btn-week-next"
+                aria-label="Next week"
+                style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;opacity:0.2;pointer-events:none;"
+              >›</button>
             </div>
-            <button
-              data-action="shift-week"
-              data-delta="1"
-              id="btn-week-next"
-              aria-label="Next week"
-              style="
-                background: none;
-                border: none;
-                color: var(--muted);
-                font-size: 20px;
-                cursor: pointer;
-                padding: 2px 6px;
-                line-height: 1;
-                opacity: 0.2;
-                pointer-events: none;
-              "
-            >
-              ›
-            </button>
           </div>
           <div class="week-hero-num" id="wTotal">0</div>
-          <div
-            style="font-size: 11px; color: var(--muted); margin-top: 4px"
-            id="wSub"
-          >
-            —
-          </div>
         </div>
         <div
           style="
@@ -1608,9 +1522,6 @@
             </button>
           </div>
         </div>
-        <button class="reset-btn" data-action="reset-week">
-          ↺ Reset Manual Items
-        </button>
         <div
           style="
             font-family: &quot;Barlow Condensed&quot;, sans-serif;
@@ -1746,12 +1657,12 @@
           </div>
         </div>
         <div class="stat-grid">
-          <div class="stat-card">
+          <div class="stat-card" data-action="go-daily" style="cursor:pointer;">
             <div class="stat-label">Today</div>
             <div class="stat-value" id="dToday">0</div>
             <div class="stat-sub">daily pts</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" data-action="go-weekly" style="cursor:pointer;">
             <div class="stat-label">This Week</div>
             <div class="stat-value" id="dWeek">0</div>
             <div class="stat-sub">bonus pts</div>
@@ -2418,17 +2329,6 @@
       </div>
     </div>
     <!-- end .app --><!-- NAV -->
-    <nav class="nav">
-      <button class="nav-tab active" data-nav="daily">
-        <span class="nav-icon">📋</span
-        ><span class="nav-label">Daily</span></button
-      ><button class="nav-tab" data-nav="weekly">
-        <span class="nav-icon">📅</span
-        ><span class="nav-label">Weekly</span></button
-      ><button class="nav-tab" data-nav="dashboard">
-        <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
-      </button>
-    </nav>
     <div class="toast" id="toast"></div>
     <script>
       function localDateStr(d) {
@@ -3466,19 +3366,6 @@
         });
         document.getElementById("dTotal").textContent = sc.total;
         document.getElementById("hTotal").textContent = LS.allTime();
-        const breakdown = Object.entries(sc.sections)
-          .map(
-            ([k, v]) =>
-              k
-                .replace(/[^\w\s]/g, "")
-                .trim()
-                .split(" ")
-                .pop() +
-              ":" +
-              v,
-          )
-          .join(" · ");
-        document.getElementById("dBreakdown").textContent = breakdown || "—";
       }
       function buildItem(item, isToday) {
         const el = document.createElement("div");
@@ -3609,19 +3496,6 @@
             "sec" + (sScore > 0 ? " hot" : sScore < 0 ? " penalized" : "");
           return seen;
         }, new Set());
-        const breakdown = Object.entries(sc.sections)
-          .map(
-            ([k, v]) =>
-              k
-                .replace(/[^\w\s]/g, "")
-                .trim()
-                .split(" ")
-                .pop() +
-              ":" +
-              v,
-          )
-          .join(" · ");
-        document.getElementById("dBreakdown").textContent = breakdown || "—";
         const h = LS.history();
         h[currentDayStr()] = { total: sc.total, sections: sc.sections };
         LS.saveHistory(h);
@@ -3677,17 +3551,6 @@
               el.dataset.key = key;
               el.dataset.pts = item.pts;
               el.innerHTML = `${isDeleteMode ? '<div class="wdelete-sel">✕</div>' : `<div class="cb">${isPenalty ? "✕" : "✓"}</div>`}<div class="item-text">${escapeHtml(item.label)}</div><div class="item-pts">${item.pts >= 0 ? "+" : ""}${item.pts}</div>`;
-              if (!isDeleteMode && isCurrentWeek && item._custom) {
-                const delBtn = document.createElement("button");
-                delBtn.type = "button";
-                delBtn.dataset.action = "delete-weekly-item";
-                delBtn.dataset.id = item.id;
-                delBtn.setAttribute("aria-label", "Delete weekly item");
-                delBtn.style.cssText =
-                  "background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0";
-                delBtn.textContent = "✕";
-                el.appendChild(delBtn);
-              }
               if (isDeleteMode)
                 el.onclick = () => toggleWeeklyDeleteSelect(item.id);
               else if (isCurrentWeek) el.onclick = () => wTap(el);
@@ -3712,21 +3575,9 @@
                 boxes += `<div class="multi-cb${isPenalty ? " penalty-cb" : ""}${on ? " on" : ""}" data-key="${key}" data-pts="${item.pts}">${isPenalty ? "✕" : "✓"}</div>`;
               }
               if (isDeleteMode) {
-                div.innerHTML = `<div class="multi-top"><div style="display:flex;align-items:center;gap:10px"><div class="wdelete-sel">✕</div><span class="multi-label">${escapeHtml(item.label)}</span></div><span class="multi-pts">${sign}${absPts} each</span></div>`;
+                div.innerHTML = `<div class="multi-top"><div style="display:flex;align-items:center;gap:10px"><div class="wdelete-sel">✕</div><span class="multi-label">${escapeHtml(item.label)}</span></div><span class="multi-pts">${sign}${absPts}</span></div>`;
               } else {
-                div.innerHTML = `<div class="multi-top"><span class="multi-label">${escapeHtml(item.label)}</span><span class="multi-pts">${sign}${absPts} each</span></div><div class="multi-boxes">${boxes}</div>`;
-              }
-              if (!isDeleteMode && isCurrentWeek && item._custom) {
-                const top = div.querySelector(".multi-top");
-                const delBtn = document.createElement("button");
-                delBtn.type = "button";
-                delBtn.dataset.action = "delete-weekly-item";
-                delBtn.dataset.id = item.id;
-                delBtn.setAttribute("aria-label", "Delete weekly item");
-                delBtn.style.cssText =
-                  "background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0";
-                delBtn.textContent = "✕";
-                top.appendChild(delBtn);
+                div.innerHTML = `<div class="multi-top"><span class="multi-label">${escapeHtml(item.label)}</span><span class="multi-pts">${sign}${absPts}</span></div><div class="multi-boxes">${boxes}</div>`;
               }
               if (isDeleteMode) {
                 div.onclick = () => toggleWeeklyDeleteSelect(item.id);
@@ -3774,12 +3625,6 @@
       function updateWeekTotal() {
         const total = calcWeekManualTotal() + calcStreakTotal();
         document.getElementById("wTotal").textContent = total;
-        document.getElementById("wSub").textContent =
-          total > 0
-            ? `+${total} bonus pts this week`
-            : total < 0
-              ? `${total} pts this week`
-              : "Log habits to earn streak bonuses";
         const items = getWeeklyItems();
         const sections = {};
         items.forEach((item) => {
@@ -3822,6 +3667,34 @@
           );
         }
         return reqMet && anyMet;
+      }
+      function calcWeekStreak(s) {
+        let consecutive = 0;
+        for (let offset = weekOffset - 1; ; offset--) {
+          const mon = getWeekMonday(offset);
+          const now = new Date();
+          now.setHours(now.getHours() - 3);
+          const days = [];
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(mon);
+            d.setDate(mon.getDate() + i);
+            if (d > now) break;
+            days.push(localDateStr(d));
+          }
+          if (days.length === 0) break;
+          // Stop if no day state data exists for any day in this week
+          const hasData = days.some(d => Object.keys(LS.get(LS.dayKey(d), {})).length > 0);
+          if (!hasData) break;
+          let count = 0;
+          days.forEach((d) => { if (checkDayForStreak(d, s.conditions)) count++; });
+          if (count >= s.target) consecutive++;
+          else break;
+        }
+        const curDays = getWeekDays();
+        let curCount = 0;
+        curDays.forEach((d) => { if (checkDayForStreak(d, s.conditions)) curCount++; });
+        if (curCount >= s.target) consecutive++;
+        return consecutive;
       }
       function calcStreakTotal() {
         const streaks = getStreaks();
@@ -3870,9 +3743,11 @@
             const lit = i < count;
             dots += `<div class="sdot${lit ? " lit" : ""}"></div>`;
           }
+          const weekStreak = calcWeekStreak(s);
+          const fireLabel = weekStreak > 0 ? ` <span style="font-size:13px;letter-spacing:0">🔥${weekStreak}</span>` : "";
           row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕</div>' : ""}
-<span class="item-text">${s.label}</span></div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}</span></div></div><div class="streak-dots">${dots}</div>`;
+<span class="item-text">${s.label}${fireLabel}</span></div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}</span></div></div><div class="streak-dots">${dots}</div>`;
           if (isDeleteMode) row.onclick = () => toggleStreakDeleteSelect(s.id);
           body.appendChild(row);
         });
@@ -4184,38 +4059,6 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕</div>' : ""}
         closeWeeklyForm();
         renderWeekly();
         toast("Item added!");
-      }
-      function deleteWeeklyItem(id) {
-        const items = getWeeklyItems();
-        const item = items.find((i) => i.id === id);
-        if (!item) {
-          toast("Weekly item not found");
-          return;
-        }
-        saveWeeklyItems(items.filter((i) => i.id !== id));
-        const weekKeys = [];
-        try {
-          for (let i = 0; i < localStorage.length; i++)
-            weekKeys.push(localStorage.key(i));
-        } catch (e) {}
-        weekKeys
-          .filter((k) => k && k.startsWith("week_"))
-          .forEach((k) => {
-            const weekState = LS.get(k, {});
-            let changed = false;
-            Object.keys(weekState).forEach((stateKey) => {
-              if (stateKey.startsWith(id + "_")) {
-                delete weekState[stateKey];
-                changed = true;
-              }
-            });
-            if (changed) LS.set(k, weekState);
-          });
-        WS = loadWeekState(getViewWeekKey());
-        renderWeekly();
-        syncAllTime();
-        refreshDash();
-        toast("Weekly item deleted");
       }
       let streakConditions = [];
       function openStreakForm() {
@@ -4889,16 +4732,20 @@ ${rows}
           const actionEl = event.target.closest("[data-action], [data-nav]");
           if (!actionEl) return;
           const { action, nav, delta, id, cost, name, idx } = actionEl.dataset;
-          if (action === "delete-weekly-item") {
-            event.preventDefault();
-            event.stopPropagation();
-            return deleteWeeklyItem(id);
-          }
           if (nav) {
-            goPage(nav, actionEl);
+            goPage(nav);
             return;
           }
-          if (action === "go-rewards") return goRewards();
+          if (action === "go-weekly") {
+            showPage("weekly");
+            renderWeekly();
+            renderStreaks();
+            return;
+          }
+          if (action === "go-daily") {
+            showPage("daily");
+            return;
+          }
           if (action === "shift-day") return shiftDay(parseInt(delta, 10));
           if (action === "open-daily-form") return openDailyForm();
           if (action === "toggle-delete-mode") return toggleDeleteMode();
@@ -4917,21 +4764,15 @@ ${rows}
             return confirmDeleteRewardItems();
           if (action === "toggle-reward-delete-select")
             return toggleRewardDeleteSelect(id);
-          if (action === "reset-day") return resetDay();
           if (action === "shift-week") return shiftWeek(parseInt(delta, 10));
           if (action === "open-weekly-form") return openWeeklyForm();
-          if (action === "reset-week") return resetWeek();
           if (action === "open-streak-form") return openStreakForm();
           if (action === "go-history") return goPointHistory();
           if (action === "open-todo-form") return openTodoForm();
           if (action === "save-new-reward") return saveNewReward();
           if (action === "hide-add-reward") return toggleAddReward(false);
           if (action === "show-add-reward") return toggleAddReward(true);
-          if (action === "back-to-dashboard")
-            return goPage(
-              "dashboard",
-              document.querySelector('.nav-tab[data-nav="dashboard"]'),
-            );
+          if (action === "back-to-dashboard") return goPage("dashboard");
           if (action === "export-data") return exportData();
           if (action === "trigger-import")
             return document.getElementById("import-input").click();
@@ -4998,12 +4839,8 @@ ${rows}
         if (el) el.classList.add("active");
         currentPage = id;
       }
-      function goPage(id, btn) {
+      function goPage(id) {
         showPage(id);
-        document
-          .querySelectorAll(".nav-tab")
-          .forEach((b) => b.classList.remove("active"));
-        if (btn) btn.classList.add("active");
         if (id === "dashboard") refreshDash();
         if (id === "weekly") {
           renderWeekly();
@@ -5012,9 +4849,6 @@ ${rows}
       }
       function goRewards() {
         showPage("rewards");
-        document
-          .querySelectorAll(".nav-tab")
-          .forEach((b) => b.classList.remove("active"));
         document.getElementById("rBalance").textContent =
           LS.allTime().toLocaleString();
         renderRewards();
@@ -5031,19 +4865,6 @@ ${rows}
         void el.offsetWidth;
         el.classList.add("popping");
         setTimeout(() => el.classList.remove("popping"), 400);
-      }
-      function resetDay() {
-        DS = {};
-        saveDayState(currentDayStr(), DS);
-        renderDaily();
-        toast("Day reset ✓");
-      }
-      function resetWeek() {
-        if (weeklyDeleteModeOn) toggleWeeklyDeleteMode();
-        WS = {};
-        saveWeekState(WS);
-        renderWeekly();
-        toast("Week reset ✓");
       }
       function toast(msg) {
         const t = document.getElementById("toast");
@@ -5345,7 +5166,8 @@ ${rows}
         renderStreaks();
         updateDayScores();
         updateWeekTotal();
-        document.querySelector(".nav-tab").classList.add("active");
+        refreshDash();
+        showPage("dashboard");
       }
       init();
     </script>
