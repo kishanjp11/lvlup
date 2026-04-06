@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="LVL UP" />
@@ -83,13 +86,17 @@
         width: 100%;
         max-width: 430px;
         margin: 0 auto;
+        padding-top: calc(56px + env(safe-area-inset-top, 0px));
         padding-bottom: var(--nav-h);
         min-height: 100vh;
         min-height: 100dvh;
       }
       .header {
-        position: sticky;
+        position: fixed;
         top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
         z-index: 1000;
         background: rgba(8, 8, 15, 0.98);
         backdrop-filter: blur(20px);
