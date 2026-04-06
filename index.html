@@ -1171,6 +1171,7 @@ body::after {
       </div>
       <div class="sec-prog"><div class="sec-prog-fill" id="sp-misc" style="width:0%"></div></div>
       <div class="sec-body" id="sb-misc">
+        <!-- Static items -->
         <div class="item" data-key="misc_news" data-pts="15" onclick="tapItem(this)">
           <div class="cb">✓</div><div class="item-text">20 min current events</div><div class="item-pts">+15</div>
         </div>
@@ -1181,6 +1182,30 @@ body::after {
         <div class="item penalty" data-key="misc_release" data-pts="-50" onclick="tapItem(this)">
           <div class="cb">✕</div><div class="item-text">******* ** ****</div><div class="item-pts">−50</div>
         </div>
+        <div class="item penalty" data-key="misc_uber" data-pts="-10" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Unnecessary Uber</div><div class="item-pts">−10</div>
+        </div>
+        <div class="item penalty" data-key="misc_spontaneous" data-pts="-30" onclick="tapItem(this)">
+          <div class="cb">✕</div><div class="item-text">Spent money on a spontaneous want</div><div class="item-pts">−30</div>
+        </div>
+
+        <!-- Custom misc items -->
+        <div id="misc-custom-items"></div>
+
+        <!-- Add / Edit form -->
+        <div id="misc-form" style="display:none;background:var(--bg3);border-radius:10px;padding:14px;margin:8px 0">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px" id="misc-form-title">New Item</div>
+          <input id="misc-item-label" type="text" placeholder="Label" maxlength="50"
+            style="width:100%;background:var(--card);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:9px 12px;margin-bottom:8px;outline:none;box-sizing:border-box">
+          <input id="misc-item-pts" type="number" placeholder="Points (use negative for penalty)"
+            style="width:100%;background:var(--card);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:9px 12px;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <div style="display:flex;gap:8px">
+            <button onclick="saveMiscItem()" style="flex:1;background:var(--accent);border:none;border-radius:8px;color:var(--bg);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:10px;cursor:pointer">SAVE</button>
+            <button onclick="closeMiscForm()" style="flex:1;background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:10px;cursor:pointer">CANCEL</button>
+          </div>
+        </div>
+
+        <button onclick="openMiscForm()" id="btn-add-misc" style="display:block;width:100%;margin-top:8px;background:none;border:1px dashed var(--border2);border-radius:10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:11px;cursor:pointer">+ Add Item</button>
       </div>
     </div>
 
@@ -1291,6 +1316,26 @@ body::after {
       </div>
     </div>
 
+    <!-- Housework — MANUAL -->
+    <div class="wsec">
+      <div class="wsec-head"><span class="wsec-title">🏠 Housework</span><span class="wsec-pts" id="wp-housework">+0</span></div>
+      <div class="wsec-body">
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Laundry — washed &amp; folded before Monday</span><span class="multi-pts">+30</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_laundry" data-wpts="30" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+        <div class="witem multi">
+          <div class="multi-top"><span class="multi-label">Take out trash</span><span class="multi-pts">+10 each</span></div>
+          <div class="multi-boxes">
+            <div class="multi-cb" data-wkey="w_trash1" data-wpts="10" onclick="multiTap(this)">✓</div>
+            <div class="multi-cb" data-wkey="w_trash2" data-wpts="10" onclick="multiTap(this)">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Penalties — MANUAL -->
     <div class="wsec">
       <div class="wsec-head"><span class="wsec-title">❌ Weekly Penalties</span><span class="wsec-pts neg" id="wp-pen">0</span></div>
@@ -1300,13 +1345,6 @@ body::after {
         <div class="witem" data-wkey="wp_nogym" data-wpts="-100" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No gym visits at all</div><div class="item-pts">−100</div></div>
         <div class="witem" data-wkey="wp_nomp" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No meal prep done</div><div class="item-pts">−50</div></div>
         <div class="witem" data-wkey="wp_nosch" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">No school work 2+ days in a row</div><div class="item-pts">−50</div></div>
-        <div class="witem multi">
-          <div class="multi-top"><span class="multi-label">Unnecessary Uber</span><span class="multi-pts">−10 each</span></div>
-          <div class="multi-boxes">
-            <div class="multi-cb penalty-cb" data-wkey="wp_uber1" data-wpts="-10" onclick="multiTap(this)">✕</div>
-            <div class="multi-cb penalty-cb" data-wkey="wp_uber2" data-wpts="-10" onclick="multiTap(this)">✕</div>
-          </div>
-        </div>
         <div class="witem" data-wkey="wp_sm" data-wpts="-50" onclick="wTap(this)"><div class="cb">✕</div><div class="item-text">Over 2hr social media (per day flagged)</div><div class="item-pts">−50</div></div>
       </div>
     </div>
@@ -1884,14 +1922,110 @@ function calcScores() {
 
   const pm = sum('pm_jrnl','pm_bed','pm_nophone','pm_teeth','pm_tidy','pm_doom','pm_late');
 
-  const misc = sum('misc_news','misc_sm','misc_release');
+  const miscCustom = getMiscItems().reduce((t, item) => t + (DS[item.id] ? item.pts : 0), 0);
+  const misc = sum('misc_news','misc_sm','misc_release','misc_uber','misc_spontaneous') + miscCustom;
 
   return { am, fit, nut, wrk, sch, pm, misc, total: am+fit+nut+wrk+sch+pm+misc };
 }
 
 // ═══════════════════════════════════════════════════
-// POINT EVENT LOG
+// MISC CUSTOM ITEMS
 // ═══════════════════════════════════════════════════
+let editingMiscId = null;
+
+function getMiscItems() {
+  try { return JSON.parse(localStorage.getItem('misc_items') || '[]'); } catch(e) { return []; }
+}
+function saveMiscItems(items) { localStorage.setItem('misc_items', JSON.stringify(items)); }
+
+function openMiscForm(id) {
+  editingMiscId = id || null;
+  const form = document.getElementById('misc-form');
+  const title = document.getElementById('misc-form-title');
+  const btnAdd = document.getElementById('btn-add-misc');
+  form.style.display = 'block';
+  btnAdd.style.display = 'none';
+  if (id) {
+    const item = getMiscItems().find(i => i.id === id);
+    if (item) {
+      document.getElementById('misc-item-label').value = item.label;
+      document.getElementById('misc-item-pts').value = item.pts;
+      title.textContent = 'Edit Item';
+    }
+  } else {
+    document.getElementById('misc-item-label').value = '';
+    document.getElementById('misc-item-pts').value = '';
+    title.textContent = 'New Item';
+  }
+  document.getElementById('misc-item-label').focus();
+}
+
+function closeMiscForm() {
+  document.getElementById('misc-form').style.display = 'none';
+  document.getElementById('btn-add-misc').style.display = 'block';
+  editingMiscId = null;
+}
+
+function saveMiscItem() {
+  const label = document.getElementById('misc-item-label').value.trim();
+  const pts = parseInt(document.getElementById('misc-item-pts').value);
+  if (!label || isNaN(pts)) { toast('Enter a label and points!'); return; }
+  const items = getMiscItems();
+  if (editingMiscId) {
+    const item = items.find(i => i.id === editingMiscId);
+    if (item) { item.label = label; item.pts = pts; }
+  } else {
+    items.push({ id: 'mi_' + Date.now(), label, pts });
+  }
+  saveMiscItems(items);
+  closeMiscForm();
+  renderMiscItems();
+  recalc();
+  toast(editingMiscId ? 'Item updated!' : 'Item added!');
+}
+
+function deleteMiscItem(id) {
+  // Remove from state and storage
+  delete DS[id];
+  LS.saveDay(DS);
+  saveMiscItems(getMiscItems().filter(i => i.id !== id));
+  renderMiscItems();
+  recalc();
+  toast('Item removed');
+}
+
+function renderMiscItems() {
+  const el = document.getElementById('misc-custom-items');
+  if (!el) return;
+  const items = getMiscItems();
+  if (!items.length) { el.innerHTML = ''; return; }
+
+  el.innerHTML = '<div class="divider"></div>' + items.map(item => {
+    const isPenalty = item.pts < 0;
+    const isOn = !!DS[item.id];
+    const sign = item.pts >= 0 ? '+' : '−';
+    const absPts = Math.abs(item.pts);
+    return `<div class="item${isPenalty ? ' penalty' : ''}${isOn ? ' on' : ''}" data-key="${item.id}" data-pts="${item.pts}" style="padding-right:6px">
+      <div class="cb" onclick="tapItem(this.parentElement)">${isPenalty ? '✕' : '✓'}</div>
+      <div class="item-text" onclick="tapItem(this.parentElement)">${item.label}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="item-pts">${sign}${absPts}</div>
+        <button onclick="event.stopPropagation();openMiscForm('${item.id}')" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:4px;line-height:1">✏️</button>
+        <button onclick="event.stopPropagation();deleteMiscItem('${item.id}')" style="background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px;line-height:1">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Re-apply on state
+  items.forEach(item => {
+    if (DS[item.id]) {
+      const el2 = document.querySelector(`[data-key="${item.id}"]`);
+      if (el2) el2.classList.add('on');
+    }
+  });
+}
+
+
 function getPointLog() {
   try { return JSON.parse(localStorage.getItem('point_log') || '[]'); } catch(e) { return []; }
 }
@@ -1944,7 +2078,7 @@ function renderPointHistory() {
 
   // Weekly manual points — read from all week keys
   const allKeys = Object.keys(localStorage);
-  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'];
+  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','w_laundry','w_trash1','w_trash2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_sm'];
   for (const key of allKeys) {
     if (!key.startsWith('week_')) continue;
     const weekMon = key.replace('week_', '');
@@ -2032,7 +2166,7 @@ function renderPointHistory() {
 function syncAllTime() {
   const h = LS.history();
   const dailySum = Object.values(h).reduce((t, d) => t + (d.total || 0), 0);
-  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'];
+  const manualWeekKeys = ['w_mp1','w_mp2','w_groc_in','w_groc_ord','w_shave','w_hair1','w_hair2','w_hair3','w_fin1','w_fin2','w_fin3','w_fin4','w_fin5','w_soc1','w_soc2','w_game1','w_game2','wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','w_laundry','w_trash1','w_trash2','wp_sm'];
   const weeklyManual = manualWeekKeys.reduce((t, k) => t + (WS[k] || 0), 0);
   const total = dailySum + weeklyManual;
   LS.saveAllTime(total);
@@ -2229,11 +2363,12 @@ function recalcWeek() {
 
   // ── MANUAL ITEMS ──────────────────────────────────
   const manualGroups = {
-    nuttask:  ['w_mp1','w_mp2','w_groc_in','w_groc_ord'],
-    groom:    ['w_shave','w_hair1','w_hair2','w_hair3'],
-    finance:  ['w_fin1','w_fin2','w_fin3','w_fin4','w_fin5'],
-    social:   ['w_soc1','w_soc2','w_game1','w_game2'],
-    pen:      ['wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_uber1','wp_uber2','wp_sm'],
+    nuttask:   ['w_mp1','w_mp2','w_groc_in','w_groc_ord'],
+    groom:     ['w_shave','w_hair1','w_hair2','w_hair3'],
+    finance:   ['w_fin1','w_fin2','w_fin3','w_fin4','w_fin5'],
+    social:    ['w_soc1','w_soc2','w_game1','w_game2'],
+    housework: ['w_laundry','w_trash1','w_trash2'],
+    pen:       ['wp_out2','wp_nofin','wp_nogym','wp_nomp','wp_nosch','wp_sm'],
   };
 
   let manualTotal = 0;
@@ -2647,6 +2782,7 @@ function init() {
   }
   updateWeekNav();
   loadViewDay();
+  renderMiscItems();
   recalc();
   recalcWeek();
 }
