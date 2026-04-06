@@ -924,8 +924,11 @@
         letter-spacing: 1px;
         color: var(--muted);
         text-transform: uppercase;
-        width: 62px;
+        width: 92px;
         flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .cat-track {
         flex: 1;
@@ -2568,22 +2571,6 @@
           pts: -5,
         },
         {
-          id: "am_breath",
-          section: "🌅 Morning",
-          subgroup: "Start the Day",
-          type: "checkbox",
-          label: "Breathwork 2–3 min",
-          pts: 3,
-        },
-        {
-          id: "am_move",
-          section: "🌅 Morning",
-          subgroup: "Start the Day",
-          type: "checkbox",
-          label: "Movement — stretches / pushups",
-          pts: 2,
-        },
-        {
           id: "am_bed",
           section: "🌅 Morning",
           subgroup: "Start the Day",
@@ -2598,6 +2585,14 @@
           type: "checkbox",
           label: "Journal check-in",
           pts: 3,
+        },
+        {
+          id: "am_breakfast",
+          section: "🌅 Morning",
+          subgroup: "Start the Day",
+          type: "checkbox",
+          label: "Light Breakfast",
+          pts: 10,
         },
         {
           id: "am_lunch",
@@ -3130,7 +3125,6 @@
           id: "s_alarm6",
           label: "First Alarm",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "wake_first" }],
         },
@@ -3138,7 +3132,6 @@
           id: "s_hyg6",
           label: "Perfect Hygiene",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "am_hyg" }],
         },
@@ -3146,11 +3139,9 @@
           id: "s_start6",
           label: "Full Start the Day",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [
-            { itemId: "am_breath" },
-            { itemId: "am_move" },
+            { itemId: "am_breakfast" },
             { itemId: "am_bed" },
             { itemId: "am_jrnl" },
           ],
@@ -3159,7 +3150,6 @@
           id: "s_lunch5",
           label: "Made Lunch Every Work Day",
           target: 5,
-          total: 5,
           pts: 100,
           conditions: [{ itemId: "am_lunch" }],
         },
@@ -3167,7 +3157,6 @@
           id: "s_gym3",
           label: "Gym 3×",
           target: 3,
-          total: 3,
           pts: 100,
           conditions: [{ itemId: "fit_gym" }],
         },
@@ -3175,7 +3164,6 @@
           id: "s_bed6",
           label: "In Bed On Time",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "pm_bed" }],
         },
@@ -3183,7 +3171,6 @@
           id: "s_jrnl6",
           label: "Journal",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "pm_jrnl" }],
         },
@@ -3191,7 +3178,6 @@
           id: "s_3pomo6",
           label: "3+ Pomodoros",
           target: 6,
-          total: 6,
           pts: 100,
           conditions: [{ itemId: "sch_3p" }, { itemId: "sch_4p", any: true }],
         },
@@ -3199,7 +3185,6 @@
           id: "s_code6",
           label: "Coding / Problem Sets",
           target: 6,
-          total: 6,
           pts: 100,
           conditions: [{ itemId: "sch_code" }],
         },
@@ -3207,7 +3192,6 @@
           id: "s_good5",
           label: "Meaningful Work",
           target: 5,
-          total: 5,
           pts: 100,
           conditions: [
             { itemId: "wrk_good" },
@@ -3218,7 +3202,6 @@
           id: "s_log6",
           label: "Logged Food",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "nut_log" }],
         },
@@ -3226,7 +3209,6 @@
           id: "s_cal6",
           label: "Hit Calories",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "nut_cal" }],
         },
@@ -3234,7 +3216,6 @@
           id: "s_3l6",
           label: "Hit 3L Water",
           target: 6,
-          total: 7,
           pts: 100,
           conditions: [{ itemId: "nut_3l" }],
         },
@@ -3868,10 +3849,9 @@
         const body = wsec.querySelector("#streak-body");
         streaks.forEach((s) => {
           let count = 0;
-          const perDay = days.map((d) => {
+          days.forEach((d) => {
             const hit = checkDayForStreak(d, s.conditions);
             if (hit) count++;
-            return hit;
           });
           const earned = count >= s.target;
           const isDeleteMode = streakDeleteModeOn;
@@ -3886,13 +3866,13 @@
             "flex-direction:column;align-items:flex-start;gap:6px";
           if (isDeleteMode) row.style.cursor = "pointer";
           let dots = "";
-          for (let i = 0; i < s.total; i++) {
+          for (let i = 0; i < s.target; i++) {
             const lit = i < count;
             dots += `<div class="sdot${lit ? " lit" : ""}"></div>`;
           }
           row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕</div>' : ""}
-<span class="item-text">${s.label} <small style="color:var(--muted);font-size:10px">${count}/${s.target}</small></span></div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}</span></div></div><div class="streak-dots">${dots}</div>`;
+<span class="item-text">${s.label}</span></div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}</span></div></div><div class="streak-dots">${dots}</div>`;
           if (isDeleteMode) row.onclick = () => toggleStreakDeleteSelect(s.id);
           body.appendChild(row);
         });
@@ -4325,7 +4305,6 @@ ${sections.map((s) => `<option value="${s}">${s}</option>`).join("")}
           id: "s_" + Date.now(),
           label,
           target,
-          total: 7,
           pts,
           conditions,
         });
@@ -4567,7 +4546,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
           "💼 Work": "#00d4ff",
           "📚 School": "#ff6b35",
           "🌙 Evening": "#a78bfa",
-          "⚡ Misc": "#f97316",
+          "⚡ Misc": "#7dd3fc",
         };
         const allSectionNames = [
           ...new Set([
