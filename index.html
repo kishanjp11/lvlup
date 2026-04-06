@@ -7,7 +7,10 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="LVL UP" />
     <meta name="theme-color" content="#08080f" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -44,6 +47,7 @@
         --text: #f0f0ff;
         --muted: #555577;
         --muted2: #3a3a5c;
+        --header-h: calc(56px + env(safe-area-inset-top, 0px));
         --nav-h: calc(64px + env(safe-area-inset-bottom, 0px));
       }
       *,
@@ -86,11 +90,11 @@
         width: 100%;
         max-width: 430px;
         margin: 0 auto;
-        padding-top: calc(56px + env(safe-area-inset-top, 0px));
+        padding-top: var(--header-h);
         padding-bottom: var(--nav-h);
         min-height: 100vh;
         min-height: 100dvh;
-        scroll-padding-top: calc(56px + env(safe-area-inset-top, 0px));
+        scroll-padding-top: var(--header-h);
       }
       .header {
         position: fixed;
@@ -102,6 +106,7 @@
         background: rgba(8, 8, 15, 0.98);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        isolation: isolate;
         border-bottom: 1px solid var(--border);
         padding: env(safe-area-inset-top, 0px) 16px 0;
       }
@@ -170,6 +175,14 @@
         border-top: 1px solid var(--border);
         display: flex;
         padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (display-mode: standalone) {
+        .header,
+        .nav {
+          background: var(--bg);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+        }
       }
       .nav-tab {
         flex: 1;
@@ -2773,7 +2786,7 @@
           label: "Didn't do what needed to be done",
           pts: -20,
         },
-		{
+        {
           id: "sch_code",
           section: "📚 School",
           subgroup: null,
@@ -2825,7 +2838,7 @@
           label: "No school work done",
           pts: -25,
         },
-		{
+        {
           id: "pm_tidy",
           section: "🌙 Evening",
           subgroup: "Wind Down",
@@ -2841,7 +2854,7 @@
           label: "Journal — day recap + tomorrow's tasks",
           pts: 15,
         },
-		{
+        {
           id: "pm_nophone",
           section: "🌙 Evening",
           subgroup: "Wind Down",
@@ -2849,7 +2862,7 @@
           label: "No phone after cutoff",
           pts: 10,
         },
-		{
+        {
           id: "pm_teeth",
           section: "🌙 Evening",
           subgroup: "Wind Down",
