@@ -2644,7 +2644,7 @@
         {
           id: "nut_cal",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "Hit calorie goal (≤2,200)",
           pts: 10,
@@ -2652,7 +2652,7 @@
         {
           id: "nut_prot",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "Hit protein goal (≥162g)",
           pts: 10,
@@ -2660,7 +2660,7 @@
         {
           id: "nut_log",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "Logged all food",
           pts: 10,
@@ -2668,7 +2668,7 @@
         {
           id: "nut_9pm",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "No eating after 9pm",
           pts: 8,
@@ -2676,7 +2676,7 @@
         {
           id: "nut_psyl",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "Metamucil before dinner",
           pts: 3,
@@ -2684,7 +2684,7 @@
         {
           id: "nut_fruit",
           section: "🥗 Nutrition",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "Ate fruit",
           pts: 2,
@@ -2708,7 +2708,7 @@
         {
           id: "wrk_time",
           section: "💼 Work",
-          subgroup: "Goals",
+          subgroup: "Get Started",
           type: "checkbox",
           label: "Got to work on time",
           pts: 10,
@@ -2716,7 +2716,7 @@
         {
           id: "wrk_task",
           section: "💼 Work",
-          subgroup: "Goals",
+          subgroup: "Get Started",
           type: "checkbox",
           label: "Started + reviewed task list within 20 min",
           pts: 10,
@@ -2772,6 +2772,14 @@
           label: "Didn't do what needed to be done",
           pts: -20,
         },
+		{
+          id: "sch_code",
+          section: "📚 School",
+          subgroup: null,
+          type: "checkbox",
+          label: "Completed coding or problem set",
+          pts: 15,
+        },
         {
           id: "sch_1p",
           section: "📚 School",
@@ -2809,14 +2817,6 @@
           pts: 35,
         },
         {
-          id: "sch_code",
-          section: "📚 School",
-          subgroup: null,
-          type: "checkbox",
-          label: "Completed coding or problem set",
-          pts: 15,
-        },
-        {
           id: "sch_none",
           section: "📚 School",
           subgroup: null,
@@ -2824,45 +2824,45 @@
           label: "No school work done",
           pts: -25,
         },
+		{
+          id: "pm_tidy",
+          section: "🌙 Evening",
+          subgroup: "Wind Down",
+          type: "checkbox",
+          label: "Dishes / tidied up",
+          pts: 5,
+        },
         {
           id: "pm_jrnl",
           section: "🌙 Evening",
-          subgroup: "Goals",
+          subgroup: "Wind Down",
           type: "checkbox",
           label: "Journal — day recap + tomorrow's tasks",
           pts: 15,
         },
-        {
-          id: "pm_bed",
-          section: "🌙 Evening",
-          subgroup: "Goals",
-          type: "checkbox",
-          label: "In bed on time",
-          pts: 15,
-        },
-        {
+		{
           id: "pm_nophone",
           section: "🌙 Evening",
-          subgroup: "Goals",
+          subgroup: "Wind Down",
           type: "checkbox",
           label: "No phone after cutoff",
           pts: 10,
         },
-        {
+		{
           id: "pm_teeth",
           section: "🌙 Evening",
-          subgroup: "Goals",
+          subgroup: "Wind Down",
           type: "checkbox",
           label: "Brushed teeth",
           pts: 5,
         },
         {
-          id: "pm_tidy",
+          id: "pm_bed",
           section: "🌙 Evening",
-          subgroup: "Goals",
+          subgroup: "Sleepy Time",
           type: "checkbox",
-          label: "Dishes / tidied up",
-          pts: 5,
+          label: "In bed on time",
+          pts: 15,
         },
         {
           id: "pm_doom",
@@ -2883,7 +2883,7 @@
         {
           id: "misc_news",
           section: "⚡ Misc",
-          subgroup: "Goals",
+          subgroup: null,
           type: "checkbox",
           label: "20 min current events",
           pts: 15,
