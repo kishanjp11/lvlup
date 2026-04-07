@@ -44,6 +44,7 @@
         --muted: #555577;
         --muted2: #3a3a5c;
         --header-h: calc(56px + env(safe-area-inset-top, 0px));
+        --nav-h: calc(56px + env(safe-area-inset-bottom, 0px));
       }
       *,
       *::before,
@@ -86,6 +87,7 @@
         max-width: 430px;
         margin: 0 auto;
         padding-top: var(--header-h);
+        padding-bottom: var(--nav-h);
         min-height: 100vh;
         min-height: 100dvh;
         scroll-padding-top: var(--header-h);
@@ -161,6 +163,61 @@
           backdrop-filter: none;
           -webkit-backdrop-filter: none;
         }
+      }
+      .nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 430px;
+        z-index: 200;
+        background: rgba(8, 8, 15, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border);
+        display: flex;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (display-mode: standalone) {
+        .nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+      }
+      .nav-tab {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--muted);
+        padding: 10px 4px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        transition: color 0.2s;
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .nav-tab.active { color: var(--accent); }
+      .nav-tab.active::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 25%;
+        right: 25%;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 0 0 2px 2px;
+        box-shadow: 0 0 8px var(--accent);
+      }
+      .nav-icon { font-size: 18px; line-height: 1; }
+      .nav-label {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
       }
       .page {
         display: none;
@@ -620,12 +677,8 @@
         box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
       }
       .dash-alltime {
-        background: linear-gradient(
-          135deg,
-          rgba(0, 245, 160, 0.08),
-          rgba(0, 212, 255, 0.04)
-        );
-        border: 1px solid rgba(0, 245, 160, 0.2);
+        background: var(--card);
+        border: 1px solid var(--border2);
         border-radius: 14px;
         padding: 16px;
         margin-bottom: 10px;
@@ -1180,7 +1233,10 @@
       <!-- HEADER -->
       <header class="header">
         <div class="header-inner">
-          <div class="logo" data-action="back-to-dashboard" style="cursor:pointer;">LVL UP</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="logo" data-action="back-to-dashboard" style="cursor:pointer;">LVL UP</div>
+            <button data-action="go-streaks" style="background:none;border:none;cursor:pointer;font-size:22px;padding:2px;line-height:1;">🔥</button>
+          </div>
           <div class="header-right">
             <div class="header-date" id="hDate"></div>
             <div class="total-chip">
@@ -1208,10 +1264,6 @@
       </header>
       <!-- ══ DAILY PAGE ══ -->
       <div class="page" id="page-daily">
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
-          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;">Today</span>
-        </div>
         <div class="day-score-bar">
           <div>
             <div
@@ -1358,10 +1410,6 @@
       </div>
       <!-- ══ WEEKLY PAGE ══ -->
       <div class="page" id="page-weekly">
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
-          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;">This Week</span>
-        </div>
         <div class="week-hero" style="display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="display:flex;align-items:center;gap:4px;">
@@ -1484,107 +1532,6 @@
             </button>
           </div>
         </div>
-        <div
-          style="
-            font-family: &quot;Barlow Condensed&quot;, sans-serif;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
-            padding: 10px 4px 6px;
-          "
-        >
-          ⚡ Auto-tracked streaks
-        </div>
-        <div id="weekly-streak-sections"></div>
-        <div style="display: flex; gap: 8px">
-          <button
-            class="add-btn paired-action-btn"
-            style="flex: 1; margin-bottom: 0"
-            data-action="open-streak-form"
-          >
-            + Add Custom Streak</button
-          ><button
-            class="paired-action-btn"
-            id="btn-delete-streak"
-            data-action="toggle-streak-delete-mode"
-            aria-label="Toggle streak delete mode"
-            style="
-              background: none;
-              border: 1px dashed var(--border2);
-              border-radius: 14px;
-              color: var(--muted);
-              padding: 13px 16px;
-              cursor: pointer;
-              font-size: 18px;
-              margin-bottom: 10px;
-            "
-          >
-            🗑
-          </button>
-        </div>
-        <div
-          id="delete-streak-bar"
-          style="
-            display: none;
-            background: var(--card);
-            border: 1px solid var(--red);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-          "
-        >
-          <span
-            style="
-              font-family: &quot;Barlow Condensed&quot;, sans-serif;
-              font-size: 12px;
-              font-weight: 700;
-              letter-spacing: 1.5px;
-              color: var(--red);
-              text-transform: uppercase;
-            "
-            >Select streaks to delete</span
-          >
-          <div style="display: flex; gap: 8px">
-            <button
-              data-action="confirm-delete-streak-items"
-              style="
-                background: var(--red);
-                border: none;
-                border-radius: 8px;
-                color: white;
-                font-family: &quot;Barlow Condensed&quot;, sans-serif;
-                font-size: 13px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                padding: 8px 14px;
-                cursor: pointer;
-              "
-            >
-              DELETE</button
-            ><button
-              data-action="toggle-streak-delete-mode"
-              style="
-                background: none;
-                border: 1px solid var(--border2);
-                border-radius: 8px;
-                color: var(--muted);
-                font-family: &quot;Barlow Condensed&quot;, sans-serif;
-                font-size: 13px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                padding: 8px 14px;
-                cursor: pointer;
-              "
-            >
-              CANCEL
-            </button>
-          </div>
-        </div>
       </div>
       <!-- ══ DASHBOARD PAGE ══ -->
       <div class="page" id="page-dashboard">
@@ -1601,47 +1548,14 @@
             <div class="dash-alltime-sub">tap for history</div>
           </div>
           <div style="text-align: right">
-            <div
-              style="
-                font-family: &quot;Barlow Condensed&quot;, sans-serif;
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 2px;
-                color: var(--muted);
-                margin-bottom: 6px;
-              "
-            >
-              REWARD PROGRESS
-            </div>
-            <div style="font-size: 12px; color: var(--muted)" id="dRewardProg">
-              —
-            </div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:2px;">DAYS TRACKED</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);line-height:1;margin-bottom:8px;" id="dDays">0</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">REWARD PROGRESS</div>
+            <div style="font-size: 12px; color: var(--muted)" id="dRewardProg">—</div>
           </div>
         </div>
-        <div class="stat-grid">
-          <div class="stat-card" data-action="go-daily" style="cursor:pointer;">
-            <div class="stat-label">Today</div>
-            <div class="stat-value" id="dToday">0</div>
-            <div class="stat-sub">daily pts</div>
-          </div>
-          <div class="stat-card" data-action="go-weekly" style="cursor:pointer;">
-            <div class="stat-label">This Week</div>
-            <div class="stat-value" id="dWeek">0</div>
-            <div class="stat-sub">bonus pts</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Best Day</div>
-            <div class="stat-value" id="dBest">0</div>
-            <div class="stat-sub">all time</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Days Tracked</div>
-            <div class="stat-value" id="dDays">0</div>
-            <div class="stat-sub">total days</div>
-          </div>
-        </div>
+
         <div class="chart-card">
-          <div class="chart-label">Last 6 Months</div>
           <div
             id="heatmap"
             style="
@@ -1666,62 +1580,7 @@
               "
               id="heatmap-months"
             ></div>
-            <div
-              style="
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                margin-top: 8px;
-                font-size: 9px;
-                color: var(--muted);
-                font-family: &quot;Barlow Condensed&quot;, sans-serif;
-                letter-spacing: 1px;
-              "
-            >
-              <span>LESS</span>
-              <div
-                style="
-                  width: 10px;
-                  height: 10px;
-                  border-radius: 2px;
-                  background: var(--bg3);
-                  border: 1px solid var(--border2);
-                "
-              ></div>
-              <div
-                style="
-                  width: 10px;
-                  height: 10px;
-                  border-radius: 2px;
-                  background: #1a3a2a;
-                "
-              ></div>
-              <div
-                style="
-                  width: 10px;
-                  height: 10px;
-                  border-radius: 2px;
-                  background: #1f5c3a;
-                "
-              ></div>
-              <div
-                style="
-                  width: 10px;
-                  height: 10px;
-                  border-radius: 2px;
-                  background: #28844f;
-                "
-              ></div>
-              <div
-                style="
-                  width: 10px;
-                  height: 10px;
-                  border-radius: 2px;
-                  background: var(--accent);
-                "
-              ></div>
-              <span>MORE</span>
-            </div>
+
           </div>
         </div>
         <div class="chart-card">
@@ -1732,36 +1591,25 @@
           <div class="chart-label">Today by Category</div>
           <div id="dCats"></div>
         </div>
-        <!-- TODO -->
-        <div class="rewards-card" style="margin-bottom: 8px">
-          <div
-            class="rewards-head"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <span>✅ One-Time Tasks</span
-            ><button
-              data-action="open-todo-form"
-              style="
-                background: none;
-                border: 1px solid var(--border2);
-                border-radius: 6px;
-                color: var(--muted);
-                font-family: &quot;Barlow Condensed&quot;, sans-serif;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                padding: 4px 10px;
-                cursor: pointer;
-              "
-            >
-              + ADD
-            </button>
+
+      </div>
+      <!-- ══ STREAKS PAGE ══ -->
+      <div class="page" id="page-streaks">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
+          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;">🔥 Streaks</span>
+        </div>
+        <div id="weekly-streak-sections"></div>
+        <div style="display:flex;gap:8px;">
+          <button class="add-btn paired-action-btn" style="flex:1;margin-bottom:0;" data-action="open-streak-form">+ Add Custom Streak</button>
+          <button class="paired-action-btn" id="btn-delete-streak" data-action="toggle-streak-delete-mode" aria-label="Toggle streak delete mode" style="background:none;border:1px dashed var(--border2);border-radius:14px;color:var(--muted);padding:13px 16px;cursor:pointer;font-size:18px;margin-bottom:10px;">🗑</button>
+        </div>
+        <div id="delete-streak-bar" style="display:none;background:var(--card);border:1px solid var(--red);border-radius:12px;padding:12px 14px;margin-bottom:8px;flex-direction:row;align-items:center;justify-content:space-between;">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;">Select streaks to delete</span>
+          <div style="display:flex;gap:8px;">
+            <button data-action="confirm-delete-streak-items" style="background:var(--red);border:none;border-radius:8px;color:white;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">DELETE</button>
+            <button data-action="toggle-streak-delete-mode" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">CANCEL</button>
           </div>
-          <div id="todo-list"></div>
         </div>
       </div>
       <!-- ══ REWARDS PAGE ══ -->
@@ -2277,6 +2125,10 @@
             class="form-label"
             >Points on completion</label
           ><input id="tf-pts" class="form-input" type="number" min="1" />
+          <div data-action="toggle-todo-repeat" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px;cursor:pointer;user-select:none;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Repeats Monthly</span>
+            <div id="todo-repeat-cb" style="width:20px;height:20px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all 0.2s;">✓</div>
+          </div>
           <div style="display: flex; gap: 8px; margin-top: 14px">
             <button class="btn-save" data-action="save-todo-item">SAVE</button
             ><button class="btn-cancel" data-action="close-todo-form">
@@ -2285,8 +2137,24 @@
           </div>
         </div>
       </div>
+      <!-- ══ TASKS PAGE ══ -->
+      <div class="page" id="page-todo">
+        <div class="rewards-card" style="margin-bottom:8px;">
+          <div class="rewards-head" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Tasks</span>
+            <button data-action="open-todo-form" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;cursor:pointer;">+ ADD</button>
+          </div>
+          <div id="todo-list"></div>
+        </div>
+      </div>
     </div>
-    <!-- end .app --><!-- NAV -->
+    <!-- end .app -->
+    <nav class="nav">
+      <button class="nav-tab" data-nav="daily"><span class="nav-icon">📋</span><span class="nav-label">Daily</span></button>
+      <button class="nav-tab" data-nav="weekly"><span class="nav-icon">📅</span><span class="nav-label">Weekly</span></button>
+      <button class="nav-tab" data-nav="todo"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></button>
+      <button class="nav-tab" data-nav="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></button>
+    </nav>
     <div class="toast" id="toast"></div>
     <script>
       window.onerror = function(msg, src, line, col, err) {
@@ -3384,7 +3252,7 @@
         popEl(el.querySelector(".cb"));
         saveDayState(currentDayStr(), DS);
         updateDayScores();
-        if (document.getElementById("page-weekly").classList.contains("active")) {
+        if (document.getElementById("page-streaks").classList.contains("active")) {
           renderStreaks();
           updateWeekTotal();
         }
@@ -3565,6 +3433,22 @@
         });
         updateWeekTotal();
       }
+      function logWeeklyItem(key, pts, on) {
+        const items = getWeeklyItems();
+        // key is like "item_id_0"
+        const itemId = key.replace(/_\d+$/, "");
+        const item = items.find((i) => i.id === itemId);
+        const label = item ? item.label : key;
+        const log = getPointLog();
+        if (on) {
+          log.push({ date: localDateStr(), type: "weekly", pts, label, key, ts: Date.now() });
+        } else {
+          // Remove matching entry
+          const idx = log.findIndex((e) => e.type === "weekly" && e.key === key);
+          if (idx >= 0) log.splice(idx, 1);
+        }
+        savePointLog(log);
+      }
       function wTap(el) {
         const key = el.dataset.key;
         const pts = parseInt(el.dataset.pts);
@@ -3572,6 +3456,7 @@
         if (on) WS[key] = pts;
         else delete WS[key];
         saveWeekState(WS);
+        logWeeklyItem(key, pts, on);
         popEl(el.querySelector(".cb"));
         updateWeekTotal();
         syncAllTime();
@@ -3584,6 +3469,7 @@
         if (on) WS[key] = pts;
         else delete WS[key];
         saveWeekState(WS);
+        logWeeklyItem(key, pts, on);
         cb.classList.remove("popping");
         void cb.offsetWidth;
         cb.classList.add("popping");
@@ -3680,6 +3566,23 @@
         });
         return total;
       }
+      function logStreakEarned(s, earned) {
+        const log = getPointLog();
+        if (earned) {
+          // Only log if not already logged this week
+          const weekKey = getViewWeekKey();
+          const already = log.find((e) => e.type === "streak" && e.streakId === s.id && e.weekKey === weekKey);
+          if (!already) {
+            log.push({ date: localDateStr(), type: "streak", pts: s.pts, label: s.label, streakId: s.id, weekKey, ts: Date.now() });
+            savePointLog(log);
+          }
+        } else {
+          // Remove log entry for this streak this week
+          const weekKey = getViewWeekKey();
+          const idx = log.findIndex((e) => e.type === "streak" && e.streakId === s.id && e.weekKey === weekKey);
+          if (idx >= 0) { log.splice(idx, 1); savePointLog(log); }
+        }
+      }
       function renderStreaks() {
         const streaks = getStreaks();
         const days = getWeekDays();
@@ -3698,6 +3601,7 @@
             if (hit) count++;
           });
           const earned = count >= s.target;
+          logStreakEarned(s, earned);
           const isDeleteMode = streakDeleteModeOn;
           const isSelectedForDelete = selectedStreaksForDelete.has(s.id);
           const row = document.createElement("div");
@@ -3950,7 +3854,7 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
       }
       let weeklyPenaltyOn = false;
       function openWeeklyForm() {
-        prevPage = "weekly";
+        prevPage = "streaks";
         const items = getWeeklyItems();
         const secs = [...new Set(items.map((i) => i.section))];
         const sel = document.getElementById("wf-section");
@@ -4040,7 +3944,8 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
         showPage("streak-form");
       }
       function closeStreakForm() {
-        showPage("weekly");
+        showPage("streaks");
+        renderStreaks();
       }
       function addStreakCondition() {
         const items = getDailyItems();
@@ -4123,8 +4028,24 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
         renderStreaks();
         toast("Streak added!");
       }
+      let todoRepeatOn = false;
+      function toggleTodoRepeat() {
+        todoRepeatOn = !todoRepeatOn;
+        const cb = document.getElementById("todo-repeat-cb");
+        if (cb) {
+          cb.style.background = todoRepeatOn ? "var(--accent)" : "";
+          cb.style.borderColor = todoRepeatOn ? "var(--accent)" : "var(--border2)";
+          cb.style.color = todoRepeatOn ? "var(--bg)" : "transparent";
+        }
+      }
+      function currentMonthKey() {
+        const d = new Date();
+        return "todo_month_" + d.getFullYear() + "_" + String(d.getMonth() + 1).padStart(2, "0");
+      }
+      function getMonthlyTodoDone() { return LS.get(currentMonthKey(), {}); }
+      function saveMonthlyTodoDone(d) { LS.set(currentMonthKey(), d); }
       function openTodoForm() {
-        prevPage = "dashboard";
+        prevPage = "todo";
         const todos = getTodos();
         const secs = [...new Set(todos.map((t) => t.section).filter(Boolean))];
         const sel = document.getElementById("tf-section");
@@ -4140,10 +4061,14 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
         document.getElementById("tf-section-new").style.display = "none";
         document.getElementById("tf-name").value = "";
         document.getElementById("tf-pts").value = "";
+        todoRepeatOn = false;
+        const rcb = document.getElementById("todo-repeat-cb");
+        if (rcb) { rcb.style.background = ""; rcb.style.borderColor = "var(--border2)"; rcb.style.color = "transparent"; }
         showPage("todo-form");
       }
       function closeTodoForm() {
-        showPage("dashboard");
+        showPage("todo");
+        setNavActive("todo");
         renderTodos();
       }
       function onTodoSectionChange() {
@@ -4164,7 +4089,7 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
           return;
         }
         const todos = getTodos();
-        todos.push({ id: "t_" + Date.now(), section, name, pts, done: false });
+        todos.push({ id: "t_" + Date.now(), section, name, pts, done: false, repeat: todoRepeatOn });
         saveTodos(todos);
         closeTodoForm();
         toast("Task added!");
@@ -4172,9 +4097,18 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
       function completeTodo(id) {
         const todos = getTodos();
         const todo = todos.find((t) => t.id === id);
-        if (!todo || todo.done) return;
-        todo.done = true;
-        saveTodos(todos);
+        if (!todo) return;
+        if (todo.repeat) {
+          // For repeating: track done in monthly key
+          const done = getMonthlyTodoDone();
+          if (done[id]) return;
+          done[id] = true;
+          saveMonthlyTodoDone(done);
+        } else {
+          if (todo.done) return;
+          todo.done = true;
+          saveTodos(todos);
+        }
         applyAllTimeDelta(todo.pts);
         const log = getPointLog();
         log.push({
@@ -4220,12 +4154,14 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
                 ? `<div style="padding:8px 14px 4px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--border)">${escapeHtml(s)}<\/div>`
                 : "";
             const rows = sItems
-              .map(
-                (t) => `
-<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;${t.done ? "opacity:0.4" : ""}"><div style="flex:1"><div style="font-size:14px;font-weight:600;${t.done ? "text-decoration:line-through" : ""}">${escapeHtml(t.name)}<\/div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${t.pts.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">
-${!t.done ? `<button class="redeem-btn" data-action="complete-todo" data-id="${escapeHtml(t.id)}">DONE<\/button>` : "<span style=\"font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--accent);letter-spacing:1px\">EARNED<\/span>"}
-<button data-action="delete-todo" data-id="${escapeHtml(t.id)}" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕<\/button><\/div><\/div>`,
-              )
+              .map((t) => {
+                const monthDone = getMonthlyTodoDone();
+                const isDone = t.repeat ? !!monthDone[t.id] : t.done;
+                const repeatBadge = t.repeat ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 4px;margin-left:4px;">MONTHLY<\/span>` : "";
+                return `<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;${isDone ? "opacity:0.4" : ""}"><div style="flex:1"><div style="font-size:14px;font-weight:600;${isDone ? "text-decoration:line-through" : ""}">${escapeHtml(t.name)}${repeatBadge}<\/div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${t.pts.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">
+${!isDone ? `<button class="redeem-btn" data-action="complete-todo" data-id="${escapeHtml(t.id)}">DONE<\/button>` : "<span style=\"font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--accent);letter-spacing:1px\">EARNED<\/span>"}
+<button data-action="delete-todo" data-id="${escapeHtml(t.id)}" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕<\/button><\/div><\/div>`;
+              })
               .join("");
             return header + rows;
           })
@@ -4307,12 +4243,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
         const allTime = LS.allTime();
         const weekBonus = calcWeekManualTotal() + calcStreakTotal();
         document.getElementById("dAllTime").textContent = allTime;
-        document.getElementById("dToday").textContent = sc.total;
-        document.getElementById("dWeek").textContent = weekBonus;
         const scores = Object.values(h).map((d) => d.total || 0);
-        document.getElementById("dBest").textContent = scores.length
-          ? Math.max(...scores)
-          : 0;
         document.getElementById("dDays").textContent = Object.keys(h).length;
         const next =
           allTime < 1000
@@ -4490,23 +4421,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
           for (let i = 0; i < localStorage.length; i++)
             lsKeys.push(localStorage.key(i));
         } catch (e) {}
-        lsKeys
-          .filter((k) => k.startsWith("week_"))
-          .forEach((key) => {
-            const weekMon = key.replace("week_", "");
-            const ws = LS.get(key, {});
-            const items = getWeeklyItems();
-            const weekTotal = items.reduce((t, item) => {
-              let s = 0;
-              for (let i = 0; i < (item.count || 1); i++)
-                s += ws[item.id + "_" + i] || 0;
-              return t + s;
-            }, 0);
-            if (weekTotal !== 0) {
-              if (!byDate[weekMon]) byDate[weekMon] = [];
-              byDate[weekMon].push({ type: "weekly", pts: weekTotal });
-            }
-          });
+
         for (const event of log) {
           if (!byDate[event.date]) byDate[event.date] = [];
           byDate[event.date].push({
@@ -4555,7 +4470,11 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                     )
                     .join(" · ");
                 } else if (e.type === "weekly") {
-                  desc = "Weekly tasks";
+                  desc = e.label || "Weekly task";
+                  tag = "WEEKLY";
+                } else if (e.type === "streak") {
+                  desc = e.label || "Streak";
+                  tag = "STREAK";
                 } else if (e.type === "todo") {
                   desc = e.label || (e.section ? e.section + " Task" : "Task");
                   tag = "TODO";
@@ -4567,9 +4486,16 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                 desc = escapeHtml(desc);
                 sub = escapeHtml(sub);
                 tag = escapeHtml(tag);
+                const tagColors = {
+                  "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
+                  "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
+                  "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
+                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);"
+                };
+                const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(124,106,247,0.15);";
                 const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
                 return `<div class="hist-row"><div><div style="display:flex;align-items:center;gap:6px">
-${tag ? `<span class="hist-tag">${tag}<\/span>` : ""}
+${tag ? `<span class="hist-tag" style="${tagStyle}">${tag}<\/span>` : ""}
 <span style="font-size:13px;color:var(--text)">${desc}<\/span><\/div>
 ${sub ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">${sub}<\/div>` : ""}
 <\/div><div class="hist-pts" style="color:${ptsColor}">${e.pts >= 0 ? "+" : ""}${e.pts}<\/div><\/div>`;
@@ -4688,17 +4614,20 @@ ${rows}
           if (!actionEl) return;
           const { action, nav, delta, id, cost, name, idx } = actionEl.dataset;
           if (nav) {
+            if (nav === "todo") { showPage("todo"); renderTodos(); setNavActive("todo"); return; }
             goPage(nav);
+            setNavActive(nav);
             return;
           }
           if (action === "go-weekly") {
             showPage("weekly");
             renderWeekly();
-            renderStreaks();
+            setNavActive("weekly");
             return;
           }
           if (action === "go-daily") {
             showPage("daily");
+            setNavActive("daily");
             return;
           }
           if (action === "shift-day") return shiftDay(parseInt(delta, 10));
@@ -4727,11 +4656,14 @@ ${rows}
           if (action === "save-new-reward") return saveNewReward();
           if (action === "hide-add-reward") return toggleAddReward(false);
           if (action === "show-add-reward") return toggleAddReward(true);
-          if (action === "back-to-dashboard") return goPage("dashboard");
+          if (action === "back-to-dashboard") { goPage("dashboard"); setNavActive("dashboard"); return; }
           if (action === "export-data") return exportData();
           if (action === "trigger-import")
             return document.getElementById("import-input").click();
           if (action === "close-daily-form") return closeDailyForm();
+          if (action === "go-streaks") return goStreaks();
+          if (action === "go-todo") { showPage("todo"); renderTodos(); setNavActive("todo"); return; }
+          if (action === "toggle-todo-repeat") return toggleTodoRepeat();
           if (action === "go-rewards") return goRewards();
           if (action === "save-daily-item") return saveDailyItem();
           if (action === "close-weekly-form") return closeWeeklyForm();
@@ -4787,6 +4719,11 @@ ${rows}
       }
       let currentPage = "daily";
       let prevNavPage = null;
+      function setNavActive(id) {
+        document.querySelectorAll(".nav-tab").forEach(function(b) { b.classList.remove("active"); });
+        const tab = document.querySelector('.nav-tab[data-nav="' + id + '"]');
+        if (tab) tab.classList.add("active");
+      }
       function showPage(id) {
         document
           .querySelectorAll(".page")
@@ -4802,6 +4739,11 @@ ${rows}
           renderWeekly();
           renderStreaks();
         }
+      }
+      function goStreaks() {
+        showPage("streaks");
+        renderStreaks();
+        updateWeekTotal();
       }
       function goRewards() {
         showPage("rewards");
@@ -5119,11 +5061,13 @@ ${rows}
         }
         renderDaily();
         renderWeekly();
+        renderTodos();
         renderStreaks();
         updateDayScores();
         updateWeekTotal();
         refreshDash();
         showPage("dashboard");
+        setNavActive("dashboard");
       }
       init();
     </script>
