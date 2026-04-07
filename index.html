@@ -5486,7 +5486,15 @@ ${rows}
     showPage("dashboard");
     setTimeout(() => renderBodyChart(), 50);
   }
-  init();
+  try {
+    init();
+  } catch(e) {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div style="position:fixed;top:80px;left:0;right:0;padding:16px;background:#ff3860;color:white;font-family:monospace;font-size:13px;z-index:9999;word-break:break-all;">'
+      + 'INIT ERROR: ' + e.message + '<br>' + (e.stack||'').split('\n').slice(0,3).join('<br>')
+      + '</div>'
+    );
+  }
 </script>
 ```
 
