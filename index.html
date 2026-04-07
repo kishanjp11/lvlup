@@ -3692,34 +3692,6 @@
         }
         return reqMet && anyMet;
       }
-      function calcWeekStreak(s) {
-        let consecutive = 0;
-        for (let offset = weekOffset - 1; ; offset--) {
-          const mon = getWeekMonday(offset);
-          const now = new Date();
-          now.setHours(now.getHours() - 3);
-          const days = [];
-          for (let i = 0; i < 7; i++) {
-            const d = new Date(mon);
-            d.setDate(mon.getDate() + i);
-            if (d > now) break;
-            days.push(localDateStr(d));
-          }
-          if (days.length === 0) break;
-          // Stop if no day state data exists for any day in this week
-          const hasData = days.some(d => Object.keys(LS.get(LS.dayKey(d), {})).length > 0);
-          if (!hasData) break;
-          let count = 0;
-          days.forEach((d) => { if (checkDayForStreak(d, s.conditions)) count++; });
-          if (count >= s.target) consecutive++;
-          else break;
-        }
-        const curDays = getWeekDays();
-        let curCount = 0;
-        curDays.forEach((d) => { if (checkDayForStreak(d, s.conditions)) curCount++; });
-        if (curCount >= s.target) consecutive++;
-        return consecutive;
-      }
       function calcStreakTotal() {
         const streaks = getStreaks();
         const days = getWeekDays();
@@ -3767,11 +3739,9 @@
             const lit = i < count;
             dots += `<div class="sdot${lit ? " lit" : ""}"><\/div>`;
           }
-          const weekStreak = calcWeekStreak(s);
-          const fireLabel = weekStreak > 0 ? ` <span style="font-size:13px;letter-spacing:0">🔥${weekStreak}<\/span>` : "";
           row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
-<span class="item-text">${s.label}${fireLabel}<\/span><\/div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
+<span class="item-text">${s.label}<\/span><\/div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
           if (isDeleteMode) row.onclick = () => toggleStreakDeleteSelect(s.id);
           body.appendChild(row);
         });
