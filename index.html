@@ -3692,32 +3692,6 @@
         }
         return reqMet && anyMet;
       }
-      function freezeKey(streakId) {
-        return 'freeze_' + streakId + '_' + getViewWeekKey();
-      }
-      function isStreakFrozen(streakId) {
-        return LS.get(freezeKey(streakId), false) === true;
-      }
-      function toggleStreakFreeze(streakId) {
-        const frozen = isStreakFrozen(streakId);
-        const allTime = LS.allTime();
-        if (!frozen) {
-          if (allTime < 50) { toast('Not enough points'); return; }
-          setAllTime(allTime - 50);
-          LS.set(freezeKey(streakId), true);
-        } else {
-          setAllTime(allTime + 50);
-          LS.set(freezeKey(streakId), false);
-        }
-        syncAllTime();
-        renderStreaks();
-        updateWeekTotal();
-      }
-      function effectiveTarget(s) {
-        // Only reduce target for current week view
-        if (weekOffset === 0 && isStreakFrozen(s.id)) return Math.max(1, s.target - 1);
-        return s.target;
-      }
       function calcWeekStreak(s) {
         let consecutive = 0;
         for (let offset = weekOffset - 1; ; offset--) {
@@ -3743,7 +3717,7 @@
         const curDays = getWeekDays();
         let curCount = 0;
         curDays.forEach((d) => { if (checkDayForStreak(d, s.conditions)) curCount++; });
-        if (curCount >= effectiveTarget(s)) consecutive++;
+        if (curCount >= s.target) consecutive++;
         return consecutive;
       }
       function calcStreakTotal() {
@@ -3755,7 +3729,7 @@
           days.forEach((d) => {
             if (checkDayForStreak(d, s.conditions)) count++;
           });
-          if (count >= effectiveTarget(s)) total += s.pts;
+          if (count >= s.target) total += s.pts;
         });
         return total;
       }
@@ -3776,9 +3750,7 @@
             const hit = checkDayForStreak(d, s.conditions);
             if (hit) count++;
           });
-          const frozen = weekOffset === 0 && isStreakFrozen(s.id);
-          const target = effectiveTarget(s);
-          const earned = count >= target;
+          const earned = count >= s.target;
           const isDeleteMode = streakDeleteModeOn;
           const isSelectedForDelete = selectedStreaksForDelete.has(s.id);
           const row = document.createElement("div");
@@ -3793,25 +3765,13 @@
           let dots = "";
           for (let i = 0; i < s.target; i++) {
             const lit = i < count;
-            // The last dot (index = target-1) shows ice when frozen and not lit
-            const isIceDot = frozen && i === s.target - 1 && !lit;
-            if (isIceDot) {
-              dots += `<div class="sdot" style="background:rgba(0,212,255,0.2);border-color:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:11px;">🧊<\/div>`;
-            } else {
-              dots += `<div class="sdot${lit ? " lit" : ""}"><\/div>`;
-            }
+            dots += `<div class="sdot${lit ? " lit" : ""}"><\/div>`;
           }
           const weekStreak = calcWeekStreak(s);
           const fireLabel = weekStreak > 0 ? ` <span style="font-size:13px;letter-spacing:0">🔥${weekStreak}<\/span>` : "";
-          const allTime = LS.allTime();
-          const canFreeze = weekOffset === 0;
-          const freezeDisabled = !frozen && allTime < 50;
-          const freezeBtn = canFreeze && !isDeleteMode
-            ? `<button onclick="toggleStreakFreeze('${s.id}')" ${freezeDisabled ? "disabled" : ""} style="background:${frozen ? "rgba(0,212,255,0.15)" : "none"};border:1px solid ${frozen ? "var(--accent2)" : "var(--border2)"};border-radius:6px;color:${frozen ? "var(--accent2)" : freezeDisabled ? "var(--muted2)" : "var(--muted)"};font-size:13px;cursor:${freezeDisabled ? "default" : "pointer"};padding:2px 6px;line-height:1;opacity:${freezeDisabled ? "0.4" : "1"};">🧊<\/button>`
-            : "";
           row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
-<span class="item-text">${s.label}${fireLabel}<\/span><\/div><div style="display:flex;align-items:center;gap:6px">${freezeBtn}<span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
+<span class="item-text">${s.label}${fireLabel}<\/span><\/div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
           if (isDeleteMode) row.onclick = () => toggleStreakDeleteSelect(s.id);
           body.appendChild(row);
         });
