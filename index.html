@@ -3384,6 +3384,10 @@
         popEl(el.querySelector(".cb"));
         saveDayState(currentDayStr(), DS);
         updateDayScores();
+        if (document.getElementById("page-weekly").classList.contains("active")) {
+          renderStreaks();
+          updateWeekTotal();
+        }
       }
       function buildWaterWidget(cups, isToday) {
         const l = (cups * 0.2366).toFixed(1);
@@ -4051,15 +4055,13 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
 ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
 <\/select><select class="form-select sc-item-sel-${idx}"><\/select>`;
         document.getElementById("sf-conditions").appendChild(row);
+        const secSel = row.querySelector(`.sc-section-sel-${idx}`);
         const firstSec = sections[0];
         if (firstSec) {
           streakConditions[idx].sectionVal = firstSec;
-          populateStreakItems(
-            idx,
-            firstSec,
-            row.querySelector(`.sc-item-sel-${idx}`),
-          );
+          populateStreakItems(idx, firstSec, row.querySelector(`.sc-item-sel-${idx}`));
         }
+        secSel.onchange = function() { onStreakSectionChange(idx, secSel); };
       }
       function onStreakSectionChange(idx, sel) {
         streakConditions[idx].sectionVal = sel.value;
@@ -5127,6 +5129,3 @@ ${rows}
     </script>
   </body>
 </html>
-
-
-
