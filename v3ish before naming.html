@@ -1,5 +1,3 @@
-<!--- v2 streak freeze --->
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -677,27 +675,6 @@
         background: var(--gold);
         border-color: var(--gold);
         box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
-      }
-      .sdot.frozen {
-        background: #1a6fa8;
-        border-color: #3b9eda;
-        box-shadow: 0 0 6px rgba(59, 158, 218, 0.5);
-      }
-      .freeze-btn {
-        background: none;
-        border: 1px solid var(--border2);
-        border-radius: 6px;
-        color: var(--muted);
-        font-size: 14px;
-        padding: 3px 7px;
-        cursor: pointer;
-        line-height: 1;
-        transition: all 0.2s;
-      }
-      .freeze-btn.active {
-        border-color: #3b9eda;
-        color: #3b9eda;
-        background: rgba(59,158,218,0.1);
       }
       .dash-alltime {
         background: var(--card);
@@ -3222,17 +3199,7 @@
               }
             });
           });
-        // Include point_log adjustments: redeems (negative) and freezes (negative/positive)
-        const log = getPointLog();
-        const logSum = log.reduce((t, e) => {
-          if (e.type === "redeem") return t + (e.pts || 0);
-          if (e.type === "freeze") return t + (e.pts || 0);
-          if (e.type === "todo") return t + (e.pts || 0);
-          if (e.type === "streak") return t + (e.pts || 0);
-          if (e.type === "weekly") return t + (e.pts || 0);
-          return t;
-        }, 0);
-        const total = dailySum + weeklySum + logSum;
+        const total = dailySum + weeklySum;
         setAllTime(total);
         return total;
       }
@@ -3684,9 +3651,6 @@
         if (curCount >= s.target) consecutive++;
         return consecutive;
       }
-      function isFrozenThisWeek(streakId) {
-        return !!WS["freeze_" + streakId];
-      }
       function calcStreakTotal() {
         const streaks = getStreaks();
         const days = getWeekDays();
@@ -3696,9 +3660,7 @@
           days.forEach((d) => {
             if (checkDayForStreak(d, s.conditions)) count++;
           });
-          const frozen = isFrozenThisWeek(s.id);
-          const effective = frozen ? count + 1 : count;
-          if (effective >= s.target) total += s.pts;
+          if (count >= s.target) total += s.pts;
         });
         return total;
       }
@@ -3719,32 +3681,6 @@
           if (idx >= 0) { log.splice(idx, 1); savePointLog(log); }
         }
       }
-      function toggleStreakFreeze(streakId) {
-        const frozen = isFrozenThisWeek(streakId);
-        const log = getPointLog();
-        const weekKey = getViewWeekKey();
-        if (frozen) {
-          delete WS["freeze_" + streakId];
-          saveWeekState(WS);
-          // Remove freeze log entry
-          const idx = log.findIndex((e) => e.type === "freeze" && e.streakId === streakId && e.weekKey === weekKey);
-          if (idx >= 0) log.splice(idx, 1);
-          savePointLog(log);
-          toast("Freeze removed · +50 pts refunded");
-        } else {
-          if (LS.allTime() < 50) { toast("Need 50 pts to freeze!"); return; }
-          WS["freeze_" + streakId] = true;
-          saveWeekState(WS);
-          // Log freeze cost
-          log.push({ date: localDateStr(), type: "freeze", pts: -50, streakId, weekKey, ts: Date.now() });
-          savePointLog(log);
-          toast("🧊 Streak frozen · -50 pts");
-        }
-        syncAllTime();
-        renderStreaks();
-        updateWeekTotal();
-        refreshDash();
-      }
       function renderStreaks() {
         const streaks = getStreaks();
         const days = getWeekDays();
@@ -3756,16 +3692,13 @@
         wsec.innerHTML = `<div class="wsec-head"><span class="wsec-title">⚡ Streaks<\/span><span class="wsec-pts" style="color:${streakTotal > 0 ? "var(--gold)" : "var(--muted)"}">${streakTotal > 0 ? "+" : ""}${streakTotal}<\/span><\/div><div class="wsec-body" id="streak-body"><\/div>`;
         container.appendChild(wsec);
         const body = wsec.querySelector("#streak-body");
-        const isCurrentWeek = weekOffset === 0;
         streaks.forEach((s) => {
           let count = 0;
           days.forEach((d) => {
             const hit = checkDayForStreak(d, s.conditions);
             if (hit) count++;
           });
-          const frozen = isFrozenThisWeek(s.id);
-          const effective = frozen ? count + 1 : count;
-          const earned = effective >= s.target;
+          const earned = count >= s.target;
           logStreakEarned(s, earned);
           const isDeleteMode = streakDeleteModeOn;
           const isSelectedForDelete = selectedStreaksForDelete.has(s.id);
@@ -3775,24 +3708,17 @@
             (earned ? " earned" : "") +
             (isDeleteMode ? " delete-mode" : "") +
             (isDeleteMode && isSelectedForDelete ? " selected" : "");
-          row.style.cssText = "flex-direction:column;align-items:flex-start;gap:6px";
+          row.style.cssText =
+            "flex-direction:column;align-items:flex-start;gap:6px";
           if (isDeleteMode) row.style.cursor = "pointer";
-
-          // Build dots — lit dots first, then frozen dot if applicable, then empty
           let dots = "";
           for (let i = 0; i < s.target; i++) {
             const lit = i < count;
-            const isFrozenDot = !lit && frozen && i === count; // first unlit dot is frozen
-            dots += `<div class="sdot${lit ? " lit" : isFrozenDot ? " frozen" : ""}"><\/div>`;
+            dots += `<div class="sdot${lit ? " lit" : ""}"><\/div>`;
           }
-
-          const freezeBtn = isCurrentWeek && !isDeleteMode
-            ? `<button class="freeze-btn${frozen ? " active" : ""}" data-action="toggle-freeze" data-streak-id="${s.id}">🧊<\/button>`
-            : "";
-
-          row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%;align-items:center;"><div style="display:flex;align-items:center;gap:10px">
+          row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
-<span class="item-text">${s.label + (calcWeekStreak(s) > 0 ? " 🔥" + calcWeekStreak(s) : "")}<\/span><\/div><div style="display:flex;align-items:center;gap:6px">${freezeBtn}<span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
+<span class="item-text">${s.label + (calcWeekStreak(s) > 0 ? " 🔥" + calcWeekStreak(s) : "")}<\/span><\/div><div style="display:flex;align-items:center;gap:6px"><span class="item-pts">+${s.pts}<\/span><\/div><\/div><div class="streak-dots">${dots}<\/div>`;
           if (isDeleteMode) row.onclick = () => toggleStreakDeleteSelect(s.id);
           body.appendChild(row);
         });
@@ -4630,9 +4556,6 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                 } else if (e.type === "redeem") {
                   desc = e.label || "Reward";
                   tag = "REDEEMED";
-                } else if (e.type === "freeze") {
-                  desc = "Streak Freeze";
-                  tag = "FREEZE";
                 }
                 desc = escapeHtml(desc);
                 sub = escapeHtml(sub);
@@ -4641,8 +4564,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                   "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
                   "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
                   "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
-                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
-                  "FREEZE": "color:#3b9eda;background:rgba(59,158,218,0.1);"
+                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);"
                 };
                 const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(124,106,247,0.15);";
                 const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
@@ -4824,8 +4746,7 @@ ${rows}
           "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
           "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
           "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
-          "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
-          "FREEZE": "color:#3b9eda;background:rgba(59,158,218,0.1);"
+          "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);"
         };
         dayLog.forEach(function(e) {
           let tag = "", desc = "";
@@ -4833,7 +4754,6 @@ ${rows}
           else if (e.type === "streak") { tag = "STREAK"; desc = e.label || "Streak"; }
           else if (e.type === "todo") { tag = "TODO"; desc = e.label || "Task"; }
           else if (e.type === "redeem") { tag = "REDEEMED"; desc = e.label || "Reward"; }
-          else if (e.type === "freeze") { tag = "FREEZE"; desc = "Streak Freeze"; }
           else return;
           const tagStyle = tagColors[tag] || "";
           const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
@@ -4999,11 +4919,6 @@ ${rows}
             return document.getElementById("import-input").click();
           if (action === "close-daily-form") return closeDailyForm();
           if (action === "go-streaks") return goStreaks();
-          if (action === "toggle-freeze") {
-            const sid = actionEl.dataset.streakId;
-            if (sid) toggleStreakFreeze(sid);
-            return;
-          }
           if (action === "go-todo") { showPage("todo"); renderTodos(); setNavActive("todo"); return; }
           if (action === "toggle-todo-repeat") return toggleTodoRepeat();
           if (action === "go-rewards") return goRewards();
