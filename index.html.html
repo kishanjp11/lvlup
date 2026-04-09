@@ -20,9 +20,12 @@
       href='data:application/json,{"name":"LVL UP","short_name":"LVL UP","display":"standalone","background_color":"%2308080f","theme_color":"%2308080f","orientation":"portrait"}'
     />
     <title>LVL UP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap"
+    />
 
     <style>
       html {
@@ -181,7 +184,11 @@
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       @media (display-mode: standalone) {
-        .nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+        .nav {
+          background: var(--bg);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+        }
       }
       .nav-tab {
         flex: 1;
@@ -200,7 +207,9 @@
         min-width: 0;
         overflow: hidden;
       }
-      .nav-tab.active { color: var(--accent); }
+      .nav-tab.active {
+        color: var(--accent);
+      }
       .nav-tab.active::before {
         content: "";
         position: absolute;
@@ -212,7 +221,10 @@
         border-radius: 0 0 2px 2px;
         box-shadow: 0 0 8px var(--accent);
       }
-      .nav-icon { font-size: 18px; line-height: 1; }
+      .nav-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
       .nav-label {
         font-family: "Barlow Condensed", sans-serif;
         font-size: 9px;
@@ -696,7 +708,7 @@
       .freeze-btn.active {
         border-color: #3b9eda;
         color: #3b9eda;
-        background: rgba(59,158,218,0.1);
+        background: rgba(59, 158, 218, 0.1);
       }
       .dash-alltime {
         background: var(--card);
@@ -988,10 +1000,20 @@
         transition: opacity 0.15s;
         min-height: 36px;
       }
-      .month-cal-day:active { opacity: 0.7; }
-      .month-cal-day.empty { cursor: default; }
-      .month-cal-day.future { opacity: 0.25; cursor: default; }
-      .month-cal-day.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+      .month-cal-day:active {
+        opacity: 0.7;
+      }
+      .month-cal-day.empty {
+        cursor: default;
+      }
+      .month-cal-day.future {
+        opacity: 0.25;
+        cursor: default;
+      }
+      .month-cal-day.selected {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
       .month-cal-daynum {
         font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
@@ -1344,9 +1366,27 @@
       <!-- HEADER -->
       <header class="header">
         <div class="header-inner">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div class="logo" data-action="back-to-dashboard" style="cursor:pointer;">LVL UP</div>
-            <button data-action="go-streaks" style="background:none;border:none;cursor:pointer;font-size:22px;padding:2px;line-height:1;">🔥</button>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div
+              class="logo"
+              data-action="back-to-dashboard"
+              style="cursor: pointer"
+            >
+              LVL UP
+            </div>
+            <button
+              data-action="go-streaks"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 22px;
+                padding: 2px;
+                line-height: 1;
+              "
+            >
+              🔥
+            </button>
           </div>
           <div class="header-right">
             <div class="header-date" id="hDate"></div>
@@ -1521,23 +1561,54 @@
       </div>
       <!-- ══ WEEKLY PAGE ══ -->
       <div class="page" id="page-weekly">
-        <div class="week-hero" style="display:flex;align-items:center;justify-content:space-between;">
+        <div
+          class="week-hero"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
           <div>
-            <div style="display:flex;align-items:center;gap:4px;">
+            <div style="display: flex; align-items: center; gap: 4px">
               <button
                 data-action="shift-week"
                 data-delta="-1"
                 aria-label="Previous week"
-                style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;"
-              >‹</button>
-              <div class="dash-alltime-label" id="wDateLabel" style="margin:0;">THIS WEEK</div>
+                style="
+                  background: none;
+                  border: none;
+                  color: var(--muted);
+                  font-size: 20px;
+                  cursor: pointer;
+                  padding: 2px 6px;
+                  line-height: 1;
+                "
+              >
+                ‹
+              </button>
+              <div class="dash-alltime-label" id="wDateLabel" style="margin: 0">
+                THIS WEEK
+              </div>
               <button
                 data-action="shift-week"
                 data-delta="1"
                 id="btn-week-next"
                 aria-label="Next week"
-                style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;opacity:0.2;pointer-events:none;"
-              >›</button>
+                style="
+                  background: none;
+                  border: none;
+                  color: var(--muted);
+                  font-size: 20px;
+                  cursor: pointer;
+                  padding: 2px 6px;
+                  line-height: 1;
+                  opacity: 0.2;
+                  pointer-events: none;
+                "
+              >
+                ›
+              </button>
             </div>
           </div>
           <div class="week-hero-num" id="wTotal">0</div>
@@ -1659,9 +1730,30 @@
             <div class="dash-alltime-sub">tap for history</div>
           </div>
           <div style="text-align: right">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:2px;">DAYS TRACKED</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);line-height:1;margin-bottom:8px;" id="dDays">0</div>
-
+            <div
+              style="
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--muted);
+                margin-bottom: 2px;
+              "
+            >
+              DAYS TRACKED
+            </div>
+            <div
+              style="
+                font-family: &quot;Bebas Neue&quot;, sans-serif;
+                font-size: 22px;
+                color: var(--text);
+                line-height: 1;
+                margin-bottom: 8px;
+              "
+              id="dDays"
+            >
+              0
+            </div>
           </div>
         </div>
 
@@ -1690,17 +1782,28 @@
               "
               id="heatmap-months"
             ></div>
-
           </div>
         </div>
         <div class="month-cal-card" id="month-cal-card">
           <div class="month-cal-header">
-            <button class="month-cal-nav" id="mcal-prev" onclick="shiftMonthCal(-1)">&#8249;</button>
+            <button
+              class="month-cal-nav"
+              id="mcal-prev"
+              onclick="shiftMonthCal(-1)"
+            >
+              &#8249;
+            </button>
             <div class="month-cal-title" id="mcal-title"></div>
-            <button class="month-cal-nav" id="mcal-next" onclick="shiftMonthCal(1)">&#8250;</button>
+            <button
+              class="month-cal-nav"
+              id="mcal-next"
+              onclick="shiftMonthCal(1)"
+            >
+              &#8250;
+            </button>
           </div>
           <div class="month-cal-grid" id="mcal-grid"></div>
-          <div class="month-cal-expand" id="mcal-expand" style="display:none;">
+          <div class="month-cal-expand" id="mcal-expand" style="display: none">
             <div class="month-cal-expand-title" id="mcal-expand-title"></div>
             <div id="mcal-expand-body"></div>
           </div>
@@ -1710,24 +1813,128 @@
           <div class="chart-label">Today by Category</div>
           <div id="dCats"></div>
         </div>
-
       </div>
       <!-- ══ STREAKS PAGE ══ -->
       <div class="page" id="page-streaks">
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 0 4px;">
-          <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;">🔥 Streaks</span>
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0 4px;
+          "
+        >
+          <button
+            data-action="back-to-dashboard"
+            style="
+              background: none;
+              border: none;
+              color: var(--muted);
+              font-size: 22px;
+              cursor: pointer;
+              padding: 0;
+              line-height: 1;
+            "
+          >
+            ‹
+          </button>
+          <span
+            style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
+              font-size: 22px;
+              letter-spacing: 2px;
+            "
+            >🔥 Streaks</span
+          >
         </div>
         <div id="weekly-streak-sections"></div>
-        <div style="display:flex;gap:8px;">
-          <button class="add-btn paired-action-btn" style="flex:1;margin-bottom:0;" data-action="open-streak-form">+ Add Custom Streak</button>
-          <button class="paired-action-btn" id="btn-delete-streak" data-action="toggle-streak-delete-mode" aria-label="Toggle streak delete mode" style="background:none;border:1px dashed var(--border2);border-radius:14px;color:var(--muted);padding:13px 16px;cursor:pointer;font-size:18px;margin-bottom:10px;">🗑</button>
+        <div style="display: flex; gap: 8px">
+          <button
+            class="add-btn paired-action-btn"
+            style="flex: 1; margin-bottom: 0"
+            data-action="open-streak-form"
+          >
+            + Add Custom Streak
+          </button>
+          <button
+            class="paired-action-btn"
+            id="btn-delete-streak"
+            data-action="toggle-streak-delete-mode"
+            aria-label="Toggle streak delete mode"
+            style="
+              background: none;
+              border: 1px dashed var(--border2);
+              border-radius: 14px;
+              color: var(--muted);
+              padding: 13px 16px;
+              cursor: pointer;
+              font-size: 18px;
+              margin-bottom: 10px;
+            "
+          >
+            🗑
+          </button>
         </div>
-        <div id="delete-streak-bar" style="display:none;background:var(--card);border:1px solid var(--red);border-radius:12px;padding:12px 14px;margin-bottom:8px;flex-direction:row;align-items:center;justify-content:space-between;">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;">Select streaks to delete</span>
-          <div style="display:flex;gap:8px;">
-            <button data-action="confirm-delete-streak-items" style="background:var(--red);border:none;border-radius:8px;color:white;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">DELETE</button>
-            <button data-action="toggle-streak-delete-mode" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">CANCEL</button>
+        <div
+          id="delete-streak-bar"
+          style="
+            display: none;
+            background: var(--card);
+            border: 1px solid var(--red);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <span
+            style="
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
+              font-size: 12px;
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: var(--red);
+              text-transform: uppercase;
+            "
+            >Select streaks to delete</span
+          >
+          <div style="display: flex; gap: 8px">
+            <button
+              data-action="confirm-delete-streak-items"
+              style="
+                background: var(--red);
+                border: none;
+                border-radius: 8px;
+                color: white;
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
+                cursor: pointer;
+              "
+            >
+              DELETE
+            </button>
+            <button
+              data-action="toggle-streak-delete-mode"
+              style="
+                background: none;
+                border: 1px solid var(--border2);
+                border-radius: 8px;
+                color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
+                cursor: pointer;
+              "
+            >
+              CANCEL
+            </button>
           </div>
         </div>
       </div>
@@ -1777,10 +1984,18 @@
         </div>
         <div id="add-reward-form" style="display: none" class="form-card">
           <div class="form-label" style="margin-top: 0">New Reward</div>
-          <label class="form-label">Name</label><input id="reward-name-input" class="form-input" maxlength="40" /><label
-            class="form-label"
-            >Point Cost</label
-          ><input id="reward-cost-input" class="form-input" type="number" min="1" />
+          <label class="form-label">Name</label
+          ><input
+            id="reward-name-input"
+            class="form-input"
+            maxlength="40"
+          /><label class="form-label">Point Cost</label
+          ><input
+            id="reward-cost-input"
+            class="form-input"
+            type="number"
+            min="1"
+          />
           <div style="display: flex; gap: 8px; margin-top: 12px">
             <button class="btn-save" data-action="save-new-reward">SAVE</button
             ><button class="btn-cancel" data-action="hide-add-reward">
@@ -2245,9 +2460,45 @@
             class="form-label"
             >Points on completion</label
           ><input id="tf-pts" class="form-input" type="number" min="1" />
-          <div data-action="toggle-todo-repeat" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px;cursor:pointer;user-select:none;">
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Repeats Monthly</span>
-            <div id="todo-repeat-cb" style="width:20px;height:20px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all 0.2s;">✓</div>
+          <div
+            data-action="toggle-todo-repeat"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 12px 0 4px;
+              cursor: pointer;
+              user-select: none;
+            "
+          >
+            <span
+              style="
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                color: var(--muted);
+                text-transform: uppercase;
+              "
+              >Repeats Monthly</span
+            >
+            <div
+              id="todo-repeat-cb"
+              style="
+                width: 20px;
+                height: 20px;
+                border-radius: 4px;
+                border: 2px solid var(--border2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: transparent;
+                transition: all 0.2s;
+              "
+            >
+              ✓
+            </div>
           </div>
           <div style="display: flex; gap: 8px; margin-top: 14px">
             <button class="btn-save" data-action="save-todo-item">SAVE</button
@@ -2259,10 +2510,33 @@
       </div>
       <!-- ══ TASKS PAGE ══ -->
       <div class="page" id="page-todo">
-        <div class="rewards-card" style="margin-bottom:8px;">
-          <div class="rewards-head" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="rewards-card" style="margin-bottom: 8px">
+          <div
+            class="rewards-head"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
             <span>Tasks</span>
-            <button data-action="open-todo-form" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;cursor:pointer;">+ ADD</button>
+            <button
+              data-action="open-todo-form"
+              style="
+                background: none;
+                border: 1px solid var(--border2);
+                border-radius: 6px;
+                color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 4px 10px;
+                cursor: pointer;
+              "
+            >
+              + ADD
+            </button>
           </div>
           <div id="todo-list"></div>
         </div>
@@ -2270,18 +2544,35 @@
     </div>
     <!-- end .app -->
     <nav class="nav">
-      <button class="nav-tab" data-nav="daily"><span class="nav-icon">📋</span><span class="nav-label">Daily</span></button>
-      <button class="nav-tab" data-nav="weekly"><span class="nav-icon">📅</span><span class="nav-label">Weekly</span></button>
-      <button class="nav-tab" data-nav="todo"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></button>
-      <button class="nav-tab" data-nav="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-tab" data-nav="daily">
+        <span class="nav-icon">📋</span><span class="nav-label">Daily</span>
+      </button>
+      <button class="nav-tab" data-nav="weekly">
+        <span class="nav-icon">📅</span><span class="nav-label">Weekly</span>
+      </button>
+      <button class="nav-tab" data-nav="todo">
+        <span class="nav-icon">✅</span><span class="nav-label">Tasks</span>
+      </button>
+      <button class="nav-tab" data-nav="dashboard">
+        <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+      </button>
     </nav>
     <div class="toast" id="toast"></div>
     <script>
-      window.onerror = function(msg, src, line, col, err) {
-        document.body.style.overflow = 'auto';
-        document.body.insertAdjacentHTML('beforeend',
-          '<div style="position:fixed;top:0;left:0;right:0;bottom:0;padding:16px;background:#1a0008;color:#ff3860;font-family:monospace;font-size:12px;z-index:99999;overflow:auto;word-break:break-all;">'
-          + '<b>ERROR<\/b><br>' + msg + '<br>Line: ' + line + ' Col: ' + col + '<br>' + (err && err.stack ? err.stack : '') + '<\/div>'
+      window.onerror = function (msg, src, line, col, err) {
+        document.body.style.overflow = "auto";
+        document.body.insertAdjacentHTML(
+          "beforeend",
+          '<div style="position:fixed;top:0;left:0;right:0;bottom:0;padding:16px;background:#1a0008;color:#ff3860;font-family:monospace;font-size:12px;z-index:99999;overflow:auto;word-break:break-all;">' +
+            "<b>ERROR<\/b><br>" +
+            msg +
+            "<br>Line: " +
+            line +
+            " Col: " +
+            col +
+            "<br>" +
+            (err && err.stack ? err.stack : "") +
+            "<\/div>",
         );
         return true;
       };
@@ -3365,7 +3656,9 @@
         popEl(el.querySelector(".cb"));
         saveDayState(currentDayStr(), DS);
         updateDayScores();
-        if (document.getElementById("page-streaks").classList.contains("active")) {
+        if (
+          document.getElementById("page-streaks").classList.contains("active")
+        ) {
           renderStreaks();
           updateWeekTotal();
         }
@@ -3555,10 +3848,19 @@
         const label = item ? item.label : key;
         const log = getPointLog();
         if (on) {
-          log.push({ date: localDateStr(), type: "weekly", pts, label, key, ts: Date.now() });
+          log.push({
+            date: localDateStr(),
+            type: "weekly",
+            pts,
+            label,
+            key,
+            ts: Date.now(),
+          });
         } else {
           // Remove matching entry
-          const idx = log.findIndex((e) => e.type === "weekly" && e.key === key);
+          const idx = log.findIndex(
+            (e) => e.type === "weekly" && e.key === key,
+          );
           if (idx >= 0) log.splice(idx, 1);
         }
         savePointLog(log);
@@ -3652,18 +3954,22 @@
             days.push(localDateStr(d));
           }
           if (days.length === 0) break;
-          const hasData = days.some(function(d) {
+          const hasData = days.some(function (d) {
             return Object.keys(LS.get(LS.dayKey(d), {})).length > 0;
           });
           if (!hasData) break;
           let count = 0;
-          days.forEach(function(d) { if (checkDayForStreak(d, s.conditions)) count++; });
+          days.forEach(function (d) {
+            if (checkDayForStreak(d, s.conditions)) count++;
+          });
           if (count >= s.target) consecutive++;
           else break;
         }
         const curDays = getWeekDays();
         let curCount = 0;
-        curDays.forEach(function(d) { if (checkDayForStreak(d, s.conditions)) curCount++; });
+        curDays.forEach(function (d) {
+          if (checkDayForStreak(d, s.conditions)) curCount++;
+        });
         if (curCount >= s.target) consecutive++;
         return consecutive;
       }
@@ -3690,16 +3996,37 @@
         if (earned) {
           // Only log if not already logged this week
           const weekKey = getViewWeekKey();
-          const already = log.find((e) => e.type === "streak" && e.streakId === s.id && e.weekKey === weekKey);
+          const already = log.find(
+            (e) =>
+              e.type === "streak" &&
+              e.streakId === s.id &&
+              e.weekKey === weekKey,
+          );
           if (!already) {
-            log.push({ date: localDateStr(), type: "streak", pts: s.pts, label: s.label, streakId: s.id, weekKey, ts: Date.now() });
+            log.push({
+              date: localDateStr(),
+              type: "streak",
+              pts: s.pts,
+              label: s.label,
+              streakId: s.id,
+              weekKey,
+              ts: Date.now(),
+            });
             savePointLog(log);
           }
         } else {
           // Remove log entry for this streak this week
           const weekKey = getViewWeekKey();
-          const idx = log.findIndex((e) => e.type === "streak" && e.streakId === s.id && e.weekKey === weekKey);
-          if (idx >= 0) { log.splice(idx, 1); savePointLog(log); }
+          const idx = log.findIndex(
+            (e) =>
+              e.type === "streak" &&
+              e.streakId === s.id &&
+              e.weekKey === weekKey,
+          );
+          if (idx >= 0) {
+            log.splice(idx, 1);
+            savePointLog(log);
+          }
         }
       }
       function toggleStreakFreeze(streakId) {
@@ -3710,16 +4037,31 @@
           delete WS["freeze_" + streakId];
           saveWeekState(WS);
           // Remove freeze log entry
-          const idx = log.findIndex((e) => e.type === "freeze" && e.streakId === streakId && e.weekKey === weekKey);
+          const idx = log.findIndex(
+            (e) =>
+              e.type === "freeze" &&
+              e.streakId === streakId &&
+              e.weekKey === weekKey,
+          );
           if (idx >= 0) log.splice(idx, 1);
           savePointLog(log);
           toast("Freeze removed · +50 pts refunded");
         } else {
-          if (LS.allTime() < 50) { toast("Need 50 pts to freeze!"); return; }
+          if (LS.allTime() < 50) {
+            toast("Need 50 pts to freeze!");
+            return;
+          }
           WS["freeze_" + streakId] = true;
           saveWeekState(WS);
           // Log freeze cost
-          log.push({ date: localDateStr(), type: "freeze", pts: -50, streakId, weekKey, ts: Date.now() });
+          log.push({
+            date: localDateStr(),
+            type: "freeze",
+            pts: -50,
+            streakId,
+            weekKey,
+            ts: Date.now(),
+          });
           savePointLog(log);
           toast("🧊 Streak frozen · -50 pts");
         }
@@ -3758,7 +4100,8 @@
             (earned ? " earned" : "") +
             (isDeleteMode ? " delete-mode" : "") +
             (isDeleteMode && isSelectedForDelete ? " selected" : "");
-          row.style.cssText = "flex-direction:column;align-items:flex-start;gap:6px";
+          row.style.cssText =
+            "flex-direction:column;align-items:flex-start;gap:6px";
           if (isDeleteMode) row.style.cursor = "pointer";
 
           // Build dots — lit dots first, then frozen dot if applicable, then empty
@@ -3769,9 +4112,10 @@
             dots += `<div class="sdot${lit ? " lit" : isFrozenDot ? " frozen" : ""}"><\/div>`;
           }
 
-          const freezeBtn = isCurrentWeek && !isDeleteMode
-            ? `<button class="freeze-btn${frozen ? " active" : ""}" data-action="toggle-freeze" data-streak-id="${s.id}">🧊<\/button>`
-            : "";
+          const freezeBtn =
+            isCurrentWeek && !isDeleteMode
+              ? `<button class="freeze-btn${frozen ? " active" : ""}" data-action="toggle-freeze" data-streak-id="${s.id}">🧊<\/button>`
+              : "";
 
           row.innerHTML = `<div style="display:flex;justify-content:space-between;width:100%;align-items:center;"><div style="display:flex;align-items:center;gap:10px">
 ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
@@ -3952,7 +4296,8 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
               (g) =>
                 `<option value="${escapeHtml(g)}">${escapeHtml(g)}<\/option>`,
             )
-            .join("") + '<option value="__new__">+ New radio group...<\/option>';
+            .join("") +
+          '<option value="__new__">+ New radio group...<\/option>';
         document.getElementById("df-radiogroup-new").style.display =
           groups.length ? "none" : "block";
         onRadioGroupChange();
@@ -4102,35 +4447,75 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
         showPage("streaks");
         renderStreaks();
       }
+      function renderStreakConditionRows() {
+        const container = document.getElementById("sf-conditions");
+        if (!container) return;
+        container.innerHTML = "";
+        const allItems = getDailyItems();
+        const sections = [...new Set(allItems.map((i) => i.section))];
+        streakConditions.forEach((condition, idx) => {
+          const row = document.createElement("div");
+          row.className = "streak-condition-row";
+          row.style.cssText =
+            "background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:8px";
+          row.innerHTML = `
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted)">CONDITION ${idx + 1}<\/span><button data-action="remove-streak-condition" data-idx="${idx}" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer">✕<\/button><\/div><select class="form-select sc-section-sel-${idx}" style="margin-bottom:8px"><\/select><select class="form-select sc-item-sel-${idx}"><\/select>`;
+          container.appendChild(row);
+
+          const secSel = row.querySelector(`.sc-section-sel-${idx}`);
+          const itemSel = row.querySelector(`.sc-item-sel-${idx}`);
+
+          secSel.innerHTML = sections
+            .map(
+              (s) =>
+                `<option value="${escapeHtml(s)}">${escapeHtml(s)}<\/option>`,
+            )
+            .join("");
+
+          if (!sections.length) {
+            condition.sectionVal = "";
+            condition.itemId = "";
+            itemSel.innerHTML = "";
+            return;
+          }
+
+          if (
+            !condition.sectionVal ||
+            !sections.includes(condition.sectionVal)
+          ) {
+            condition.sectionVal = sections[0];
+          }
+          secSel.value = condition.sectionVal;
+
+          populateStreakItems(
+            idx,
+            condition.sectionVal,
+            itemSel,
+            condition.itemId,
+          );
+          secSel.onchange = function () {
+            onStreakSectionChange(idx, secSel);
+          };
+        });
+      }
       function addStreakCondition() {
-        const items = getDailyItems();
-        const sections = [...new Set(items.map((i) => i.section))];
-        const idx = streakConditions.length;
-        streakConditions.push({ sectionVal: "", itemId: "" });
-        const row = document.createElement("div");
-        row.style.cssText =
-          "background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:8px";
-        row.innerHTML = `
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted)">CONDITION ${idx + 1}<\/span><button data-action="remove-streak-condition" data-idx="${idx}" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer">✕<\/button><\/div><select class="form-select sc-section-sel-${idx}" style="margin-bottom:8px">
-${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
-<\/select><select class="form-select sc-item-sel-${idx}"><\/select>`;
-        document.getElementById("sf-conditions").appendChild(row);
-        const secSel = row.querySelector(`.sc-section-sel-${idx}`);
-        const firstSec = sections[0];
-        if (firstSec) {
-          streakConditions[idx].sectionVal = firstSec;
-          populateStreakItems(idx, firstSec, row.querySelector(`.sc-item-sel-${idx}`));
-        }
-        secSel.onchange = function() { onStreakSectionChange(idx, secSel); };
+        const sections = [...new Set(getDailyItems().map((i) => i.section))];
+        streakConditions.push({
+          sectionVal: sections[0] || "",
+          itemId: "",
+        });
+        renderStreakConditionRows();
       }
       function onStreakSectionChange(idx, sel) {
+        if (!streakConditions[idx]) return;
         streakConditions[idx].sectionVal = sel.value;
         const itemSel = sel
-          .closest("div[style]")
+          .closest(".streak-condition-row")
           .querySelector(`.sc-item-sel-${idx}`);
-        populateStreakItems(idx, sel.value, itemSel);
+        populateStreakItems(idx, sel.value, itemSel, null);
       }
-      function populateStreakItems(idx, section, itemSel) {
+      function populateStreakItems(idx, section, itemSel, preferredItemId) {
+        if (!itemSel || !streakConditions[idx]) return;
         const items = getDailyItems().filter(
           (i) => i.section === section && i.type !== "penalty",
         );
@@ -4140,15 +4525,21 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
               `<option value="${escapeHtml(i.id)}">${escapeHtml(i.label)}<\/option>`,
           )
           .join("");
-        if (items.length) {
-          streakConditions[idx].itemId = items[0].id;
-          itemSel.onchange = (e) =>
-            (streakConditions[idx].itemId = e.target.value);
-        }
+        const selectedId =
+          preferredItemId && items.some((i) => i.id === preferredItemId)
+            ? preferredItemId
+            : items.length
+              ? items[0].id
+              : "";
+        streakConditions[idx].itemId = selectedId;
+        itemSel.value = selectedId;
+        itemSel.onchange = (e) =>
+          (streakConditions[idx].itemId = e.target.value);
       }
       function removeStreakCondition(idx, el) {
         streakConditions.splice(idx, 1);
-        el.remove();
+        if (el) el.remove();
+        renderStreakConditionRows();
       }
       function saveStreak() {
         const label = document.getElementById("sf-label").value.trim();
@@ -4189,16 +4580,27 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
         const cb = document.getElementById("todo-repeat-cb");
         if (cb) {
           cb.style.background = todoRepeatOn ? "var(--accent)" : "";
-          cb.style.borderColor = todoRepeatOn ? "var(--accent)" : "var(--border2)";
+          cb.style.borderColor = todoRepeatOn
+            ? "var(--accent)"
+            : "var(--border2)";
           cb.style.color = todoRepeatOn ? "var(--bg)" : "transparent";
         }
       }
       function currentMonthKey() {
         const d = new Date();
-        return "todo_month_" + d.getFullYear() + "_" + String(d.getMonth() + 1).padStart(2, "0");
+        return (
+          "todo_month_" +
+          d.getFullYear() +
+          "_" +
+          String(d.getMonth() + 1).padStart(2, "0")
+        );
       }
-      function getMonthlyTodoDone() { return LS.get(currentMonthKey(), {}); }
-      function saveMonthlyTodoDone(d) { LS.set(currentMonthKey(), d); }
+      function getMonthlyTodoDone() {
+        return LS.get(currentMonthKey(), {});
+      }
+      function saveMonthlyTodoDone(d) {
+        LS.set(currentMonthKey(), d);
+      }
       function openTodoForm() {
         prevPage = "todo";
         const todos = getTodos();
@@ -4218,7 +4620,11 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
         document.getElementById("tf-pts").value = "";
         todoRepeatOn = false;
         const rcb = document.getElementById("todo-repeat-cb");
-        if (rcb) { rcb.style.background = ""; rcb.style.borderColor = "var(--border2)"; rcb.style.color = "transparent"; }
+        if (rcb) {
+          rcb.style.background = "";
+          rcb.style.borderColor = "var(--border2)";
+          rcb.style.color = "transparent";
+        }
         showPage("todo-form");
       }
       function closeTodoForm() {
@@ -4245,7 +4651,14 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
           return;
         }
         const todos = getTodos();
-        todos.push({ id: "t_" + Date.now(), section, name, pts, done: false, repeat: todoRepeatOn });
+        todos.push({
+          id: "t_" + Date.now(),
+          section,
+          name,
+          pts,
+          done: false,
+          repeat: todoRepeatOn,
+        });
         saveTodos(todos);
         closeTodoForm();
         toast("Task added!");
@@ -4313,7 +4726,9 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
               .map((t) => {
                 const monthDone = getMonthlyTodoDone();
                 const isDone = t.repeat ? !!monthDone[t.id] : t.done;
-                const repeatBadge = t.repeat ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 4px;margin-left:4px;">MONTHLY<\/span>` : "";
+                const repeatBadge = t.repeat
+                  ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 4px;margin-left:4px;">MONTHLY<\/span>`
+                  : "";
                 return `<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;${isDone ? "opacity:0.4" : ""}"><div style="flex:1"><div style="font-size:14px;font-weight:600;${isDone ? "text-decoration:line-through" : ""}">${escapeHtml(t.name)}${repeatBadge}<\/div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${t.pts.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">
 ${!isDone ? `<button class="redeem-btn" data-action="complete-todo" data-id="${escapeHtml(t.id)}">DONE<\/button>` : "<span style=\"font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--accent);letter-spacing:1px\">EARNED<\/span>"}
 <button data-action="delete-todo" data-id="${escapeHtml(t.id)}" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕<\/button><\/div><\/div>`;
@@ -4379,7 +4794,9 @@ ${!isDone ? `<button class="redeem-btn" data-action="complete-todo" data-id="${e
       function renderRewards() {
         const el = document.getElementById("all-rewards");
         if (!el) return;
-        const rewards = getRewards().slice().sort((a, b) => a.cost - b.cost);
+        const rewards = getRewards()
+          .slice()
+          .sort((a, b) => a.cost - b.cost);
         const allTime = LS.allTime();
         const isDeleteMode = rewardDeleteModeOn;
         el.innerHTML = rewards
@@ -4587,11 +5004,22 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                 if (e.type === "daily") {
                   desc = "Daily";
                   tag = "";
-                  const knownSections = ["🌅 Morning","💪 Fitness","🥗 Nutrition","💼 Work","📚 School","🌙 Evening"];
+                  const knownSections = [
+                    "🌅 Morning",
+                    "💪 Fitness",
+                    "🥗 Nutrition",
+                    "💼 Work",
+                    "📚 School",
+                    "🌙 Evening",
+                  ];
                   const secData = e.sections || {};
                   sub = knownSections
                     .map((k) => {
-                      const label = k.replace(/[^\w\s]/g,"").trim().split(" ").pop();
+                      const label = k
+                        .replace(/[^\w\s]/g, "")
+                        .trim()
+                        .split(" ")
+                        .pop();
                       const v = secData[k] || 0;
                       return label + ":" + v;
                     })
@@ -4617,13 +5045,15 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                 sub = escapeHtml(sub);
                 tag = escapeHtml(tag);
                 const tagColors = {
-                  "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
-                  "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
-                  "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
-                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
-                  "FREEZE": "color:#3b9eda;background:rgba(59,158,218,0.1);"
+                  TODO: "color:#00d4ff;background:rgba(0,212,255,0.1);",
+                  WEEKLY: "color:#ffd700;background:rgba(255,215,0,0.1);",
+                  STREAK: "color:#ff6b35;background:rgba(255,107,53,0.1);",
+                  REDEEMED: "color:#8b5cf6;background:rgba(139,92,246,0.1);",
+                  FREEZE: "color:#3b9eda;background:rgba(59,158,218,0.1);",
                 };
-                const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(124,106,247,0.15);";
+                const tagStyle =
+                  tagColors[tag] ||
+                  "color:var(--purple);background:rgba(124,106,247,0.15);";
                 const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
                 return `<div class="hist-row"><div><div style="display:flex;align-items:center;gap:6px">
 ${tag ? `<span class="hist-tag" style="${tagStyle}">${tag}<\/span>` : ""}
@@ -4674,19 +5104,27 @@ ${rows}
         const year = getMcalYear();
         const month = getMcalMonth();
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         const h = LS.history();
         const log = getPointLog();
 
         // Title
         const titleEl = document.getElementById("mcal-title");
-        if (titleEl) titleEl.textContent = new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
+        if (titleEl)
+          titleEl.textContent = new Date(year, month, 1)
+            .toLocaleDateString("en-US", { month: "long", year: "numeric" })
+            .toUpperCase();
 
         // Get all scores for this month to find max (relative scale)
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         let maxPts = 1;
         for (let d = 1; d <= daysInMonth; d++) {
-          const dateStr = year + "-" + String(month + 1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+          const dateStr =
+            year +
+            "-" +
+            String(month + 1).padStart(2, "0") +
+            "-" +
+            String(d).padStart(2, "0");
           const pts = (h[dateStr] || {}).total || 0;
           if (pts > maxPts) maxPts = pts;
         }
@@ -4705,7 +5143,7 @@ ${rows}
         grid.innerHTML = "";
 
         // Day of week headers: Mon Tue Wed Thu Fri Sat Sun
-        ["M","T","W","T","F","S","S"].forEach(function(d) {
+        ["M", "T", "W", "T", "F", "S", "S"].forEach(function (d) {
           const el = document.createElement("div");
           el.className = "month-cal-dow";
           el.textContent = d;
@@ -4725,15 +5163,23 @@ ${rows}
 
         // Day cells
         for (let d = 1; d <= daysInMonth; d++) {
-          const dateStr = year + "-" + String(month+1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+          const dateStr =
+            year +
+            "-" +
+            String(month + 1).padStart(2, "0") +
+            "-" +
+            String(d).padStart(2, "0");
           const cellDate = new Date(year, month, d);
-          cellDate.setHours(0,0,0,0);
+          cellDate.setHours(0, 0, 0, 0);
           const isFuture = cellDate > today;
           const pts = (h[dateStr] || {}).total;
           const isSelected = mcalSelectedDate === dateStr;
 
           const el = document.createElement("div");
-          el.className = "month-cal-day" + (isFuture ? " future" : "") + (isSelected ? " selected" : "");
+          el.className =
+            "month-cal-day" +
+            (isFuture ? " future" : "") +
+            (isSelected ? " selected" : "");
           el.style.background = "var(--bg3)";
           el.style.border = "1px solid var(--border2)";
 
@@ -4750,8 +5196,10 @@ ${rows}
           }
 
           if (!isFuture) {
-            el.onclick = (function(ds, p) {
-              return function() { toggleMcalDay(ds, p); };
+            el.onclick = (function (ds, p) {
+              return function () {
+                toggleMcalDay(ds, p);
+              };
             })(dateStr, pts);
           }
 
@@ -4776,54 +5224,106 @@ ${rows}
         renderMonthCal(); // Re-render to show selection
 
         const d = new Date(dateStr + "T12:00:00");
-        const label = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+        const label = d.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        });
         expandTitle.textContent = label.toUpperCase();
 
         const h = LS.history();
         const log = getPointLog();
         const sc = h[dateStr];
-        const dayLog = log.filter(function(e) { return e.date === dateStr; });
+        const dayLog = log.filter(function (e) {
+          return e.date === dateStr;
+        });
 
         let html = "";
 
         // Daily score + section breakdown
         if (sc && sc.total !== undefined) {
-          const knownSections = ["🌅 Morning","💪 Fitness","🥗 Nutrition","💼 Work","📚 School","🌙 Evening"];
+          const knownSections = [
+            "🌅 Morning",
+            "💪 Fitness",
+            "🥗 Nutrition",
+            "💼 Work",
+            "📚 School",
+            "🌙 Evening",
+          ];
           const secData = sc.sections || {};
-          const subs = knownSections.map(function(k) {
-            const label = k.replace(/[^\w\s]/g,"").trim().split(" ").pop();
-            return escapeHtml(label) + ":" + (secData[k] || 0);
-          }).join(" · ");
-          html += '<div class="hist-row"><div><div style="font-size:13px;color:var(--text);">Daily Habits<\/div>' +
-            '<div style="font-size:11px;color:var(--muted);margin-top:3px;">' + subs + '<\/div>' +
-            '<\/div><div class="hist-pts" style="color:var(--accent);">' + (sc.total >= 0 ? "+" : "") + sc.total + '<\/div><\/div>';
+          const subs = knownSections
+            .map(function (k) {
+              const label = k
+                .replace(/[^\w\s]/g, "")
+                .trim()
+                .split(" ")
+                .pop();
+              return escapeHtml(label) + ":" + (secData[k] || 0);
+            })
+            .join(" · ");
+          html +=
+            '<div class="hist-row"><div><div style="font-size:13px;color:var(--text);">Daily Habits<\/div>' +
+            '<div style="font-size:11px;color:var(--muted);margin-top:3px;">' +
+            subs +
+            "<\/div>" +
+            '<\/div><div class="hist-pts" style="color:var(--accent);">' +
+            (sc.total >= 0 ? "+" : "") +
+            sc.total +
+            "<\/div><\/div>";
         }
 
         // Other log entries for this day
         const tagColors = {
-          "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
-          "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
-          "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
-          "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
-          "FREEZE": "color:#3b9eda;background:rgba(59,158,218,0.1);"
+          TODO: "color:#00d4ff;background:rgba(0,212,255,0.1);",
+          WEEKLY: "color:#ffd700;background:rgba(255,215,0,0.1);",
+          STREAK: "color:#ff6b35;background:rgba(255,107,53,0.1);",
+          REDEEMED: "color:#8b5cf6;background:rgba(139,92,246,0.1);",
+          FREEZE: "color:#3b9eda;background:rgba(59,158,218,0.1);",
         };
-        dayLog.forEach(function(e) {
-          let tag = "", desc = "";
-          if (e.type === "weekly") { tag = "WEEKLY"; desc = e.label || "Weekly task"; }
-          else if (e.type === "streak") { tag = "STREAK"; desc = e.label || "Streak"; }
-          else if (e.type === "todo") { tag = "TODO"; desc = e.label || "Task"; }
-          else if (e.type === "redeem") { tag = "REDEEMED"; desc = e.label || "Reward"; }
-          else if (e.type === "freeze") { tag = "FREEZE"; desc = "Streak Freeze"; }
-          else return;
+        dayLog.forEach(function (e) {
+          let tag = "",
+            desc = "";
+          if (e.type === "weekly") {
+            tag = "WEEKLY";
+            desc = e.label || "Weekly task";
+          } else if (e.type === "streak") {
+            tag = "STREAK";
+            desc = e.label || "Streak";
+          } else if (e.type === "todo") {
+            tag = "TODO";
+            desc = e.label || "Task";
+          } else if (e.type === "redeem") {
+            tag = "REDEEMED";
+            desc = e.label || "Reward";
+          } else if (e.type === "freeze") {
+            tag = "FREEZE";
+            desc = "Streak Freeze";
+          } else return;
           const tagStyle = tagColors[tag] || "";
           const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
-          html += '<div class="hist-row"><div><div style="display:flex;align-items:center;gap:6px;">' +
-            (tag ? '<span class="hist-tag" style="' + tagStyle + '">' + escapeHtml(tag) + '<\/span>' : '') +
-            '<span style="font-size:13px;color:var(--text);">' + escapeHtml(desc) + '<\/span><\/div><\/div>' +
-            '<div class="hist-pts" style="color:' + ptsColor + ';">' + (e.pts >= 0 ? "+" : "") + e.pts + '<\/div><\/div>';
+          html +=
+            '<div class="hist-row"><div><div style="display:flex;align-items:center;gap:6px;">' +
+            (tag
+              ? '<span class="hist-tag" style="' +
+                tagStyle +
+                '">' +
+                escapeHtml(tag) +
+                "<\/span>"
+              : "") +
+            '<span style="font-size:13px;color:var(--text);">' +
+            escapeHtml(desc) +
+            "<\/span><\/div><\/div>" +
+            '<div class="hist-pts" style="color:' +
+            ptsColor +
+            ';">' +
+            (e.pts >= 0 ? "+" : "") +
+            e.pts +
+            "<\/div><\/div>";
         });
 
-        if (!html) html = '<div style="font-size:13px;color:var(--muted);padding:4px 0;">No data for this day.<\/div>';
+        if (!html)
+          html =
+            '<div style="font-size:13px;color:var(--muted);padding:4px 0;">No data for this day.<\/div>';
         expandBody.innerHTML = html;
         expandEl.style.display = "block";
       }
@@ -4931,7 +5431,12 @@ ${rows}
           if (!actionEl) return;
           const { action, nav, delta, id, cost, name, idx } = actionEl.dataset;
           if (nav) {
-            if (nav === "todo") { showPage("todo"); renderTodos(); setNavActive("todo"); return; }
+            if (nav === "todo") {
+              showPage("todo");
+              renderTodos();
+              setNavActive("todo");
+              return;
+            }
             goPage(nav);
             setNavActive(nav);
             return;
@@ -4973,7 +5478,11 @@ ${rows}
           if (action === "save-new-reward") return saveNewReward();
           if (action === "hide-add-reward") return toggleAddReward(false);
           if (action === "show-add-reward") return toggleAddReward(true);
-          if (action === "back-to-dashboard") { goPage("dashboard"); setNavActive("dashboard"); return; }
+          if (action === "back-to-dashboard") {
+            goPage("dashboard");
+            setNavActive("dashboard");
+            return;
+          }
           if (action === "export-data") return exportData();
           if (action === "trigger-import")
             return document.getElementById("import-input").click();
@@ -4984,7 +5493,12 @@ ${rows}
             if (sid) toggleStreakFreeze(sid);
             return;
           }
-          if (action === "go-todo") { showPage("todo"); renderTodos(); setNavActive("todo"); return; }
+          if (action === "go-todo") {
+            showPage("todo");
+            renderTodos();
+            setNavActive("todo");
+            return;
+          }
           if (action === "toggle-todo-repeat") return toggleTodoRepeat();
           if (action === "go-rewards") return goRewards();
           if (action === "save-daily-item") return saveDailyItem();
@@ -5001,7 +5515,7 @@ ${rows}
           if (action === "remove-streak-condition")
             return removeStreakCondition(
               Number(idx),
-              actionEl.closest("div[style]"),
+              actionEl.closest(".streak-condition-row"),
             );
           if (action === "complete-todo") return completeTodo(id);
           if (action === "delete-todo") return deleteTodo(id);
@@ -5042,7 +5556,9 @@ ${rows}
       let currentPage = "daily";
       let prevNavPage = null;
       function setNavActive(id) {
-        document.querySelectorAll(".nav-tab").forEach(function(b) { b.classList.remove("active"); });
+        document.querySelectorAll(".nav-tab").forEach(function (b) {
+          b.classList.remove("active");
+        });
         const tab = document.querySelector('.nav-tab[data-nav="' + id + '"]');
         if (tab) tab.classList.add("active");
       }
@@ -5391,7 +5907,10 @@ ${rows}
         showPage("dashboard");
         setNavActive("dashboard");
         const mcalNextBtn = document.getElementById("mcal-next");
-        if (mcalNextBtn) { mcalNextBtn.style.opacity = "0.2"; mcalNextBtn.style.pointerEvents = "none"; }
+        if (mcalNextBtn) {
+          mcalNextBtn.style.opacity = "0.2";
+          mcalNextBtn.style.pointerEvents = "none";
+        }
       }
       init();
     </script>
