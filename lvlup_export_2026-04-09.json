@@ -1,0 +1,943 @@
+{
+  "version": 3,
+  "exported": "2026-04-09T17:18:06.766Z",
+  "daily_items": [
+    {
+      "id": "wake_first",
+      "section": "🌅 Morning",
+      "subgroup": "Wake Up",
+      "type": "radio",
+      "radioGroup": "wake",
+      "label": "First alarm",
+      "pts": 20
+    },
+    {
+      "id": "wake_once",
+      "section": "🌅 Morning",
+      "subgroup": "Wake Up",
+      "type": "radio",
+      "radioGroup": "wake",
+      "label": "Snoozed once",
+      "pts": 15
+    },
+    {
+      "id": "wake_twice",
+      "section": "🌅 Morning",
+      "subgroup": "Wake Up",
+      "type": "radio",
+      "radioGroup": "wake",
+      "label": "Snoozed twice",
+      "pts": 5
+    },
+    {
+      "id": "wake_many",
+      "section": "🌅 Morning",
+      "subgroup": "Wake Up",
+      "type": "radio",
+      "radioGroup": "wake",
+      "label": "Snoozed multiple times",
+      "pts": 0
+    },
+    {
+      "id": "late_30",
+      "section": "🌅 Morning",
+      "subgroup": "Late Penalty",
+      "type": "radio",
+      "radioGroup": "late",
+      "label": "30+ min past target",
+      "pts": -5
+    },
+    {
+      "id": "late_60",
+      "section": "🌅 Morning",
+      "subgroup": "Late Penalty",
+      "type": "radio",
+      "radioGroup": "late",
+      "label": "1hr past target",
+      "pts": -10
+    },
+    {
+      "id": "late_60p",
+      "section": "🌅 Morning",
+      "subgroup": "Late Penalty",
+      "type": "radio",
+      "radioGroup": "late",
+      "label": "1hr+ past target",
+      "pts": -20
+    },
+    {
+      "id": "am_hyg",
+      "section": "🌅 Morning",
+      "subgroup": "Hygiene",
+      "type": "checkbox",
+      "label": "Teeth + shower + sunscreen within 45 min",
+      "pts": 15
+    },
+    {
+      "id": "am_doom_bath",
+      "section": "🌅 Morning",
+      "subgroup": "Hygiene",
+      "type": "penalty",
+      "label": "Doomscrolled in bathroom",
+      "pts": -5
+    },
+    {
+      "id": "am_zone",
+      "section": "🌅 Morning",
+      "subgroup": "Hygiene",
+      "type": "penalty",
+      "label": "Zoned out in shower",
+      "pts": -5
+    },
+    {
+      "id": "am_bed",
+      "section": "🌅 Morning",
+      "subgroup": "Start the Day",
+      "type": "checkbox",
+      "label": "Made bed + tidied room",
+      "pts": 3
+    },
+    {
+      "id": "am_jrnl",
+      "section": "🌅 Morning",
+      "subgroup": "Start the Day",
+      "type": "checkbox",
+      "label": "Journal check-in",
+      "pts": 3
+    },
+    {
+      "id": "am_breakfast",
+      "section": "🌅 Morning",
+      "subgroup": "Start the Day",
+      "type": "checkbox",
+      "label": "Light Breakfast",
+      "pts": 10
+    },
+    {
+      "id": "am_lunch",
+      "section": "🌅 Morning",
+      "subgroup": "Start the Day",
+      "type": "checkbox",
+      "label": "Made lunch (work days)",
+      "pts": 4
+    },
+    {
+      "id": "am_nolunch",
+      "section": "🌅 Morning",
+      "subgroup": "Start the Day",
+      "type": "penalty",
+      "label": "Didn't make lunch on a work day",
+      "pts": -5
+    },
+    {
+      "id": "st_10k",
+      "section": "💪 Fitness",
+      "subgroup": "Steps",
+      "type": "radio",
+      "radioGroup": "steps",
+      "label": "10k+ steps",
+      "pts": 20
+    },
+    {
+      "id": "st_8k",
+      "section": "💪 Fitness",
+      "subgroup": "Steps",
+      "type": "radio",
+      "radioGroup": "steps",
+      "label": "8k–10k steps",
+      "pts": 15
+    },
+    {
+      "id": "st_5k",
+      "section": "💪 Fitness",
+      "subgroup": "Steps",
+      "type": "radio",
+      "radioGroup": "steps",
+      "label": "5k–8k steps",
+      "pts": 10
+    },
+    {
+      "id": "st_low",
+      "section": "💪 Fitness",
+      "subgroup": "Steps",
+      "type": "radio",
+      "radioGroup": "steps",
+      "label": "Under 5k steps",
+      "pts": -10
+    },
+    {
+      "id": "fit_push",
+      "section": "💪 Fitness",
+      "subgroup": "Movement",
+      "type": "checkbox",
+      "label": "Pushups",
+      "pts": 5
+    },
+    {
+      "id": "fit_stretch",
+      "section": "💪 Fitness",
+      "subgroup": "Movement",
+      "type": "checkbox",
+      "label": "Stretching",
+      "pts": 5
+    },
+    {
+      "id": "fit_core",
+      "section": "💪 Fitness",
+      "subgroup": "Movement",
+      "type": "checkbox",
+      "label": "Core (non-gym day)",
+      "pts": 10
+    },
+    {
+      "id": "fit_gym",
+      "section": "💪 Fitness",
+      "subgroup": "Movement",
+      "type": "checkbox",
+      "label": "Gym visit",
+      "pts": 10
+    },
+    {
+      "id": "fit_none",
+      "section": "💪 Fitness",
+      "subgroup": "Movement",
+      "type": "penalty",
+      "label": "No movement at all",
+      "pts": -10
+    },
+    {
+      "id": "fit_goodwrk",
+      "section": "💪 Fitness",
+      "subgroup": "Gym Bonuses",
+      "type": "checkbox",
+      "label": "Good workout",
+      "pts": 10
+    },
+    {
+      "id": "fit_cardio",
+      "section": "💪 Fitness",
+      "subgroup": "Gym Bonuses",
+      "type": "checkbox",
+      "label": "Cardio",
+      "pts": 10
+    },
+    {
+      "id": "nut_cal",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Hit calorie goal (≤2,200)",
+      "pts": 10
+    },
+    {
+      "id": "nut_prot",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Hit protein goal (≥162g)",
+      "pts": 10
+    },
+    {
+      "id": "nut_log",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Logged all food",
+      "pts": 10
+    },
+    {
+      "id": "nut_9pm",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "No eating after 9pm",
+      "pts": 8
+    },
+    {
+      "id": "nut_psyl",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Metamucil before dinner",
+      "pts": 3
+    },
+    {
+      "id": "nut_fruit",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Ate fruit",
+      "pts": 2
+    },
+    {
+      "id": "nut_out",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Ordered out (unplanned)",
+      "pts": -20
+    },
+    {
+      "id": "nut_junk",
+      "section": "🥗 Nutrition",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "200+ cal of junk food",
+      "pts": -10
+    },
+    {
+      "id": "wrk_time",
+      "section": "💼 Work",
+      "subgroup": "Get Started",
+      "type": "checkbox",
+      "label": "Got to work on time",
+      "pts": 10
+    },
+    {
+      "id": "wrk_task",
+      "section": "💼 Work",
+      "subgroup": "Get Started",
+      "type": "checkbox",
+      "label": "Started + reviewed task list within 20 min",
+      "pts": 10
+    },
+    {
+      "id": "wrk_min",
+      "section": "💼 Work",
+      "subgroup": "Productivity",
+      "type": "radio",
+      "radioGroup": "prod",
+      "label": "Showed up, did the minimum",
+      "pts": 10
+    },
+    {
+      "id": "wrk_good",
+      "section": "💼 Work",
+      "subgroup": "Productivity",
+      "type": "radio",
+      "radioGroup": "prod",
+      "label": "Productive, got meaningful work done",
+      "pts": 20
+    },
+    {
+      "id": "wrk_crush",
+      "section": "💼 Work",
+      "subgroup": "Productivity",
+      "type": "radio",
+      "radioGroup": "prod",
+      "label": "Crushed it 🔥",
+      "pts": 30
+    },
+    {
+      "id": "wrk_doom",
+      "section": "💼 Work",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Excessive doom scrolling",
+      "pts": -15
+    },
+    {
+      "id": "wrk_lunch",
+      "section": "💼 Work",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Excessive lunch break",
+      "pts": -10
+    },
+    {
+      "id": "wrk_skip",
+      "section": "💼 Work",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Didn't do what needed to be done",
+      "pts": -20
+    },
+    {
+      "id": "sch_code",
+      "section": "📚 School",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "Completed coding or problem set",
+      "pts": 15
+    },
+    {
+      "id": "sch_1p",
+      "section": "📚 School",
+      "subgroup": "Pomodoros",
+      "type": "radio",
+      "radioGroup": "pomo",
+      "label": "1 pomodoro",
+      "pts": 10
+    },
+    {
+      "id": "sch_2p",
+      "section": "📚 School",
+      "subgroup": "Pomodoros",
+      "type": "radio",
+      "radioGroup": "pomo",
+      "label": "2 pomodoros",
+      "pts": 20
+    },
+    {
+      "id": "sch_3p",
+      "section": "📚 School",
+      "subgroup": "Pomodoros",
+      "type": "radio",
+      "radioGroup": "pomo",
+      "label": "3 pomodoros",
+      "pts": 30
+    },
+    {
+      "id": "sch_4p",
+      "section": "📚 School",
+      "subgroup": "Pomodoros",
+      "type": "radio",
+      "radioGroup": "pomo",
+      "label": "4+ pomodoros",
+      "pts": 35
+    },
+    {
+      "id": "sch_none",
+      "section": "📚 School",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "No school work done",
+      "pts": -25
+    },
+    {
+      "id": "pm_tidy",
+      "section": "🌙 Evening",
+      "subgroup": "Wind Down",
+      "type": "checkbox",
+      "label": "Dishes / tidied up",
+      "pts": 5
+    },
+    {
+      "id": "pm_jrnl",
+      "section": "🌙 Evening",
+      "subgroup": "Wind Down",
+      "type": "checkbox",
+      "label": "Journal — day recap + tomorrow's tasks",
+      "pts": 15
+    },
+    {
+      "id": "pm_nophone",
+      "section": "🌙 Evening",
+      "subgroup": "Wind Down",
+      "type": "checkbox",
+      "label": "No phone after cutoff",
+      "pts": 10
+    },
+    {
+      "id": "pm_teeth",
+      "section": "🌙 Evening",
+      "subgroup": "Wind Down",
+      "type": "checkbox",
+      "label": "Brushed teeth",
+      "pts": 5
+    },
+    {
+      "id": "pm_bed",
+      "section": "🌙 Evening",
+      "subgroup": "Sleepy Time",
+      "type": "checkbox",
+      "label": "In bed on time",
+      "pts": 15
+    },
+    {
+      "id": "pm_doom",
+      "section": "🌙 Evening",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Doom scrolling 10+ min at night",
+      "pts": -15
+    },
+    {
+      "id": "pm_late",
+      "section": "🌙 Evening",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "In bed 30+ min past target",
+      "pts": -15
+    },
+    {
+      "id": "misc_news",
+      "section": "⚡ Misc",
+      "subgroup": null,
+      "type": "checkbox",
+      "label": "20 min current events",
+      "pts": 15
+    },
+    {
+      "id": "misc_sm",
+      "section": "⚡ Misc",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Over 2hr social media",
+      "pts": -20
+    },
+    {
+      "id": "misc_release",
+      "section": "⚡ Misc",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "******* ** ****",
+      "pts": -50
+    },
+    {
+      "id": "misc_uber",
+      "section": "⚡ Misc",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Unnecessary Uber",
+      "pts": -10
+    },
+    {
+      "id": "misc_spontaneous",
+      "section": "⚡ Misc",
+      "subgroup": null,
+      "type": "penalty",
+      "label": "Spent money on a spontaneous want",
+      "pts": -30
+    }
+  ],
+  "weekly_items": [
+    {
+      "id": "w_mp1",
+      "section": "🛒 Nutrition Tasks",
+      "label": "Meal prep",
+      "pts": 50,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_mp2",
+      "section": "🛒 Nutrition Tasks",
+      "label": "Meal prep (2nd)",
+      "pts": 50,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_groc_in",
+      "section": "🛒 Nutrition Tasks",
+      "label": "Got groceries in person",
+      "pts": 50,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_groc_ord",
+      "section": "🛒 Nutrition Tasks",
+      "label": "Ordered groceries",
+      "pts": 10,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_shave",
+      "section": "🪒 Grooming",
+      "label": "Shave",
+      "pts": 10,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_hair1",
+      "section": "🪒 Grooming",
+      "label": "Wash hair",
+      "pts": 10,
+      "count": 3,
+      "penalty": false
+    },
+    {
+      "id": "w_fin",
+      "section": "💰 Finance",
+      "label": "Checked finance app",
+      "pts": 10,
+      "count": 5,
+      "penalty": false
+    },
+    {
+      "id": "w_soc",
+      "section": "🤝 Social",
+      "label": "Left the house — something social",
+      "pts": 20,
+      "count": 2,
+      "penalty": false
+    },
+    {
+      "id": "w_game",
+      "section": "🤝 Social",
+      "label": "Gamed or called with friends",
+      "pts": 10,
+      "count": 2,
+      "penalty": false
+    },
+    {
+      "id": "w_laundry",
+      "section": "🏠 Housework",
+      "label": "Laundry",
+      "pts": 30,
+      "count": 1,
+      "penalty": false
+    },
+    {
+      "id": "w_trash",
+      "section": "🏠 Housework",
+      "label": "Take out trash",
+      "pts": 10,
+      "count": 2,
+      "penalty": false
+    },
+    {
+      "id": "wp_out2",
+      "section": "❌ Weekly Penalties",
+      "label": "Ordered out more than once",
+      "pts": -100,
+      "count": 1,
+      "penalty": true
+    },
+    {
+      "id": "wp_nofin",
+      "section": "❌ Weekly Penalties",
+      "label": "Didn't check finance app at all",
+      "pts": -50,
+      "count": 1,
+      "penalty": true
+    },
+    {
+      "id": "wp_nogym",
+      "section": "❌ Weekly Penalties",
+      "label": "No gym visits at all",
+      "pts": -100,
+      "count": 1,
+      "penalty": true
+    },
+    {
+      "id": "wp_nomp",
+      "section": "❌ Weekly Penalties",
+      "label": "No meal prep done",
+      "pts": -50,
+      "count": 1,
+      "penalty": true
+    },
+    {
+      "id": "wp_nosch",
+      "section": "❌ Weekly Penalties",
+      "label": "No school work 2+ days in a row",
+      "pts": -50,
+      "count": 1,
+      "penalty": true
+    },
+    {
+      "id": "wp_sm",
+      "section": "❌ Weekly Penalties",
+      "label": "Over 2hr social media (per day flagged)",
+      "pts": -50,
+      "count": 1,
+      "penalty": true
+    }
+  ],
+  "streaks": [
+    {
+      "id": "s_alarm6",
+      "label": "First Alarm",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "wake_first"
+        }
+      ]
+    },
+    {
+      "id": "s_hyg6",
+      "label": "Perfect Hygiene",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "am_hyg"
+        }
+      ]
+    },
+    {
+      "id": "s_start6",
+      "label": "Full Start the Day",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "am_breakfast"
+        },
+        {
+          "itemId": "am_bed"
+        },
+        {
+          "itemId": "am_jrnl"
+        }
+      ]
+    },
+    {
+      "id": "s_lunch5",
+      "label": "Made Lunch Every Work Day",
+      "target": 5,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "am_lunch"
+        }
+      ]
+    },
+    {
+      "id": "s_gym3",
+      "label": "Gym 3×",
+      "target": 3,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "fit_gym"
+        }
+      ]
+    },
+    {
+      "id": "s_bed6",
+      "label": "In Bed On Time",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "pm_bed"
+        }
+      ]
+    },
+    {
+      "id": "s_jrnl6",
+      "label": "Journal",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "pm_jrnl"
+        }
+      ]
+    },
+    {
+      "id": "s_3pomo6",
+      "label": "3+ Pomodoros",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "sch_3p"
+        },
+        {
+          "itemId": "sch_4p",
+          "any": true
+        }
+      ]
+    },
+    {
+      "id": "s_code6",
+      "label": "Coding / Problem Sets",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "sch_code"
+        }
+      ]
+    },
+    {
+      "id": "s_good5",
+      "label": "Meaningful Work",
+      "target": 5,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "wrk_good"
+        },
+        {
+          "itemId": "wrk_crush",
+          "any": true
+        }
+      ]
+    },
+    {
+      "id": "s_log6",
+      "label": "Logged Food",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "nut_log"
+        }
+      ]
+    },
+    {
+      "id": "s_cal6",
+      "label": "Hit Calories",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "nut_cal"
+        }
+      ]
+    },
+    {
+      "id": "s_3l6",
+      "label": "Hit 3L Water",
+      "target": 6,
+      "pts": 100,
+      "conditions": [
+        {
+          "itemId": "nut_3l"
+        }
+      ]
+    }
+  ],
+  "rewards": [
+    {
+      "id": "r_gaming",
+      "name": "1 hour of gaming",
+      "cost": 1000
+    },
+    {
+      "id": "r_eatout",
+      "name": "Eating out",
+      "cost": 1000
+    },
+    {
+      "id": "r_massage",
+      "name": "Massage",
+      "cost": 10000
+    }
+  ],
+  "todos": [],
+  "point_log": [
+    {
+      "date": "2026-04-09",
+      "type": "weekly",
+      "pts": 10,
+      "label": "Wash hair",
+      "key": "w_hair1_0",
+      "ts": 1775754784808
+    }
+  ],
+  "history": {
+    "2026-04-04": {
+      "total": 51,
+      "sections": {
+        "🌅 Morning": 23,
+        "💪 Fitness": 15,
+        "🥗 Nutrition": 3,
+        "🌙 Evening": 10
+      }
+    },
+    "2026-04-05": {
+      "total": 59,
+      "sections": {
+        "🌅 Morning": 38,
+        "💪 Fitness": 10,
+        "🥗 Nutrition": 11
+      }
+    },
+    "2026-04-06": {
+      "total": 101,
+      "sections": {
+        "🌅 Morning": 38,
+        "💪 Fitness": 30,
+        "🥗 Nutrition": 8,
+        "💼 Work": 30
+      }
+    },
+    "2026-04-07": {
+      "total": 58,
+      "sections": {
+        "🌅 Morning": 38,
+        "💪 Fitness": 20
+      }
+    },
+    "2026-04-08": {
+      "total": 75,
+      "sections": {
+        "🥗 Nutrition": 5,
+        "🌅 Morning": 30,
+        "💪 Fitness": 10,
+        "💼 Work": 30
+      }
+    },
+    "2026-04-09": {
+      "total": -39,
+      "sections": {
+        "🥗 Nutrition": -30,
+        "🌅 Morning": 41,
+        "⚡ Misc": -50
+      }
+    }
+  },
+  "alltime": 425,
+  "daily_states": {
+    "d_2026-04-05": {
+      "wake_first": 20,
+      "am_hyg": 15,
+      "am_bed": 3,
+      "fit_core": 10,
+      "nut_9pm": 8,
+      "nut_psyl": 3
+    },
+    "d_2026-04-06": {
+      "wake_first": 20,
+      "am_hyg": 15,
+      "am_bed": 3,
+      "st_10k": 20,
+      "fit_core": 10,
+      "water_cups": 8,
+      "nut_psyl": 3,
+      "wrk_time": 10,
+      "wrk_good": 20
+    },
+    "d_2026-04-09": {
+      "wake_first": 20,
+      "am_doom_bath": -5,
+      "am_nolunch": -5,
+      "am_hyg": 15,
+      "am_bed": 3,
+      "am_jrnl": 3,
+      "am_breakfast": 10,
+      "misc_release": -50,
+      "water_cups": 2,
+      "nut_out": -20,
+      "nut_junk": -10
+    },
+    "d_2026-04-08": {
+      "am_hyg": 15,
+      "wake_once": 15,
+      "st_10k": 20,
+      "water_cups": 8,
+      "wrk_crush": 30,
+      "fit_none": -10
+    },
+    "d_2026-04-07": {
+      "wake_first": 20,
+      "am_hyg": 15,
+      "am_bed": 3,
+      "st_10k": 20
+    },
+    "d_2026-04-04": {
+      "wake_first": 20,
+      "am_bed": 3,
+      "fit_push": 5,
+      "fit_core": 10,
+      "nut_psyl": 3,
+      "pm_bed": 10
+    }
+  },
+  "weekly_states": {
+    "week_2026-04-06": {
+      "w_hair1_0": 10
+    }
+  }
+}
