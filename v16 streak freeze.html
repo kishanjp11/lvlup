@@ -16,9 +16,7 @@
   v13 — cumulative milestones/skill tree on rewards page, alltime_earned tracking, dashboard updates
   v14 — spending tracker (skipped/deferred)
   v15 — fix alltime_earned to include negative days, only exclude redemptions
-  v16 — streak freeze feature, fix calendar excluding redemptions from day total, replace -webkit-appearance with appearance
-  v17 — weekly multi-checkbox: pts and label now highlight gold/white when any box checked
-  v18 — fix syncAllTime: alltime and alltime_earned now use point_log as single source of truth
+  v16 — streak freeze feature, fix calendar excluding redemptions from day total
   ============================================================
 -->
 <!doctype html>
@@ -1104,7 +1102,7 @@
         padding: 10px 12px;
         outline: none;
         box-sizing: border-box;
-        appearance: none;
+        -webkit-appearance: none;
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555577' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
@@ -3218,21 +3216,39 @@
       }
       function syncAllTime() {
         const h = LS.history();
-        const log = getPointLog();
         const dailySum = Object.values(h).reduce(
           (t, d) => t + (d.total || 0),
           0,
         );
-        const logSum = log
-          .filter((e) => ["weekly", "streak", "todo"].includes(e.type))
-          .reduce((t, e) => t + (e.pts || 0), 0);
-        const redeemSum = log
-          .filter((e) => ["redeem", "redeemed"].includes(e.type))
-          .reduce((t, e) => t + (e.pts || 0), 0);
-        const total = dailySum + logSum + redeemSum;
+        let weeklySum = 0;
+        const allKeys2 = [];
+        try {
+          for (let i = 0; i < localStorage.length; i++)
+            allKeys2.push(localStorage.key(i));
+        } catch (e) {}
+        allKeys2
+          .filter((k) => k.startsWith("week_"))
+          .forEach((key) => {
+            const ws = LS.get(key, {});
+            const items = getWeeklyItems();
+            items.forEach((item) => {
+              for (let i = 0; i < (item.count || 1); i++) {
+                weeklySum += ws[item.id + "_" + i] || 0;
+              }
+            });
+          });
+        const total = dailySum + weeklySum;
         setAllTime(total);
-        // alltime_earned = same but without redemptions
-        LS.saveEarned(dailySum + logSum);
+        // Recompute alltime_earned: net score excluding redemptions (includes penalties, excludes reward spend)
+        const positiveDailySum = Object.values(h).reduce(
+          (t, d) => t + (d.total || 0),
+          0,
+        );
+        const log = getPointLog();
+        const logSum = log
+          .filter((e) => ["weekly", "streak", "todo"].includes(e.type) && e.pts > 0)
+          .reduce((t, e) => t + e.pts, 0);
+        LS.saveEarned(positiveDailySum + logSum);
         checkMilestones();
         return total;
       }
@@ -3608,11 +3624,6 @@
                 div.querySelectorAll(".multi-cb").forEach((cb) => {
                   cb.onclick = () => multiTap(cb);
                 });
-                const anyOn = Object.keys(WS).some((k) => k.startsWith(item.id + "_") && WS[k]);
-                const ptsEl = div.querySelector(".multi-pts");
-                const labelEl = div.querySelector(".multi-label");
-                if (ptsEl && anyOn) ptsEl.style.color = "var(--gold)";
-                if (labelEl && anyOn) labelEl.style.color = "var(--text)";
               } else {
                 div.style.pointerEvents = "none";
                 div.style.opacity = "0.7";
@@ -3664,15 +3675,6 @@
         void cb.offsetWidth;
         cb.classList.add("popping");
         setTimeout(() => cb.classList.remove("popping"), 400);
-        // Update multi-pts color based on whether any box in this item is checked
-        const row = cb.closest(".witem.multi");
-        if (row) {
-          const anyOn = row.querySelectorAll(".multi-cb.on").length > 0;
-          const ptsEl = row.querySelector(".multi-pts");
-          const labelEl = row.querySelector(".multi-label");
-          if (ptsEl) ptsEl.style.color = anyOn ? "var(--gold)" : "";
-          if (labelEl) labelEl.style.color = anyOn ? "var(--text)" : "";
-        }
         updateWeekTotal();
         syncAllTime();
         refreshDash();
