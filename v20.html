@@ -21,7 +21,6 @@
   v18 — fix syncAllTime: alltime and alltime_earned now use point_log as single source of truth
   v19 — medicine tracker: 💊 header modal (opaque overlay), add/remove meds, hour+minute scroll-wheel time picker (defaults to now), multiple doses/day, per-med streak (🔥, +10× base bonus every 5th consecutive day, missed day resets), meds points roll into day total via new 💊 Medicine section, meds + per-day dose logs in JSON export/import; add/delete in bottom footer matching rest of app (+ Add Medication reveals inline form, 🗑 toggles select-to-delete mode with DELETE/CANCEL bar)
   v20 — nav rework: streaks now opens as an opaque overlay (like medicine) instead of a full page, with each streak rendered as its own card and the week total moved into the overlay header (removed redundant nested ⚡ Streaks section box / duplicate title); bottom nav drops redundant Dashboard tab (still reachable via LVL UP logo) and gains Rewards tab; removed 🎁 from top bar and its now-dead go-rewards dispatcher handler; dashboard "Today by category" now orders 🌅 Morning first (follows daily-item section order, Nutrition no longer force-prepended)
-  v21 — dailyedit: remove 3am rollover everywhere (daily + weekly); "today" = real calendar date; daily view now editable for today + yesterday only (older days read-only); enables backfilling yesterday's checklist/water/pushups/meds next morning without needing phone before bed; streaks recompute live on back-filled days
   ============================================================
 -->
 <!doctype html>
@@ -2696,7 +2695,7 @@
       };
       function localDateStr(d) {
         const dd = d ? new Date(d) : new Date();
-        // 3am rollover removed: "today" = real calendar date. Backfill past days via daily nav.
+        if (!d) dd.setHours(dd.getHours() - 3);
         return `${dd.getFullYear()}-${String(dd.getMonth() + 1).padStart(2, "0")}-${String(dd.getDate()).padStart(2, "0")}`;
       }
       const todayStr = localDateStr();
@@ -2716,7 +2715,7 @@
       }
       function getWeekMonday(offset) {
         const d = new Date();
-        // 3am rollover removed (weekly): week boundary uses real calendar date.
+        d.setHours(d.getHours() - 3);
         const dow = d.getDay() || 7;
         d.setDate(d.getDate() - dow + 1 + offset * 7);
         d.setHours(0, 0, 0, 0);
@@ -3587,7 +3586,7 @@
       let DS = {};
       function getViewDateStr() {
         const d = new Date();
-        // 3am rollover removed (daily): offset 0 = real today, offset -1 = real yesterday.
+        d.setHours(d.getHours() - 3);
         d.setDate(d.getDate() + viewOffset);
         return localDateStr(d);
       }
@@ -3732,7 +3731,7 @@
       }
       function renderDaily() {
         const items = getDailyItems();
-        const isEditable = viewOffset === 0 || viewOffset === -1; // today + yesterday editable; older days read-only
+        const isToday = viewOffset === 0;
         const sections = {};
         const sectionOrder = [];
         items.forEach((item) => {
@@ -3764,12 +3763,12 @@
           body.style.display = "none";
           if (sectionName === "🥗 Nutrition") {
             const waterCups = DS["water_cups"] || 0;
-            const waterWidget = buildWaterWidget(waterCups, isEditable);
+            const waterWidget = buildWaterWidget(waterCups, isToday);
             body.appendChild(waterWidget);
           }
           if (sectionName === "💪 Fitness") {
             const pushupReps = DS["pushup_reps"] || 0;
-            const pushupWidget = buildPushupWidget(pushupReps, isEditable);
+            const pushupWidget = buildPushupWidget(pushupReps, isToday);
             body.appendChild(pushupWidget);
           }
           const subgroups = {};
@@ -3807,11 +3806,11 @@
             });
             Object.values(radioGroups).forEach((rItems) => {
               rItems.forEach((item) =>
-                body.appendChild(buildItem(item, isEditable)),
+                body.appendChild(buildItem(item, isToday)),
               );
             });
             nonRadios.forEach((item) =>
-              body.appendChild(buildItem(item, isEditable)),
+              body.appendChild(buildItem(item, isToday)),
             );
           });
           if (penalties.length) {
@@ -3819,7 +3818,7 @@
             div.className = "divider";
             body.appendChild(div);
             penalties.forEach((item) =>
-              body.appendChild(buildItem(item, isEditable)),
+              body.appendChild(buildItem(item, isToday)),
             );
           }
           sItems.forEach((item) => {
@@ -3832,7 +3831,7 @@
         document.getElementById("dTotal").textContent = sc.total;
         document.getElementById("hTotal").textContent = LS.allTime();
       }
-      function buildItem(item, isEditable) {
+      function buildItem(item, isToday) {
         const el = document.createElement("div");
         const isPenalty = item.type === "penalty";
         const isRadio = item.type === "radio";
@@ -3853,7 +3852,7 @@
         const sign = item.pts >= 0 ? "+" : "−";
         const absPts = Math.abs(item.pts);
         el.innerHTML = `<div class="cb">${isPenalty ? "✕" : "✓"}<\/div><div class="item-text">${escapeHtml(item.label)}<\/div><div class="item-pts">${sign}${absPts}<\/div>`;
-        if (isEditable) {
+        if (isToday) {
           el.onclick = () => tapDailyItem(el, item);
         } else {
           el.style.pointerEvents = "none";
@@ -3888,7 +3887,7 @@
           updateWeekTotal();
         }
       }
-      function buildWaterWidget(cups, isEditable) {
+      function buildWaterWidget(cups, isToday) {
         const l = (cups * 0.2366).toFixed(1);
         const pts2l = cups >= 8 ? 5 : 0;
         const pts3l = cups >= 12 ? 5 : 0;
@@ -3899,7 +3898,7 @@
         div.className = "water-widget";
         div.innerHTML = `
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💧 Water<\/span><span id="water-pts" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${totalPts > 0 ? "var(--accent2)" : "var(--muted2)"}">${totalPts > 0 ? "+" + totalPts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="water-minus" data-action="water-adjust" data-delta="-1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="water-cups" style="font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;color:var(--accent2)">${cups}<\/div><div id="water-l" style="font-size:11px;color:var(--muted);margin-top:2px">${l} L<\/div><\/div><button id="water-plus" data-action="water-adjust" data-delta="1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--accent2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div style="display:flex;gap:8px;margin-bottom:4px"><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-2l" style="height:100%;background:var(--accent2);border-radius:99px;width:${fill2l}%"><\/div><\/div><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-3l" style="height:100%;background:var(--gold);border-radius:99px;width:${fill3l}%"><\/div><\/div><\/div><div style="display:flex;justify-content:space-between;font-size:10px"><span id="water-2l-label" style="color:${cups >= 8 ? "var(--accent2)" : "var(--muted)"}">2L — +5pts<\/span><span id="water-3l-label" style="color:${cups >= 12 ? "var(--gold)" : "var(--muted)"}">3L — +5pts bonus<\/span><\/div>`;
-        if (!isEditable || deleteModeOn) {
+        if (!isToday || deleteModeOn) {
           div.querySelectorAll("button").forEach((b) => {
             b.style.pointerEvents = "none";
             b.style.opacity = "0.5";
@@ -3940,7 +3939,7 @@
         if (l2) l2.style.color = cups >= 8 ? "var(--accent2)" : "var(--muted)";
         if (l3) l3.style.color = cups >= 12 ? "var(--gold)" : "var(--muted)";
       }
-      function buildPushupWidget(reps, isEditable) {
+      function buildPushupWidget(reps, isToday) {
         const goal = LS.settings().pushup_goal || 10;
         const sets = Math.floor(reps / goal);
         const pts = sets * 5;
@@ -3948,7 +3947,7 @@
         const div = document.createElement("div");
         div.className = "pushup-widget";
         div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💪 Pushups<\/span><span id="pushup-pts" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${pts > 0 ? "var(--purple)" : "var(--muted2)"}">${pts > 0 ? "+" + pts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="pushup-minus" data-action="pushup-adjust" data-delta="-5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="pushup-reps-display" style="font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;color:var(--purple)">${reps}<\/div><div id="pushup-sets-label" style="font-size:11px;color:var(--muted);margin-top:2px">${sets > 0 ? sets + " SET" + (sets > 1 ? "S" : "") : "goal: " + goal + " reps"}<\/div><\/div><button id="pushup-plus" data-action="pushup-adjust" data-delta="5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--purple);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div class="pushup-prog-track"><div id="pushup-prog-fill" class="pushup-prog-fill" style="width:${progress}%"><\/div><\/div><div style="font-size:10px;color:var(--muted);margin-top:4px" id="pushup-prog-label">${reps % goal} \/ ${goal} reps to next set<\/div>`;
-        if (!isEditable || deleteModeOn) {
+        if (!isToday || deleteModeOn) {
           div.querySelectorAll("button").forEach((b) => {
             b.style.pointerEvents = "none";
             b.style.opacity = "0.5";
@@ -4193,7 +4192,7 @@
       function getWeekDays() {
         const mon = getWeekMonday(weekOffset);
         const now = new Date();
-        // 3am rollover removed (weekly cutoff): future days bounded by real now.
+        now.setHours(now.getHours() - 3);
         const days = [];
         for (let i = 0; i < 7; i++) {
           const d = new Date(mon);
@@ -4222,7 +4221,7 @@
         for (let offset = weekOffset - 1; ; offset--) {
           const mon = getWeekMonday(offset);
           const now = new Date();
-          // 3am rollover removed (weekly cutoff): future days bounded by real now.
+          now.setHours(now.getHours() - 3);
           const days = [];
           for (let i = 0; i < 7; i++) {
             const d = new Date(mon);
@@ -5803,7 +5802,7 @@ ${rows}
       function renderMeds() {
         const meds = getMeds();
         const dateStr = currentDayStr();
-        const isEditable = viewOffset === 0 || viewOffset === -1; // today + yesterday editable
+        const isToday = viewOffset === 0;
         const log = getMedLog(DS);
         const container = document.getElementById("med-list");
         container.innerHTML = "";
@@ -5838,7 +5837,7 @@ ${rows}
               ? `<div class="med-doses">${doses
                   .map(
                     (e) =>
-                      `<span class="med-dose-chip">${escapeHtml(fmtMedTime(e.time))}${isEditable ? `<span class="x" data-action="remove-dose" data-id="${m.id}" data-time="${escapeHtml(e.time)}">✕<\/span>` : ""}<\/span>`,
+                      `<span class="med-dose-chip">${escapeHtml(fmtMedTime(e.time))}${isToday ? `<span class="x" data-action="remove-dose" data-id="${m.id}" data-time="${escapeHtml(e.time)}">✕<\/span>` : ""}<\/span>`,
                   )
                   .join("")}<\/div>`
               : "";
@@ -5846,7 +5845,7 @@ ${rows}
           if (medDeleteModeOn) {
             leftCtrl = `<div class="med-sel" data-action="toggle-med-delete-select" data-id="${m.id}">${selectedMedsForDelete.has(m.id) ? "✓" : ""}<\/div>`;
           } else {
-            leftCtrl = `<div class="med-cb" ${isEditable ? `data-action="toggle-med" data-id="${m.id}"` : ""}>${taken ? "✓" : ""}<\/div>`;
+            leftCtrl = `<div class="med-cb" ${isToday ? `data-action="toggle-med" data-id="${m.id}"` : ""}>${taken ? "✓" : ""}<\/div>`;
           }
           item.innerHTML = `
 <div class="med-item-row">${leftCtrl}<span class="med-name">${escapeHtml(m.label)}<\/span>${streakHtml}${ptsHtml}<\/div>${dosesHtml}`;
