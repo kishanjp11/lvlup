@@ -22,6 +22,7 @@
   v19 — medicine tracker: 💊 header modal (opaque overlay), add/remove meds, hour+minute scroll-wheel time picker (defaults to now), multiple doses/day, per-med streak (🔥, +10× base bonus every 5th consecutive day, missed day resets), meds points roll into day total via new 💊 Medicine section, meds + per-day dose logs in JSON export/import; add/delete in bottom footer matching rest of app (+ Add Medication reveals inline form, 🗑 toggles select-to-delete mode with DELETE/CANCEL bar)
   v20 — nav rework: streaks now opens as an opaque overlay (like medicine) instead of a full page, with each streak rendered as its own card and the week total moved into the overlay header (removed redundant nested ⚡ Streaks section box / duplicate title); bottom nav drops redundant Dashboard tab (still reachable via LVL UP logo) and gains Rewards tab; removed 🎁 from top bar and its now-dead go-rewards dispatcher handler; dashboard "Today by category" now orders 🌅 Morning first (follows daily-item section order, Nutrition no longer force-prepended)
   v21 — dailyedit: remove 3am rollover everywhere (daily + weekly); "today" = real calendar date; daily view now editable for today + yesterday only (older days read-only); enables backfilling yesterday's checklist/water/pushups/meds next morning without needing phone before bed; streaks recompute live on back-filled days
+  v22 — weight log: tap the ⚖️ Weight dashboard card (next to Pushups) to open an opaque overlay; iOS decimal-pad inputs for body weight (lb) + optional body fat %, one reading per day (re-logging overwrites today); dual-axis SVG line chart (weight left/green, body fat right/orange — BF axis+line appear only once BF data exists) with 30D/All range toggle; scrollable Readings list below the chart (follows the range toggle, newest first) with per-row ✕ tap-to-delete that also reverses that day's points; points: +5 per reading, tiered to +10 when reading ≤ trailing-7-day average (event-logged to point_log as new "weight" type with cyan WEIGHT tag in history, rolls into all-time via syncAllTime); dashboard card shows latest weight + colored delta since a configurable anchor date (Settings, default 2026-06-01); seeded with 14 days of Apple Health history (chart-only, no retroactive points); weight_log + weight_anchor added to JSON export/import, export version bumped 3→4
   ============================================================
 -->
 <!doctype html>
@@ -1347,6 +1348,168 @@
         padding: 6px 12px;
         cursor: pointer;
       }
+      /* ── Weight tracker ── */
+      .wt-input-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+      }
+      .wt-field {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+      }
+      .wt-label {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .wt-input {
+        background: var(--card);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        color: var(--text);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 24px;
+        letter-spacing: 1px;
+        padding: 8px 12px;
+        width: 100%;
+        text-align: center;
+      }
+      .wt-input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .wt-log-btn {
+        background: var(--accent);
+        border: none;
+        border-radius: 12px;
+        color: #04121d;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        padding: 11px 16px;
+        cursor: pointer;
+        height: 44px;
+      }
+      .wt-summary {
+        font-family: "Barlow", sans-serif;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 10px;
+        min-height: 16px;
+      }
+      .wt-chart-wrap {
+        padding: 6px 12px 8px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .wt-chart-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 6px 4px 8px;
+      }
+      .wt-legend {
+        display: flex;
+        gap: 12px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      .wt-legend span::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 3px;
+        border-radius: 2px;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+      .wt-legend .wt-lg-wt::before { background: var(--accent); }
+      .wt-legend .wt-lg-bf::before { background: var(--orange); }
+      .wt-range-toggle {
+        display: flex;
+        gap: 4px;
+      }
+      .wt-range-btn {
+        background: transparent;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        color: var(--muted);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 5px 12px;
+        cursor: pointer;
+      }
+      .wt-range-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #04121d;
+      }
+      .wt-readings {
+        margin-top: 12px;
+      }
+      .wt-readings-label {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin: 2px 4px 8px;
+      }
+      .wt-reading-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--card);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+      }
+      .wt-reading-date {
+        font-family: "Barlow", sans-serif;
+        font-size: 13px;
+        color: var(--muted);
+        min-width: 96px;
+      }
+      .wt-reading-vals {
+        flex: 1;
+        text-align: right;
+        font-family: "Bebas Neue", sans-serif;
+        letter-spacing: 0.5px;
+        font-size: 19px;
+        color: var(--text);
+        margin-right: 10px;
+      }
+      .wt-reading-bf {
+        color: var(--orange);
+        font-size: 14px;
+        margin-left: 8px;
+      }
+      .wt-reading-del {
+        background: none;
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1;
+        padding: 6px 11px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
       .med-list {
         overflow-y: auto;
         padding: 12px 14px 4px;
@@ -1945,9 +2108,10 @@
             <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--purple);margin-top:4px;" id="dPushupsAllTime">0</div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-top:2px;">ALL TIME</div>
           </div>
-          <div class="cat-card" style="margin-bottom:0;">
-            <div class="chart-label">—</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--muted2);margin-top:4px;">—</div>
+          <div class="cat-card" style="margin-bottom:0;cursor:pointer;" data-action="open-weight" role="button" tabindex="0" aria-label="Open weight tracker">
+            <div class="chart-label">⚖️ Weight</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--accent2);margin-top:4px;" id="dWeightLatest">—</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-top:2px;" id="dWeightDelta">NO DATA</div>
           </div>
           <div class="cat-card" style="margin-bottom:0;">
             <div class="chart-label">—</div>
@@ -2527,6 +2691,10 @@
           <label class="form-label">Monthly Rep Goal (= 1 set)</label>
           <input id="settings-pushup-goal" class="form-input" type="number" min="1" max="500" placeholder="e.g. 10" />
           <div style="font-size:12px;color:var(--muted);margin-top:6px;">Each completed set earns +5pts. Extra sets earn +5pts each.</div>
+          <div class="form-label">⚖️ Weight Anchor Date</div>
+          <label class="form-label">Compare current weight against</label>
+          <input id="settings-weight-anchor" class="form-input" type="date" />
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">The dashboard weight card shows your change since this date.</div>
           <div style="display:flex;gap:8px;margin-top:14px;">
             <button class="btn-save" data-action="save-settings">SAVE</button>
             <button class="btn-cancel" data-action="back-to-dashboard">CANCEL</button>
@@ -2666,6 +2834,43 @@
         <div style="display:flex;gap:8px;padding:6px 14px 0;">
           <button class="add-btn paired-action-btn" style="flex:1;margin-bottom:0;" data-action="open-streak-form">+ Add Custom Streak</button>
           <button class="paired-action-btn" id="btn-delete-streak" data-action="toggle-streak-delete-mode" aria-label="Toggle streak delete mode" style="background:none;border:1px dashed var(--border2);border-radius:14px;color:var(--muted);padding:13px 16px;cursor:pointer;font-size:18px;">🗑</button>
+        </div>
+      </div>
+    </div>
+    <!-- ══ WEIGHT OVERLAY ══ -->
+    <div class="med-overlay" id="weight-overlay">
+      <div class="med-sheet">
+        <div class="med-sheet-head">
+          <span class="med-sheet-title">⚖️ Weight</span>
+          <button class="med-sheet-close" data-action="close-weight">✕</button>
+        </div>
+        <div style="padding:14px 16px 6px;">
+          <div class="wt-input-row">
+            <div class="wt-field">
+              <span class="wt-label">Weight (lb)</span>
+              <input id="wt-weight" class="wt-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0.0" />
+            </div>
+            <div class="wt-field">
+              <span class="wt-label">Body Fat&nbsp;%</span>
+              <input id="wt-bodyfat" class="wt-input" type="text" inputmode="decimal" autocomplete="off" placeholder="—" />
+            </div>
+            <button class="wt-log-btn" data-action="save-weight">LOG</button>
+          </div>
+          <div class="wt-summary" id="wt-summary"></div>
+        </div>
+        <div class="wt-chart-wrap">
+          <div class="wt-chart-head">
+            <div class="wt-legend">
+              <span class="wt-lg-wt">Weight</span>
+              <span class="wt-lg-bf">Body Fat</span>
+            </div>
+            <div class="wt-range-toggle">
+              <button class="wt-range-btn active" id="wt-range-30" data-action="weight-range" data-range="30">30D</button>
+              <button class="wt-range-btn" id="wt-range-all" data-action="weight-range" data-range="all">All</button>
+            </div>
+          </div>
+          <div id="wt-chart"></div>
+          <div id="wt-readings" class="wt-readings"></div>
         </div>
       </div>
     </div>
@@ -3532,6 +3737,60 @@
       }
       const MED_STREAK_TARGET = 5;
       const MED_STREAK_MULTIPLIER = 10;
+      // ── Weight tracker data ──
+      const WEIGHT_LOG_PTS = 5; // base points for logging a reading
+      const WEIGHT_BONUS_PTS = 10; // total when reading <= trailing 7-day avg
+      const DEFAULT_WEIGHT_ANCHOR = "2026-06-01";
+      const DEFAULT_WEIGHT_LOG = [
+        ["2026-06-01", 232.1],
+        ["2026-06-04", 231.9],
+        ["2026-06-08", 235.2],
+        ["2026-06-09", 230.8],
+        ["2026-06-10", 231.8],
+        ["2026-06-11", 230.5],
+        ["2026-06-12", 231.2],
+        ["2026-06-14", 231.8],
+        ["2026-06-15", 231.8],
+        ["2026-06-16", 231.2],
+        ["2026-06-18", 234.5],
+        ["2026-06-19", 233.2],
+        ["2026-06-20", 232.6],
+        ["2026-06-22", 231.7],
+      ].map(function (row) {
+        return {
+          date: row[0],
+          weight: row[1],
+          bodyfat: null,
+          ts: new Date(row[0] + "T12:00:00").getTime(),
+        };
+      });
+      function getWeightLog() {
+        return LS.get("weight_log", DEFAULT_WEIGHT_LOG);
+      }
+      function saveWeightLog(d) {
+        LS.set("weight_log", d);
+      }
+      function getWeightAnchor() {
+        return LS.settings().weight_anchor || DEFAULT_WEIGHT_ANCHOR;
+      }
+      // Average of readings in the 7 calendar days before dateStr (the day itself excluded).
+      function weightTrailingAvg(dateStr) {
+        const log = getWeightLog();
+        const end = new Date(dateStr + "T12:00:00");
+        const start = new Date(end);
+        start.setDate(end.getDate() - 7);
+        let sum = 0;
+        let n = 0;
+        log.forEach(function (e) {
+          if (e.date === dateStr) return;
+          const d = new Date(e.date + "T12:00:00");
+          if (d >= start && d < end) {
+            sum += e.weight;
+            n++;
+          }
+        });
+        return n > 0 ? sum / n : null;
+      }
       function getMilestones() {
         return LS.get("milestones", [
           { id: "m_deskmat", name: "New Deskmat", threshold: 10000, unlocked: false },
@@ -3718,7 +3977,7 @@
           0,
         );
         const logSum = log
-          .filter((e) => ["weekly", "streak", "todo"].includes(e.type))
+          .filter((e) => ["weekly", "streak", "todo", "weight"].includes(e.type))
           .reduce((t, e) => t + (e.pts || 0), 0);
         const redeemSum = log
           .filter((e) => ["redeem", "redeemed"].includes(e.type))
@@ -5073,6 +5332,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
         });
         const patEl = document.getElementById("dPushupsAllTime");
         if (patEl) patEl.textContent = pushupsAllTime;
+        updateWeightCard();
 
       }
       function renderHeatmap(h) {
@@ -5233,6 +5493,9 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                 } else if (e.type === "redeem") {
                   desc = e.label || "Reward";
                   tag = "REDEEMED";
+                } else if (e.type === "weight") {
+                  desc = e.label || "Weight";
+                  tag = "WEIGHT";
                 }
                 desc = escapeHtml(desc);
                 sub = escapeHtml(sub);
@@ -5241,7 +5504,8 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                   "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
                   "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
                   "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
-                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);"
+                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
+                  "WEIGHT": "color:#00d4ff;background:rgba(0,212,255,0.1);"
                 };
                 const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(124,106,247,0.15);";
                 const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
@@ -5440,6 +5704,7 @@ ${rows}
           "todos",
           "meds",
           "point_log",
+          "weight_log",
         ];
         arrayKeys.forEach((key) => {
           if (key in data && !Array.isArray(data[key]))
@@ -5460,7 +5725,7 @@ ${rows}
       }
       function exportData() {
         const data = {
-          version: 3,
+          version: 4,
           exported: new Date().toISOString(),
           daily_items: getDailyItems(),
           weekly_items: getWeeklyItems(),
@@ -5473,6 +5738,8 @@ ${rows}
           alltime: LS.allTime(),
           alltime_earned: LS.earned(),
           milestones: getMilestones(),
+          weight_log: getWeightLog(),
+          weight_anchor: getWeightAnchor(),
         };
         data.daily_states = {};
         data.weekly_states = {};
@@ -5513,6 +5780,12 @@ ${rows}
             if (data.todos) saveTodos(data.todos);
             if (data.meds) saveMeds(data.meds);
             if (data.point_log) savePointLog(data.point_log);
+            if (data.weight_log) saveWeightLog(data.weight_log);
+            if (data.weight_anchor) {
+              const s = LS.settings();
+              s.weight_anchor = data.weight_anchor;
+              LS.saveSettings(s);
+            }
             if (data.history) LS.saveHistory(data.history);
             if ("alltime" in data) setAllTime(Number(data.alltime));
             if ("alltime_earned" in data) LS.saveEarned(Number(data.alltime_earned));
@@ -5631,6 +5904,13 @@ ${rows}
           if (action === "go-settings") return goSettings();
           if (action === "open-meds") return openMeds();
           if (action === "close-meds") return closeMeds();
+          if (action === "open-weight") return openWeight();
+          if (action === "close-weight") return closeWeight();
+          if (action === "save-weight") return logWeightReading();
+          if (action === "weight-range")
+            return setWeightRange(actionEl.dataset.range);
+          if (action === "delete-weight")
+            return deleteWeightReading(actionEl.dataset.date);
           if (action === "toggle-med") return toggleMed(id);
           if (action === "remove-dose")
             return removeMedDose(id, actionEl.dataset.time);
@@ -5714,6 +5994,8 @@ ${rows}
         showPage("settings");
         const input = document.getElementById("settings-pushup-goal");
         if (input) input.value = LS.settings().pushup_goal || 10;
+        const anchorEl = document.getElementById("settings-weight-anchor");
+        if (anchorEl) anchorEl.value = getWeightAnchor();
       }
       function saveSettings() {
         const input = document.getElementById("settings-pushup-goal");
@@ -5721,6 +6003,8 @@ ${rows}
         if (!val || val < 1) { toast("Enter a valid goal"); return; }
         const s = LS.settings();
         s.pushup_goal = val;
+        const anchorEl = document.getElementById("settings-weight-anchor");
+        if (anchorEl && anchorEl.value) s.weight_anchor = anchorEl.value;
         LS.saveSettings(s);
         toast("Settings saved!");
         showPage("dashboard");
@@ -5777,6 +6061,424 @@ ${rows}
       function closeMeds() {
         document.getElementById("med-overlay").classList.remove("show");
       }
+      // ── Weight tracker UI ──
+      let weightRange = "30"; // "30" or "all"
+      function openWeight() {
+        prefillWeightInputs();
+        renderWeightChart();
+        document.getElementById("weight-overlay").classList.add("show");
+      }
+      function closeWeight() {
+        document.getElementById("weight-overlay").classList.remove("show");
+      }
+      function setWeightRange(range) {
+        weightRange = range === "all" ? "all" : "30";
+        const b30 = document.getElementById("wt-range-30");
+        const ball = document.getElementById("wt-range-all");
+        if (b30) b30.classList.toggle("active", weightRange === "30");
+        if (ball) ball.classList.toggle("active", weightRange === "all");
+        renderWeightChart();
+      }
+      function prefillWeightInputs() {
+        const today = getWeightLog().find((e) => e.date === todayStr);
+        const wEl = document.getElementById("wt-weight");
+        const bfEl = document.getElementById("wt-bodyfat");
+        if (wEl) wEl.value = today ? today.weight : "";
+        if (bfEl) bfEl.value = today && today.bodyfat !== null ? today.bodyfat : "";
+      }
+      function logWeightReading() {
+        const wEl = document.getElementById("wt-weight");
+        const bfEl = document.getElementById("wt-bodyfat");
+        const weight = parseFloat(wEl ? wEl.value : "");
+        if (!Number.isFinite(weight) || weight <= 0) {
+          toast("Enter a valid weight");
+          return;
+        }
+        let bodyfat = parseFloat(bfEl ? bfEl.value : "");
+        if (!Number.isFinite(bodyfat)) bodyfat = null;
+        const dateStr = todayStr; // one reading per day, always for real today
+        const log = getWeightLog();
+        const idx = log.findIndex((e) => e.date === dateStr);
+        if (idx >= 0) {
+          log[idx].weight = weight;
+          log[idx].bodyfat = bodyfat;
+          log[idx].ts = Date.now();
+        } else {
+          log.push({ date: dateStr, weight, bodyfat, ts: Date.now() });
+        }
+        saveWeightLog(log);
+        // Points: replace any existing weight entry for today, then re-award.
+        const plog = getPointLog();
+        for (let i = plog.length - 1; i >= 0; i--) {
+          if (plog[i].type === "weight" && plog[i].date === dateStr)
+            plog.splice(i, 1);
+        }
+        const avg = weightTrailingAvg(dateStr);
+        const pts =
+          avg !== null && weight <= avg ? WEIGHT_BONUS_PTS : WEIGHT_LOG_PTS;
+        const label =
+          weight.toFixed(1) +
+          " lb" +
+          (bodyfat !== null ? " \u00b7 " + bodyfat.toFixed(1) + "% bf" : "");
+        plog.push({ date: dateStr, type: "weight", pts, label, ts: Date.now() });
+        savePointLog(plog);
+        syncAllTime();
+        renderWeightChart();
+        updateWeightCard();
+        prefillWeightInputs();
+        if (currentPage === "dashboard") refreshDash();
+        toast(
+          pts === WEIGHT_BONUS_PTS
+            ? "Logged! +" + pts + " \u2b07\ufe0f"
+            : "Logged! +" + pts,
+        );
+      }
+      function updateWeightCard() {
+        const latestEl = document.getElementById("dWeightLatest");
+        const deltaEl = document.getElementById("dWeightDelta");
+        if (!latestEl || !deltaEl) return;
+        const log = getWeightLog()
+          .slice()
+          .sort((a, b) => a.date.localeCompare(b.date));
+        if (!log.length) {
+          latestEl.textContent = "\u2014";
+          deltaEl.textContent = "NO DATA";
+          deltaEl.style.color = "var(--muted)";
+          return;
+        }
+        const latest = log[log.length - 1];
+        latestEl.textContent = latest.weight.toFixed(1);
+        const anchor = getWeightAnchor();
+        const baseline = log.find((e) => e.date >= anchor);
+        if (!baseline) {
+          deltaEl.textContent = "\u2014";
+          deltaEl.style.color = "var(--muted)";
+          return;
+        }
+        const delta = latest.weight - baseline.weight;
+        const a = new Date(anchor + "T12:00:00");
+        const now = new Date(todayStr + "T12:00:00");
+        const days = Math.max(0, Math.round((now - a) / 86400000));
+        const arrow = delta < 0 ? "\u25bc" : delta > 0 ? "\u25b2" : "\u2022";
+        const color =
+          delta < 0 ? "var(--accent)" : delta > 0 ? "var(--red)" : "var(--muted)";
+        deltaEl.style.color = color;
+        deltaEl.textContent =
+          arrow + " " + Math.abs(delta).toFixed(1) + " \u00b7 " + days + "d";
+      }
+      function renderWeightSummary() {
+        const el = document.getElementById("wt-summary");
+        if (!el) return;
+        const log = getWeightLog()
+          .slice()
+          .sort((a, b) => a.date.localeCompare(b.date));
+        if (!log.length) {
+          el.innerHTML = "";
+          return;
+        }
+        const latest = log[log.length - 1];
+        const anchor = getWeightAnchor();
+        const baseline = log.find((e) => e.date >= anchor);
+        const bfTxt =
+          latest.bodyfat !== null
+            ? " \u00b7 " + latest.bodyfat.toFixed(1) + "% bf"
+            : "";
+        let deltaTxt = "";
+        if (baseline) {
+          const delta = latest.weight - baseline.weight;
+          const col =
+            delta < 0
+              ? "var(--accent)"
+              : delta > 0
+                ? "var(--red)"
+                : "var(--muted)";
+          const aDate = new Date(anchor + "T12:00:00");
+          const aShort =
+            aDate.getMonth() + 1 + "/" + aDate.getDate();
+          deltaTxt =
+            ' \u00b7 <span style="color:' +
+            col +
+            '">' +
+            (delta < 0 ? "\u2212" : delta > 0 ? "+" : "") +
+            Math.abs(delta).toFixed(1) +
+            " lb since " +
+            aShort +
+            "<\/span>";
+        }
+        el.innerHTML =
+          '<span style="color:var(--text)">Latest ' +
+          latest.weight.toFixed(1) +
+          " lb" +
+          bfTxt +
+          "<\/span>" +
+          deltaTxt;
+      }
+      function renderWeightReadings() {
+        const host = document.getElementById("wt-readings");
+        if (!host) return;
+        let log = getWeightLog()
+          .slice()
+          .filter((e) => Number.isFinite(e.weight));
+        if (weightRange === "30") {
+          const cutoff = new Date(todayStr + "T12:00:00");
+          cutoff.setDate(cutoff.getDate() - 29);
+          log = log.filter((e) => new Date(e.date + "T12:00:00") >= cutoff);
+        }
+        log.sort((a, b) => b.date.localeCompare(a.date)); // newest first
+        if (!log.length) {
+          host.innerHTML = "";
+          return;
+        }
+        const rows = log
+          .map((e) => {
+            const d = new Date(e.date + "T12:00:00");
+            const dateLabel = d.toLocaleDateString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            });
+            const bf =
+              e.bodyfat !== null && Number.isFinite(e.bodyfat)
+                ? '<span class="wt-reading-bf">' +
+                  e.bodyfat.toFixed(1) +
+                  "%<\/span>"
+                : "";
+            return (
+              '<div class="wt-reading-row"><div class="wt-reading-date">' +
+              escapeHtml(dateLabel) +
+              '<\/div><div class="wt-reading-vals">' +
+              e.weight.toFixed(1) +
+              " lb" +
+              bf +
+              '<\/div><button class="wt-reading-del" data-action="delete-weight" data-date="' +
+              escapeHtml(e.date) +
+              '" aria-label="Delete reading">\u2715<\/button><\/div>'
+            );
+          })
+          .join("");
+        host.innerHTML =
+          '<div class="wt-readings-label">Readings<\/div>' + rows;
+      }
+      function deleteWeightReading(dateStr) {
+        if (!dateStr) return;
+        saveWeightLog(getWeightLog().filter((e) => e.date !== dateStr));
+        const plog = getPointLog();
+        let changed = false;
+        for (let i = plog.length - 1; i >= 0; i--) {
+          if (plog[i].type === "weight" && plog[i].date === dateStr) {
+            plog.splice(i, 1);
+            changed = true;
+          }
+        }
+        if (changed) savePointLog(plog);
+        syncAllTime();
+        renderWeightChart();
+        updateWeightCard();
+        prefillWeightInputs();
+        if (currentPage === "dashboard") refreshDash();
+        toast("Reading removed");
+      }
+      function renderWeightChart() {
+        renderWeightSummary();
+        renderWeightReadings();
+        const host = document.getElementById("wt-chart");
+        if (!host) return;
+        let log = getWeightLog()
+          .slice()
+          .filter((e) => Number.isFinite(e.weight))
+          .sort((a, b) => a.date.localeCompare(b.date));
+        if (weightRange === "30") {
+          const cutoff = new Date(todayStr + "T12:00:00");
+          cutoff.setDate(cutoff.getDate() - 29);
+          log = log.filter((e) => new Date(e.date + "T12:00:00") >= cutoff);
+        }
+        if (!log.length) {
+          host.innerHTML =
+            '<div style="padding:28px 10px;text-align:center;color:var(--muted);font-size:13px;">No readings in this range<\/div>';
+          return;
+        }
+        const W = 340;
+        const H = 196;
+        const bfPts = log.filter(
+          (e) => e.bodyfat !== null && Number.isFinite(e.bodyfat),
+        );
+        const hasBF = bfPts.length > 0;
+        const padL = 38;
+        const padR = hasBF ? 38 : 14;
+        const padT = 14;
+        const padB = 26;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+        const minD = new Date(log[0].date + "T12:00:00");
+        const maxD = new Date(log[log.length - 1].date + "T12:00:00");
+        let spanDays = Math.round((maxD - minD) / 86400000);
+        if (spanDays <= 0) spanDays = 1;
+        const xOf = (dateStr) => {
+          const d = new Date(dateStr + "T12:00:00");
+          const off = Math.round((d - minD) / 86400000);
+          return padL + (off / spanDays) * plotW;
+        };
+        const ws = log.map((e) => e.weight);
+        const wDataMin = Math.min(...ws);
+        const wDataMax = Math.max(...ws);
+        let wMin = wDataMin;
+        let wMax = wDataMax;
+        if (wMin === wMax) {
+          wMin -= 1;
+          wMax += 1;
+        }
+        const wPad = (wMax - wMin) * 0.12;
+        wMin -= wPad;
+        wMax += wPad;
+        const yW = (v) => padT + (1 - (v - wMin) / (wMax - wMin)) * plotH;
+        let bfDataMin = 0;
+        let bfDataMax = 1;
+        let yBF = null;
+        if (hasBF) {
+          const bs = bfPts.map((e) => e.bodyfat);
+          bfDataMin = Math.min(...bs);
+          bfDataMax = Math.max(...bs);
+          let bMin = bfDataMin;
+          let bMax = bfDataMax;
+          if (bMin === bMax) {
+            bMin -= 1;
+            bMax += 1;
+          }
+          const bPad = (bMax - bMin) * 0.12;
+          bMin -= bPad;
+          bMax += bPad;
+          yBF = (v) => padT + (1 - (v - bMin) / (bMax - bMin)) * plotH;
+        }
+        const fmtX = (ds) => {
+          const d = new Date(ds + "T12:00:00");
+          return d.getMonth() + 1 + "/" + d.getDate();
+        };
+        const p = [];
+        p.push(
+          '<svg viewBox="0 0 ' +
+            W +
+            " " +
+            H +
+            '" width="100%" preserveAspectRatio="xMidYMid meet" style="display:block;">',
+        );
+        // top + bottom gridlines
+        p.push(
+          '<line x1="' +
+            padL +
+            '" y1="' +
+            padT +
+            '" x2="' +
+            (W - padR) +
+            '" y2="' +
+            padT +
+            '" stroke="#1e1e35" stroke-width="1" />',
+        );
+        p.push(
+          '<line x1="' +
+            padL +
+            '" y1="' +
+            (padT + plotH) +
+            '" x2="' +
+            (W - padR) +
+            '" y2="' +
+            (padT + plotH) +
+            '" stroke="#1e1e35" stroke-width="1" />',
+        );
+        // weight axis ticks (left)
+        [wDataMax, (wDataMax + wDataMin) / 2, wDataMin].forEach((v) => {
+          p.push(
+            '<text x="' +
+              (padL - 5) +
+              '" y="' +
+              (yW(v) + 3).toFixed(1) +
+              '" text-anchor="end" fill="#00f5a0" font-size="9" font-family="Barlow Condensed">' +
+              v.toFixed(1) +
+              "<\/text>",
+          );
+        });
+        // body fat axis ticks (right)
+        if (hasBF) {
+          [bfDataMax, bfDataMin].forEach((v) => {
+            p.push(
+              '<text x="' +
+                (W - padR + 5) +
+                '" y="' +
+                (yBF(v) + 3).toFixed(1) +
+                '" text-anchor="start" fill="#ff6b35" font-size="9" font-family="Barlow Condensed">' +
+                v.toFixed(1) +
+                "<\/text>",
+            );
+          });
+        }
+        // weight line + points
+        const wLine = log
+          .map((e) => xOf(e.date).toFixed(1) + "," + yW(e.weight).toFixed(1))
+          .join(" ");
+        if (log.length > 1) {
+          p.push(
+            '<polyline points="' +
+              wLine +
+              '" fill="none" stroke="#00f5a0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
+          );
+        }
+        log.forEach((e) => {
+          p.push(
+            '<circle cx="' +
+              xOf(e.date).toFixed(1) +
+              '" cy="' +
+              yW(e.weight).toFixed(1) +
+              '" r="2.6" fill="#00f5a0" />',
+          );
+        });
+        // body fat line + points
+        if (hasBF) {
+          if (bfPts.length > 1) {
+            const bfLine = bfPts
+              .map(
+                (e) => xOf(e.date).toFixed(1) + "," + yBF(e.bodyfat).toFixed(1),
+              )
+              .join(" ");
+            p.push(
+              '<polyline points="' +
+                bfLine +
+                '" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
+            );
+          }
+          bfPts.forEach((e) => {
+            p.push(
+              '<circle cx="' +
+                xOf(e.date).toFixed(1) +
+                '" cy="' +
+                yBF(e.bodyfat).toFixed(1) +
+                '" r="2.6" fill="#ff6b35" />',
+            );
+          });
+        }
+        // x axis labels (first + last)
+        p.push(
+          '<text x="' +
+            padL +
+            '" y="' +
+            (H - 8) +
+            '" text-anchor="start" fill="#555577" font-size="9" font-family="Barlow Condensed">' +
+            fmtX(log[0].date) +
+            "<\/text>",
+        );
+        if (log.length > 1) {
+          p.push(
+            '<text x="' +
+              (W - padR) +
+              '" y="' +
+              (H - 8) +
+              '" text-anchor="end" fill="#555577" font-size="9" font-family="Barlow Condensed">' +
+              fmtX(log[log.length - 1].date) +
+              "<\/text>",
+          );
+        }
+        p.push("<\/svg>");
+        host.innerHTML = p.join("");
+      }
+
       function showMedAddForm() {
         // Adding and deleting are mutually exclusive modes.
         if (medDeleteModeOn) toggleMedDeleteMode();
