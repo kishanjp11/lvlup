@@ -25,8 +25,6 @@
   v22 — weight log: tap the ⚖️ Weight dashboard card (next to Pushups) to open an opaque overlay; iOS decimal-pad inputs for body weight (lb) + optional body fat %, one reading per day (re-logging overwrites today); dual-axis SVG line chart (weight left/green, body fat right/orange — BF axis+line appear only once BF data exists) with 30D/All range toggle; scrollable Readings list below the chart (follows the range toggle, newest first) with per-row ✕ tap-to-delete that also reverses that day's points; points: +5 per reading, tiered to +10 when reading ≤ trailing-7-day average (event-logged to point_log as new "weight" type with cyan WEIGHT tag in history, rolls into all-time via syncAllTime); dashboard card shows latest weight + colored delta since a configurable anchor date (Settings, default 2026-06-01); seeded with 14 days of Apple Health history (chart-only, no retroactive points); weight_log + weight_anchor added to JSON export/import, export version bumped 3→4
   v23 — sleep: two bottom dashboard placeholders replaced by one full-width 😴 Sleep card (spans both columns) showing last night's duration + a mini 7-day bar graph; tap opens an opaque overlay (Meds/Weight style) with two tappable time fields (Fell asleep / Woke up) that reuse the existing scroll-wheel time picker — picker generalized with an optional callback so the meds flow still runs through its original untouched path; one entry per wake-morning (re-logging overwrites), stored as full bed + wake date-times; date rule: PM bedtime dated to previous evening, AM to the wake day (e.g. 10pm/8am = 10h, 1am/9am = 8h); overlay shows larger 7-day bar graph (hand-built SVG, violet, 8h ceiling) + full Sleep log with per-row ✕ tap-to-delete that reverses that day's points; points stack to max 25 (+5 log, +10 bedtime before midnight, +10 wake before 8:00am), event-logged to point_log as new "sleep" type with violet SLEEP tag, rolls into all-time via syncAllTime; sleep_log added to JSON export/import, export version bumped 4→5; starts empty (no seed)
   v24 — bug sweep: six-bug consistency pass on the points pipeline. (1) date rollover: todayStr now refreshes via visibilitychange/pageshow handler when the iOS PWA resumes on a new calendar date (refreshes today, resets viewOffset, reloads day/week state, re-renders) — kills phantom points from stale day state written past midnight; (2) med dose log entries now store pts at log time (+ one-time backfill migration, flag med_pts_migrated_v1) so deleting a med no longer silently drops points from recomputed days; (3) weekly point_log entries now store weekKey (+ one-time migration deriving it from entry date, flag weekly_weekkey_migrated_v1) and unchecking removes only the viewed week's entry — no more cross-week splice; (4) logging/removing a med dose on a past day also re-saves today's history (new resaveDayHistory) so cross-day streak bonuses stay fresh; (5) new headless syncStreakBonusesForWeek(offset) hooked into updateDayScores via weekOffsetForDate — streak bonuses (incl. freeze credit) post/remove for the edited day's week without opening the streaks overlay, covering Monday-morning backfill of Sunday; (6) deleting weekly items or streaks now removes their current-week point_log entries (past weeks stay earned) and streak deletes gained missing syncAllTime/refreshDash; helpers added: refreshToday, handleDateRollover, resaveDayHistory, weekOffsetForDate, weekKeyForDate, getWeekDaysFor, syncStreakBonusesForWeek; no schema/export changes
-  v25 — day rollover: live midnight timer for when the app stays open and foregrounded through midnight (the v24 rollover handler only fired on background→foreground resume via visibilitychange/pageshow, so a stale todayStr persisted if the app was never backgrounded across midnight — post-midnight taps/water/pushups/weight/sleep landed on yesterday). New self-rescheduling scheduleMidnightRollover() arms a setTimeout for the next local 00:00 (+2s), calls the existing handleDateRollover() at the boundary, then re-arms for the following midnight; reuses handleDateRollover() untouched (its real===todayStr early-return means timer + resume handlers never double-process); iOS suspends JS timers during device sleep, so a midnight slept through is still caught by the existing resume handlers. No schema/export changes
-  v26 — reward sort: rewards list now renders ascending by cost (cheapest first) instead of in added-order; renderRewards() sorts a .slice() copy by cost so stored order is untouched (display-only), ties keep added-order via stable sort; no redeem/delete/storage/schema/export changes
   ============================================================
 -->
 <!doctype html>
@@ -5467,9 +5465,7 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
       function renderRewards() {
         const el = document.getElementById("all-rewards");
         if (!el) return;
-        const rewards = getRewards()
-          .slice()
-          .sort((a, b) => a.cost - b.cost);
+        const rewards = getRewards();
         const allTime = LS.allTime();
         const isDeleteMode = rewardDeleteModeOn;
         el.innerHTML = rewards
@@ -7759,34 +7755,6 @@ ${rows}
       window.addEventListener("pageshow", () => {
         handleDateRollover();
       });
-      // ── Live midnight timer (app foregrounded through midnight) ──
-      // The resume handlers above only fire when the PWA comes back from the
-      // background. If the app stays open and visible while midnight passes,
-      // neither fires and todayStr goes stale. This arms a timeout for the
-      // next local 00:00, runs handleDateRollover() at the boundary, then
-      // re-arms for the following midnight. iOS suspends JS timers when the
-      // device sleeps, so a missed midnight is caught by the resume handlers;
-      // handleDateRollover() early-returns when the date hasn't changed, so
-      // the timer and resume paths never double-process.
-      let _rolloverTimer = null;
-      function scheduleMidnightRollover() {
-        if (_rolloverTimer) clearTimeout(_rolloverTimer);
-        const now = new Date();
-        const next = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() + 1,
-          0,
-          0,
-          2, // 2s past midnight to clear the boundary cleanly
-          0,
-        );
-        _rolloverTimer = setTimeout(() => {
-          handleDateRollover();
-          scheduleMidnightRollover();
-        }, next - now);
-      }
-      scheduleMidnightRollover();
       init();
     </script>
   </body>
