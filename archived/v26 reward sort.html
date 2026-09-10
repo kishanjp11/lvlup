@@ -19,7 +19,7 @@
   v16 — streak freeze feature, fix calendar excluding redemptions from day total, replace -webkit-appearance with appearance
   v17 — weekly multi-checkbox: pts and label now highlight gold/white when any box checked
   v18 — fix syncAllTime: alltime and alltime_earned now use point_log as single source of truth
-  v19 — medicine tracker: 💊 header modal (opaque overlay), add/remove meds, hour+minute scroll-wheel time picker (defaults to now), multiple doses/day, per-med streak (🔥, +10× base bonus every 5th consecutive day, missed day resets), meds points roll into day total via new 💊 Medicine section, meds + per-day dose logs in JSON export/import; add/delete in bottom footer matching rest of app (+ Add medication reveals inline form, 🗑 toggles select-to-delete mode with DELETE/CANCEL bar)
+  v19 — medicine tracker: 💊 header modal (opaque overlay), add/remove meds, hour+minute scroll-wheel time picker (defaults to now), multiple doses/day, per-med streak (🔥, +10× base bonus every 5th consecutive day, missed day resets), meds points roll into day total via new 💊 Medicine section, meds + per-day dose logs in JSON export/import; add/delete in bottom footer matching rest of app (+ Add Medication reveals inline form, 🗑 toggles select-to-delete mode with DELETE/CANCEL bar)
   v20 — nav rework: streaks now opens as an opaque overlay (like medicine) instead of a full page, with each streak rendered as its own card and the week total moved into the overlay header (removed redundant nested ⚡ Streaks section box / duplicate title); bottom nav drops redundant Dashboard tab (still reachable via LVL UP logo) and gains Rewards tab; removed 🎁 from top bar and its now-dead go-rewards dispatcher handler; dashboard "Today by category" now orders 🌅 Morning first (follows daily-item section order, Nutrition no longer force-prepended)
   v21 — dailyedit: remove 3am rollover everywhere (daily + weekly); "today" = real calendar date; daily view now editable for today + yesterday only (older days read-only); enables backfilling yesterday's checklist/water/pushups/meds next morning without needing phone before bed; streaks recompute live on back-filled days
   v22 — weight log: tap the ⚖️ Weight dashboard card (next to Pushups) to open an opaque overlay; iOS decimal-pad inputs for body weight (lb) + optional body fat %, one reading per day (re-logging overwrites today); dual-axis SVG line chart (weight left/green, body fat right/orange — BF axis+line appear only once BF data exists) with 30D/All range toggle; scrollable Readings list below the chart (follows the range toggle, newest first) with per-row ✕ tap-to-delete that also reverses that day's points; points: +5 per reading, tiered to +10 when reading ≤ trailing-7-day average (event-logged to point_log as new "weight" type with cyan WEIGHT tag in history, rolls into all-time via syncAllTime); dashboard card shows latest weight + colored delta since a configurable anchor date (Settings, default 2026-06-01); seeded with 14 days of Apple Health history (chart-only, no retroactive points); weight_log + weight_anchor added to JSON export/import, export version bumped 3→4
@@ -52,29 +52,28 @@
     <title>LVL UP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
 
     <style>
       html {
-        background: #171a1f;
+        background: #08080f;
       }
       :root {
-        --bg: #171a1f;
-        --bg2: #1b1f25;
-        --bg3: #20242b;
-        --card: #20242b;
-        --raised: #2a2f37;
-        --border: #343a44;
-        --border2: #3f4652;
-        --accent: #e9a23b;
-        --accent2: #8fa3b8;
-        --gold: #e9a23b;
-        --red: #d6484f;
-        --purple: #8fa3b8;
-        --orange: #8fa3b8;
-        --text: #e8e6e1;
-        --muted: #9aa0a8;
-        --muted2: #6b717a;
+        --bg: #08080f;
+        --bg2: #0f0f1a;
+        --bg3: #161625;
+        --card: #111120;
+        --border: #1e1e35;
+        --border2: #2a2a48;
+        --accent: #00f5a0;
+        --accent2: #00d4ff;
+        --gold: #ffd700;
+        --red: #ff3860;
+        --purple: #8b5cf6;
+        --orange: #ff6b35;
+        --text: #f0f0ff;
+        --muted: #555577;
+        --muted2: #3a3a5c;
         --header-h: calc(56px + env(safe-area-inset-top, 0px));
         --nav-h: calc(56px + env(safe-area-inset-bottom, 0px));
       }
@@ -92,14 +91,27 @@
       body {
         background: var(--bg);
         color: var(--text);
-        font-family: "Bricolage Grotesque", system-ui, sans-serif;
-        font-variant-numeric: tabular-nums;
+        font-family: "Barlow", system-ui, sans-serif;
         min-height: 100vh;
         min-height: 100dvh;
         width: 100vw;
         overflow-x: hidden;
         overscroll-behavior: none;
         -webkit-font-smoothing: antialiased;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.06) 2px,
+          rgba(0, 0, 0, 0.06) 4px
+        );
+        pointer-events: none;
+        z-index: 9999;
       }
       .app {
         width: 100%;
@@ -118,7 +130,7 @@
         right: 0;
         width: 100%;
         z-index: 1000;
-        background: rgba(23,26,31, 0.98);
+        background: rgba(8, 8, 15, 0.98);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         isolation: isolate;
@@ -132,8 +144,13 @@
         height: 56px;
       }
       .logo {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 32px;
-                color: var(--accent);
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         line-height: 1;
       }
       .header-right {
@@ -142,10 +159,13 @@
         gap: 10px;
       }
       .header-date {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 12px;
         font-weight: 600;
-                color: var(--muted);
-              }
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
       .total-chip {
         background: var(--bg3);
         border: 1px solid var(--border2);
@@ -156,15 +176,18 @@
         gap: 3px;
       }
       .total-chip-num {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 26px;
         line-height: 1;
         color: var(--accent);
       }
       .total-chip-label {
-        font-size: 12px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
         font-weight: 600;
         color: var(--muted);
-              }
+        letter-spacing: 1px;
+      }
       @media (display-mode: standalone) {
         .header {
           background: var(--bg);
@@ -180,7 +203,7 @@
         width: 100%;
         max-width: 430px;
         z-index: 200;
-        background: rgba(23,26,31, 0.95);
+        background: rgba(8, 8, 15, 0.95);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid var(--border);
@@ -217,12 +240,16 @@
         height: 2px;
         background: var(--accent);
         border-radius: 0 0 2px 2px;
+        box-shadow: 0 0 8px var(--accent);
       }
       .nav-icon { font-size: 18px; line-height: 1; }
       .nav-label {
-        font-size: 12px;
-        font-weight: 600;
-                      }
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+      }
       .month-cal-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -237,10 +264,13 @@
         margin-bottom: 10px;
       }
       .month-cal-title {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
-                color: var(--text);
-              }
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--text);
+        text-transform: uppercase;
+      }
       .month-cal-nav {
         background: none;
         border: none;
@@ -256,12 +286,15 @@
         gap: 3px;
       }
       .month-cal-dow {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
         text-align: center;
         padding-bottom: 4px;
-              }
+        text-transform: uppercase;
+      }
       .month-cal-day {
         aspect-ratio: 1;
         border-radius: 5px;
@@ -279,12 +312,14 @@
       .month-cal-day.future { opacity: 0.25; cursor: default; }
       .month-cal-day.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
       .month-cal-daynum {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
         line-height: 1;
         color: var(--text);
       }
       .month-cal-pts {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 12px;
         line-height: 1;
         color: var(--text);
@@ -297,10 +332,13 @@
         padding-top: 10px;
       }
       .month-cal-expand-title {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 8px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 8px;
       }
       .page {
         display: none;
@@ -321,16 +359,34 @@
         position: relative;
         overflow: hidden;
       }
+      .day-score-bar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 245, 160, 0.04),
+          rgba(0, 212, 255, 0.02)
+        );
+        pointer-events: none;
+      }
       .day-score-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 2px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 2px;
       }
       .day-score-num {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 52px;
         line-height: 1;
-        color: var(--accent);
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
       .sec {
         background: var(--card);
@@ -341,10 +397,10 @@
         transition: border-color 0.3s;
       }
       .sec.hot {
-        border-color: rgba(233,162,59, 0.25);
+        border-color: rgba(0, 245, 160, 0.25);
       }
       .sec.penalized {
-        border-color: rgba(214,72,79, 0.25);
+        border-color: rgba(255, 56, 96, 0.25);
       }
       .sec-head {
         display: flex;
@@ -356,9 +412,12 @@
         user-select: none;
       }
       .sec-title {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 17px;
-        font-weight: 600;
-                        display: flex;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: flex;
         align-items: center;
         gap: 8px;
       }
@@ -368,6 +427,7 @@
         gap: 10px;
       }
       .sec-score {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 22px;
         color: var(--muted);
         transition: color 0.3s;
@@ -390,22 +450,26 @@
       }
       .sec-prog {
         height: 2px;
-        background: transparent;
+        background: var(--border);
         overflow: hidden;
       }
       .sec-prog-fill {
         height: 100%;
-        background: var(--accent);
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
         transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 6px var(--accent);
       }
       .sec-body {
         padding: 8px 10px 12px;
       }
       .glabel {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                padding: 8px 4px 4px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        padding: 8px 4px 4px;
       }
       .divider {
         height: 1px;
@@ -447,15 +511,17 @@
         background: var(--accent);
         border-color: var(--accent);
         color: var(--bg);
+        box-shadow: 0 0 12px rgba(0, 245, 160, 0.5);
         transform: scale(1.1);
       }
       .item.penalty .cb {
-        border-color: rgba(214,72,79, 0.5);
+        border-color: rgba(255, 56, 96, 0.5);
       }
       .item.penalty.on .cb {
         background: var(--red);
         border-color: var(--red);
         color: white;
+        box-shadow: 0 0 12px rgba(255, 56, 96, 0.5);
       }
       .item.penalty .item-text {
         color: var(--red);
@@ -491,6 +557,7 @@
         color: var(--text);
       }
       .item-pts {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         color: var(--muted2);
         transition: color 0.2s;
@@ -530,9 +597,13 @@
         margin-bottom: 10px;
       }
       .week-hero-num {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 56px;
         line-height: 1;
-        color: var(--accent);
+        background: linear-gradient(135deg, var(--gold), #ffaa00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
       .wsec {
         background: var(--card);
@@ -549,11 +620,15 @@
         border-bottom: 1px solid var(--border);
       }
       .wsec-title {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 17px;
-        font-weight: 600;
-                        color: var(--text);
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text);
       }
       .wsec-pts {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         color: var(--gold);
       }
@@ -578,20 +653,22 @@
         background: rgba(255, 255, 255, 0.04);
       }
       .witem .cb {
-        border-color: rgba(233,162,59, 0.25);
+        border-color: rgba(255, 215, 0, 0.25);
       }
       .witem.on .cb {
         background: var(--gold);
         border-color: var(--gold);
         color: var(--bg);
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
       }
       .witem.penalty .cb {
-        border-color: rgba(214,72,79, 0.5);
+        border-color: rgba(255, 56, 96, 0.5);
       }
       .witem.penalty.on .cb {
         background: var(--red);
         border-color: var(--red);
         color: white;
+        box-shadow: 0 0 12px rgba(255, 56, 96, 0.4);
       }
       .witem .item-text {
         color: var(--muted);
@@ -642,7 +719,7 @@
         border-color: var(--border2);
       }
       #weekly-streak-sections > .witem.selected {
-        background: rgba(214,72,79, 0.08);
+        background: rgba(255, 56, 96, 0.08);
         border-color: var(--red);
       }
       .witem.delete-mode .wdelete-sel {
@@ -653,13 +730,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font-size: 11px;
         color: transparent;
         flex-shrink: 0;
         transition: all 0.15s;
       }
       .witem.delete-mode.selected {
-        background: rgba(214,72,79, 0.08);
+        background: rgba(255, 56, 96, 0.08);
         border-color: var(--red);
       }
       .witem.delete-mode.selected .wdelete-sel {
@@ -692,6 +769,7 @@
         color: var(--muted);
       }
       .multi-pts {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         color: var(--muted2);
       }
@@ -704,7 +782,7 @@
         width: 24px;
         height: 24px;
         border-radius: 7px;
-        border: 2px solid rgba(233,162,59, 0.25);
+        border: 2px solid rgba(255, 215, 0, 0.25);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -718,12 +796,14 @@
         background: var(--gold);
         border-color: var(--gold);
         color: var(--bg);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
         transform: scale(1.1);
       }
       .multi-cb.penalty-cb.on {
         background: var(--red);
         border-color: var(--red);
         color: white;
+        box-shadow: 0 0 10px rgba(255, 56, 96, 0.35);
       }
       .witem.auto {
         cursor: default;
@@ -752,10 +832,12 @@
       .sdot.lit {
         background: var(--gold);
         border-color: var(--gold);
+        box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
       }
       .sdot.frozen {
         background: #4fc3f7;
         border-color: #4fc3f7;
+        box-shadow: 0 0 6px rgba(79, 195, 247, 0.4);
       }
       .dash-alltime {
         background: var(--card);
@@ -769,18 +851,23 @@
         cursor: pointer;
       }
       .dash-alltime-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 4px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
       }
       .dash-alltime-num {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 48px;
         line-height: 1;
         color: var(--gold);
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
       }
       .dash-alltime-sub {
-        font-size: 12px;
+        font-size: 11px;
         color: var(--muted);
         margin-top: 2px;
       }
@@ -801,16 +888,20 @@
         transition: all 0.3s;
       }
       .milestone-icon.unlocked {
-        border-color: var(--gold); background: rgba(233,162,59,0.12); color: var(--gold);
+        border-color: var(--gold); background: rgba(255,215,0,0.12); color: var(--gold);
+        box-shadow: 0 0 12px rgba(255,215,0,0.25);
       }
       .milestone-connector { width: 2px; height: 18px; background: var(--border2); margin-left: 34px; }
       .milestone-connector.unlocked { background: var(--gold); }
       .rewards-head {
         padding: 12px 14px;
         border-bottom: 1px solid var(--border);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
-                        color: var(--muted);
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted);
       }
       .reward-row {
         display: flex;
@@ -827,7 +918,7 @@
         cursor: pointer;
       }
       .reward-row.delete-mode.selected {
-        background: rgba(214,72,79, 0.08);
+        background: rgba(255, 56, 96, 0.08);
         border-color: var(--red);
       }
       .rdelete-sel {
@@ -838,7 +929,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font-size: 11px;
         color: transparent;
         flex-shrink: 0;
         transition: all 0.15s;
@@ -859,6 +950,7 @@
         margin-bottom: 2px;
       }
       .reward-cost {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         color: var(--gold);
       }
@@ -866,9 +958,12 @@
         background: none;
         border: 1.5px solid var(--accent);
         color: var(--accent);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
-                        padding: 8px 16px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 8px 16px;
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s;
@@ -892,10 +987,13 @@
         margin-bottom: 8px;
       }
       .chart-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 12px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 12px;
       }
       .cat-card {
         background: var(--card);
@@ -919,10 +1017,13 @@
         text-align: center;
       }
       .cat-name {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                width: 92px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        text-transform: uppercase;
+        width: 92px;
         flex-shrink: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -941,6 +1042,7 @@
         transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
       .cat-val {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 16px;
         width: 36px;
         text-align: right;
@@ -952,9 +1054,11 @@
         transform: translateX(-50%) translateY(-20px);
         background: var(--accent);
         color: var(--bg);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 15px;
-        font-weight: 600;
-                padding: 10px 22px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 10px 22px;
         border-radius: 99px;
         z-index: 9000;
         opacity: 0;
@@ -988,10 +1092,13 @@
         margin-bottom: 10px;
       }
       .form-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 4px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
         margin-top: 10px;
         display: block;
       }
@@ -1004,7 +1111,7 @@
         border: 1px solid var(--border2);
         border-radius: 8px;
         color: var(--text);
-
+        font-family: "Barlow", sans-serif;
         font-size: 14px;
         padding: 10px 12px;
         outline: none;
@@ -1020,7 +1127,7 @@
         border: 1px solid var(--border2);
         border-radius: 8px;
         color: var(--text);
-
+        font-family: "Barlow", sans-serif;
         font-size: 14px;
         padding: 10px 12px;
         outline: none;
@@ -1072,9 +1179,11 @@
         border: none;
         border-radius: 8px;
         color: var(--bg);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 14px;
-        font-weight: 600;
-                padding: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 12px;
         cursor: pointer;
       }
       .btn-cancel {
@@ -1083,9 +1192,11 @@
         border: 1px solid var(--border2);
         border-radius: 8px;
         color: var(--muted);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 14px;
-        font-weight: 600;
-                padding: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 12px;
         cursor: pointer;
       }
       .add-btn {
@@ -1096,9 +1207,12 @@
         border: 1px dashed var(--border2);
         border-radius: 14px;
         color: var(--muted);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
-                        padding: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 13px;
         cursor: pointer;
       }
       .add-btn:active {
@@ -1127,11 +1241,15 @@
         border-bottom: 1px solid var(--border);
       }
       .hist-date-label {
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
-        font-weight: 600;
-                color: var(--muted);
-              }
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
       .hist-net {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 22px;
       }
       .hist-row {
@@ -1145,14 +1263,17 @@
         border-bottom: none;
       }
       .hist-tag {
-        font-size: 12px;
-        font-weight: 600;
-                background: rgba(143,163,184, 0.15);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        background: rgba(124, 106, 247, 0.15);
         color: var(--purple);
         border-radius: 4px;
         padding: 2px 5px;
       }
       .hist-pts {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         white-space: nowrap;
         margin-left: 12px;
@@ -1180,7 +1301,7 @@
         color: white;
       }
       .item.delete-mode.selected {
-        background: rgba(214,72,79, 0.08);
+        background: rgba(255, 56, 96, 0.08);
         border-color: var(--red);
       }
       /* ── Medicine tracker ── */
@@ -1205,6 +1326,7 @@
         display: flex;
         flex-direction: column;
         padding: 0 0 calc(16px + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
       }
       .med-sheet-head {
         display: flex;
@@ -1214,8 +1336,10 @@
         border-bottom: 1px solid var(--border);
       }
       .med-sheet-title {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 24px;
-                color: var(--text);
+        letter-spacing: 1px;
+        color: var(--text);
         line-height: 1;
       }
       .med-sheet-close {
@@ -1241,18 +1365,23 @@
         min-width: 0;
       }
       .wt-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin-bottom: 4px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
       }
       .wt-input {
         background: var(--card);
         border: 1px solid var(--border2);
         border-radius: 12px;
         color: var(--text);
+        font-family: "Bebas Neue", sans-serif;
         font-size: 24px;
-                padding: 8px 12px;
+        letter-spacing: 1px;
+        padding: 8px 12px;
         width: 100%;
         text-align: center;
       }
@@ -1265,14 +1394,16 @@
         border: none;
         border-radius: 12px;
         color: #04121d;
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 15px;
-        font-weight: 600;
-                padding: 11px 16px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        padding: 11px 16px;
         cursor: pointer;
         height: 44px;
       }
       .wt-summary {
-
+        font-family: "Barlow", sans-serif;
         font-size: 12px;
         color: var(--muted);
         margin-top: 10px;
@@ -1292,9 +1423,11 @@
       .wt-legend {
         display: flex;
         gap: 12px;
-        font-size: 12px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
         font-weight: 600;
-                color: var(--muted);
+        letter-spacing: 0.5px;
+        color: var(--muted);
       }
       .wt-legend span::before {
         content: "";
@@ -1316,9 +1449,11 @@
         border: 1px solid var(--border2);
         border-radius: 8px;
         color: var(--muted);
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 12px;
-        font-weight: 600;
-                padding: 5px 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 5px 12px;
         cursor: pointer;
       }
       .wt-range-btn.active {
@@ -1330,10 +1465,13 @@
         margin-top: 12px;
       }
       .wt-readings-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin: 2px 4px 8px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin: 2px 4px 8px;
       }
       .wt-reading-row {
         display: flex;
@@ -1346,7 +1484,7 @@
         margin-bottom: 8px;
       }
       .wt-reading-date {
-
+        font-family: "Barlow", sans-serif;
         font-size: 13px;
         color: var(--muted);
         min-width: 96px;
@@ -1354,7 +1492,9 @@
       .wt-reading-vals {
         flex: 1;
         text-align: right;
-                font-size: 19px;
+        font-family: "Bebas Neue", sans-serif;
+        letter-spacing: 0.5px;
+        font-size: 19px;
         color: var(--text);
         margin-right: 10px;
       }
@@ -1375,7 +1515,7 @@
         flex-shrink: 0;
       }
       /* ── Sleep tracker ── */
-      .wt-legend .wt-lg-sl::before { background: #8fa3b8; }
+      .wt-legend .wt-lg-sl::before { background: #a78bfa; }
       .sl-fields {
         display: flex;
         gap: 10px;
@@ -1390,13 +1530,18 @@
         text-align: center;
       }
       .sl-field-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-              }
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
       .sl-field-val {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 26px;
-                color: var(--text);
+        letter-spacing: 1px;
+        color: var(--text);
         margin-top: 2px;
       }
       .sl-field-val.empty {
@@ -1404,18 +1549,20 @@
       }
       .sl-log-btn {
         width: 100%;
-        background: #8fa3b8;
+        background: #a78bfa;
         border: none;
         border-radius: 12px;
         color: #140b2e;
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 16px;
-        font-weight: 600;
-                padding: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        padding: 11px;
         margin-top: 10px;
         cursor: pointer;
       }
       .sl-summary {
-
+        font-family: "Barlow", sans-serif;
         font-size: 12px;
         color: var(--muted);
         margin-top: 10px;
@@ -1426,10 +1573,13 @@
         margin-top: 12px;
       }
       .sl-readings-label {
-        font-size: 12px;
-        font-weight: 600;
-                color: var(--muted);
-                margin: 2px 4px 8px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin: 2px 4px 8px;
       }
       .sl-reading-row {
         display: flex;
@@ -1442,7 +1592,7 @@
         margin-bottom: 8px;
       }
       .sl-reading-date {
-
+        font-family: "Barlow", sans-serif;
         font-size: 13px;
         color: var(--muted);
         min-width: 74px;
@@ -1450,13 +1600,16 @@
       .sl-reading-times {
         flex: 1;
         text-align: right;
+        font-family: "Barlow Condensed", sans-serif;
         font-size: 13px;
         color: var(--text);
         margin-right: 8px;
       }
       .sl-reading-dur {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 17px;
-                color: #8fa3b8;
+        letter-spacing: 0.5px;
+        color: #a78bfa;
         margin-right: 10px;
         min-width: 58px;
         text-align: right;
@@ -1505,7 +1658,7 @@
         transition: all 0.15s;
       }
       .med-item.taken .med-cb {
-        background: var(--accent);
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
         border-color: var(--accent);
         color: #04040a;
       }
@@ -1516,11 +1669,14 @@
         color: var(--text);
       }
       .med-streak {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 15px;
         color: var(--orange);
-                flex-shrink: 0;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
       }
       .med-pts-badge {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 15px;
         color: var(--muted);
         flex-shrink: 0;
@@ -1555,7 +1711,7 @@
         color: white;
       }
       .med-item.selected {
-        background: rgba(214,72,79, 0.08);
+        background: rgba(255, 56, 96, 0.08);
         border-color: var(--red);
       }
       .med-doses {
@@ -1604,13 +1760,15 @@
       .med-add-row input.med-add-name { flex: 1; }
       .med-add-row input.med-add-pts { width: 64px; text-align: center; }
       .med-add-btn {
-        background: var(--accent);
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
         border: none;
         border-radius: 10px;
         color: #04040a;
-        font-weight: 600;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
         font-size: 14px;
-                padding: 10px 16px;
+        letter-spacing: 1px;
+        padding: 10px 16px;
         cursor: pointer;
       }
       /* ── Time picker scroll wheels ── */
@@ -1634,8 +1792,10 @@
         max-width: 320px;
       }
       .timepick-title {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 20px;
-                color: var(--text);
+        letter-spacing: 1px;
+        color: var(--text);
         text-align: center;
         margin-bottom: 14px;
       }
@@ -1666,12 +1826,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
         font-size: 28px;
         color: var(--muted);
         transition: color 0.15s;
       }
       .wheel-opt.sel { color: var(--accent); }
       .timepick-colon {
+        font-family: "Bebas Neue", sans-serif;
         font-size: 28px;
         color: var(--text);
       }
@@ -1682,9 +1844,11 @@
       .timepick-actions button {
         flex: 1;
         border-radius: 10px;
-        font-weight: 600;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
         font-size: 14px;
-                padding: 11px;
+        letter-spacing: 1px;
+        padding: 11px;
         cursor: pointer;
       }
       .timepick-cancel {
@@ -1693,45 +1857,9 @@
         color: var(--muted);
       }
       .timepick-confirm {
-        background: var(--accent);
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
         border: none;
         color: #04040a;
-      }
-      /* ── restyle v1: bench readout ── */
-      .logo { font-size: 22px; font-weight: 600; }
-      .day-score-num, .week-hero-num, .dash-alltime-num { font-size: 40px; font-weight: 500; }
-      .sec-score, .wsec-pts, .total-chip-num { font-size: 20px; font-weight: 500; }
-      .dash-alltime {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-      }
-      .logo, .header-date { white-space: nowrap; }
-      .day-score-bar, .week-hero {
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        padding-left: 4px;
-        padding-right: 4px;
-      }
-      .sec, .wsec, .rewards-card, .hist-card, .month-cal-card, .chart-card, .cat-card, .form-card {
-        background: transparent;
-        border: none;
-        border-top: 1px solid var(--border);
-        border-radius: 0;
-      }
-      .sec.hot { border-top-color: var(--accent); }
-      .sec.penalized { border-top-color: var(--red); }
-      .item, .witem, .cb, .btn-save, .btn-cancel, .add-btn, .redeem-btn, .form-input, .form-select,
-      .wt-log-btn, .sl-log-btn, .wt-input, .total-chip, .paired-action-btn, .month-cal-day { border-radius: 10px; }
-      .cb, .multi-cb { border-radius: 6px; }
-      .item.on .cb, .witem.on .cb { transform: none; }
-      .nav-tab.active::before { left: 30%; right: 30%; border-radius: 0; }
-      .nav-label { font-size: 12px; font-weight: 500; }
-      .toast { border-radius: 10px; }
-      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { transition: none !important; animation: none !important; }
       }
     </style>
   </head>
@@ -1785,7 +1913,7 @@
               >
                 ‹
               </button>
-              <div class="day-score-label" id="dayLabel">Today</div>
+              <div class="day-score-label" id="dayLabel">TODAY</div>
               <button
                 data-action="shift-day"
                 data-delta="1"
@@ -1818,7 +1946,7 @@
             style="flex: 1; margin-bottom: 0"
             data-action="open-daily-form"
           >
-            + Add daily item</button
+            + Add Daily Item</button
           ><button
             class="paired-action-btn"
             id="btn-delete-daily"
@@ -1855,10 +1983,13 @@
         >
           <span
             style="
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 12px;
-              font-weight: 600;
-                            color: var(--red);
-                          "
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: var(--red);
+              text-transform: uppercase;
+            "
             >Select items to delete</span
           >
           <div style="display: flex; gap: 8px">
@@ -1869,9 +2000,11 @@
                 border: none;
                 border-radius: 8px;
                 color: white;
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -1883,9 +2016,11 @@
                 border: 1px solid var(--border2);
                 border-radius: 8px;
                 color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -1905,7 +2040,7 @@
                 aria-label="Previous week"
                 style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;"
               >‹</button>
-              <div class="dash-alltime-label" id="wDateLabel" style="margin:0;">This week</div>
+              <div class="dash-alltime-label" id="wDateLabel" style="margin:0;">THIS WEEK</div>
               <button
                 data-action="shift-week"
                 data-delta="1"
@@ -1919,10 +2054,13 @@
         </div>
         <div
           style="
-            font-size: 12px;
-            font-weight: 600;
-                        color: var(--muted);
-                        padding: 4px 4px 6px;
+            font-family: &quot;Barlow Condensed&quot;, sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 4px 4px 6px;
           "
         >
           ✋ Tap to log
@@ -1934,7 +2072,7 @@
             style="flex: 1; margin-bottom: 0"
             data-action="open-weekly-form"
           >
-            + Add weekly item</button
+            + Add Weekly Item</button
           ><button
             class="paired-action-btn"
             id="btn-delete-weekly"
@@ -1970,10 +2108,13 @@
         >
           <span
             style="
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 12px;
-              font-weight: 600;
-                            color: var(--red);
-                          "
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: var(--red);
+              text-transform: uppercase;
+            "
             >Select weekly items to delete</span
           >
           <div style="display: flex; gap: 8px">
@@ -1984,9 +2125,11 @@
                 border: none;
                 border-radius: 8px;
                 color: white;
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -1998,9 +2141,11 @@
                 border: 1px solid var(--border2);
                 border-radius: 8px;
                 color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -2019,14 +2164,14 @@
           aria-label="Open point history"
         >
           <div>
-            <div class="dash-alltime-label">Earned all-time</div>
+            <div class="dash-alltime-label">All-Time Earned</div>
             <div class="dash-alltime-num" id="dAllTime">0</div>
-            
+            <div class="dash-alltime-sub">tap for history</div>
           </div>
           <div style="text-align: right">
-            <div style="font-size: 12px;font-weight: 600;color:var(--muted);margin-bottom:2px;">Days logged</div>
-            <div style="font-size:22px;color:var(--text);line-height:1;margin-bottom:8px;" id="dDays">0</div>
-            <div style="font-size: 12px;font-weight: 600;color:var(--muted);margin-bottom:4px;">Next milestone</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:2px;">DAYS TRACKED</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);line-height:1;margin-bottom:8px;" id="dDays">0</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">REWARD PROGRESS</div>
             <div style="font-size: 12px; color: var(--muted)" id="dRewardProg">—</div>
           </div>
         </div>
@@ -2049,8 +2194,10 @@
             <div
               style="
                 margin-top: 8px;
-                font-size: 12px;
-                                color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
+                font-size: 9px;
+                letter-spacing: 1px;
+                color: var(--muted);
               "
               id="heatmap-months"
             ></div>
@@ -2073,24 +2220,24 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div class="cat-card" style="margin-bottom:0;">
             <div class="chart-label">💪 Pushups</div>
-            <div style="font-size:28px;line-height:1;color:var(--purple);margin-top:4px;" id="dPushupsAllTime">0</div>
-            <div style="font-size: 12px;font-weight: 600;color:var(--muted);margin-top:2px;">all-time</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--purple);margin-top:4px;" id="dPushupsAllTime">0</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-top:2px;">ALL TIME</div>
           </div>
           <div class="cat-card" style="margin-bottom:0;cursor:pointer;" data-action="open-weight" role="button" tabindex="0" aria-label="Open weight tracker">
             <div class="chart-label">⚖️ Weight</div>
-            <div style="font-size:28px;line-height:1;color:var(--accent2);margin-top:4px;" id="dWeightLatest">—</div>
-            <div style="font-size: 12px;font-weight: 600;color:var(--muted);margin-top:2px;" id="dWeightDelta">No readings yet</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--accent2);margin-top:4px;" id="dWeightLatest">—</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-top:2px;" id="dWeightDelta">NO DATA</div>
           </div>
           <div class="cat-card" style="margin-bottom:0;grid-column:1 / -1;cursor:pointer;" data-action="open-sleep" role="button" tabindex="0" aria-label="Open sleep tracker">
             <div style="display:flex;align-items:baseline;justify-content:space-between;">
               <div class="chart-label">😴 Sleep</div>
-              <div style="font-size:22px;line-height:1;color:#8fa3b8;" id="dSleepLast">—</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:#a78bfa;" id="dSleepLast">—</div>
             </div>
             <div id="dSleepBars" style="margin-top:8px;"></div>
           </div>
         </div>
         <div class="cat-card">
-          <div class="chart-label">Today by category</div>
+          <div class="chart-label">Today by Category</div>
           <div id="dCats"></div>
         </div>
 
@@ -2102,20 +2249,25 @@
         <div style="padding: 4px 0 16px">
           <div
             style="
-              font-size: 12px;
-              font-weight: 600;
-                            color: var(--muted);
-                            margin-bottom: 10px;
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
+              font-size: 11px;
+              font-weight: 700;
+              letter-spacing: 2px;
+              color: var(--muted);
+              text-transform: uppercase;
+              margin-bottom: 10px;
             "
           >
-            Your balance
+            Your Balance
           </div>
           <div style="display: flex; align-items: baseline; gap: 8px">
             <div
               style="
+                font-family: &quot;Bebas Neue&quot;, sans-serif;
                 font-size: 56px;
                 line-height: 1;
                 color: var(--gold);
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
               "
               id="rBalance"
             >
@@ -2123,6 +2275,7 @@
             </div>
             <div
               style="
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 16px;
                 color: var(--muted);
               "
@@ -2132,17 +2285,17 @@
           </div>
         </div>
         <div class="rewards-card">
-          <div class="rewards-head">🎁 Reward store</div>
+          <div class="rewards-head">🎁 Reward Store</div>
           <div id="all-rewards"></div>
         </div>
         <div id="add-reward-form" style="display: none" class="form-card">
-          <div class="form-label" style="margin-top: 0">New reward</div>
+          <div class="form-label" style="margin-top: 0">New Reward</div>
           <label class="form-label">Name</label><input id="reward-name-input" class="form-input" maxlength="40" /><label
             class="form-label"
-            >Point cost</label
+            >Point Cost</label
           ><input id="reward-cost-input" class="form-input" type="number" min="1" />
           <div style="display: flex; gap: 8px; margin-top: 12px">
-            <button class="btn-save" data-action="save-new-reward">Save</button
+            <button class="btn-save" data-action="save-new-reward">SAVE</button
             ><button class="btn-cancel" data-action="hide-add-reward">
               CANCEL
             </button>
@@ -2155,7 +2308,7 @@
             id="btn-add-reward"
             data-action="show-add-reward"
           >
-            + Add reward</button
+            + Add Reward</button
           ><button
             id="btn-delete-reward"
             data-action="toggle-reward-delete-mode"
@@ -2190,10 +2343,13 @@
         >
           <span
             style="
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 12px;
-              font-weight: 600;
-                            color: var(--red);
-                          "
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: var(--red);
+              text-transform: uppercase;
+            "
             >Select rewards to delete</span
           >
           <div style="display: flex; gap: 8px">
@@ -2204,9 +2360,11 @@
                 border: none;
                 border-radius: 8px;
                 color: white;
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -2218,9 +2376,11 @@
                 border: 1px solid var(--border2);
                 border-radius: 8px;
                 color: var(--muted);
+                font-family: &quot;Barlow Condensed&quot;, sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -2231,19 +2391,19 @@
         <div class="rewards-card" style="margin-top:8px;">
           <div class="rewards-head" style="display:flex;justify-content:space-between;align-items:center;">
             <span>🏆 Milestones</span>
-            <button data-action="show-add-milestone" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size: 12px;font-weight: 600;padding:4px 10px;cursor:pointer;">+ Add</button>
+            <button data-action="show-add-milestone" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;cursor:pointer;">+ ADD</button>
           </div>
           <div id="milestone-tree" class="milestone-tree"></div>
         </div>
         <div id="add-milestone-form" style="display:none" class="form-card">
-          <div class="form-label" style="margin-top:0;">New milestone</div>
+          <div class="form-label" style="margin-top:0;">New Milestone</div>
           <label class="form-label">Name</label>
           <input id="mf-name" class="form-input" maxlength="40" placeholder="e.g. New Headphones" />
-          <label class="form-label">Points required (total earned)</label>
+          <label class="form-label">Points Required (Total Earned)</label>
           <input id="mf-threshold" class="form-input" type="number" min="1" placeholder="e.g. 25000" />
           <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-save" data-action="save-new-milestone">Save</button>
-            <button class="btn-cancel" data-action="hide-add-milestone">Cancel</button>
+            <button class="btn-save" data-action="save-new-milestone">SAVE</button>
+            <button class="btn-cancel" data-action="hide-add-milestone">CANCEL</button>
           </div>
         </div>
       </div>
@@ -2274,10 +2434,12 @@
           </button>
           <div
             style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
               font-size: 28px;
-                          "
+              letter-spacing: 2px;
+            "
           >
-            Point history
+            Point History
           </div>
         </div>
         <div style="display: flex; gap: 8px; margin-bottom: 12px">
@@ -2289,13 +2451,15 @@
               border: 1px solid var(--border2);
               border-radius: 10px;
               color: var(--text);
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 13px;
-              font-weight: 600;
-                            padding: 12px;
+              font-weight: 700;
+              letter-spacing: 1px;
+              padding: 12px;
               cursor: pointer;
             "
           >
-            ⬆ Export</button
+            ⬆ EXPORT</button
           ><button
             data-action="trigger-import"
             style="
@@ -2304,13 +2468,15 @@
               border: 1px solid var(--border2);
               border-radius: 10px;
               color: var(--text);
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 13px;
-              font-weight: 600;
-                            padding: 12px;
+              font-weight: 700;
+              letter-spacing: 1px;
+              padding: 12px;
               cursor: pointer;
             "
           >
-            ⬇ Import</button
+            ⬇ IMPORT</button
           ><input
             id="import-input"
             type="file"
@@ -2347,8 +2513,10 @@
           </button>
           <div
             style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
               font-size: 28px;
-                          "
+              letter-spacing: 2px;
+            "
             id="daily-form-title"
           >
             Add Daily Item
@@ -2369,14 +2537,14 @@
             id="df-subgroup-new"
             class="form-input"
             style="display: none; margin-top: 8px"
-          /><label class="form-label">Item type</label
+          /><label class="form-label">Item Type</label
           ><select id="df-type" class="form-select">
             <option value="checkbox">Checkbox</option>
             <option value="penalty">Penalty (checkbox)</option>
             <option value="radio">Radio (pick one)</option>
           </select>
           <div id="df-radiogroup-row" style="display: none">
-            <label class="form-label">Radio group</label
+            <label class="form-label">Radio Group</label
             ><select id="df-radiogroup" class="form-select"></select
             ><input
               id="df-radiogroup-new"
@@ -2395,7 +2563,7 @@
             placeholder="Points (positive number)"
           />
           <div style="display: flex; gap: 8px; margin-top: 14px">
-            <button class="btn-save" data-action="save-daily-item">Save</button
+            <button class="btn-save" data-action="save-daily-item">SAVE</button
             ><button class="btn-cancel" data-action="close-daily-form">
               CANCEL
             </button>
@@ -2429,8 +2597,10 @@
           </button>
           <div
             style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
               font-size: 28px;
-                          "
+              letter-spacing: 2px;
+            "
           >
             Add Weekly Item
           </div>
@@ -2469,7 +2639,7 @@
             </div></label
           >
           <div style="display: flex; gap: 8px; margin-top: 14px">
-            <button class="btn-save" data-action="save-weekly-item">Save</button
+            <button class="btn-save" data-action="save-weekly-item">SAVE</button
             ><button class="btn-cancel" data-action="close-weekly-form">
               CANCEL
             </button>
@@ -2503,14 +2673,16 @@
           </button>
           <div
             style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
               font-size: 28px;
-                          "
+              letter-spacing: 2px;
+            "
           >
             Add Custom Streak
           </div>
         </div>
         <div class="form-card">
-          <label class="form-label">Streak label</label
+          <label class="form-label">Streak Label</label
           ><input id="sf-label" class="form-input" maxlength="40" /><label
             class="form-label"
             >Target days out of 7</label
@@ -2520,7 +2692,7 @@
             type="number"
             min="1"
             max="7"
-          /><label class="form-label">Bonus points</label
+          /><label class="form-label">Bonus Points</label
           ><input id="sf-pts" class="form-input" type="number" min="1" /><label
             class="form-label"
             style="margin-top: 12px"
@@ -2535,17 +2707,19 @@
               border: 1px dashed var(--border2);
               border-radius: 8px;
               color: var(--muted);
+              font-family: &quot;Barlow Condensed&quot;, sans-serif;
               font-size: 12px;
-              font-weight: 600;
-                            padding: 10px;
+              font-weight: 700;
+              letter-spacing: 1px;
+              padding: 10px;
               cursor: pointer;
               margin-top: 8px;
             "
           >
-            + Add condition
+            + Add Condition
           </button>
           <div style="display: flex; gap: 8px; margin-top: 14px">
-            <button class="btn-save" data-action="save-streak">Save</button
+            <button class="btn-save" data-action="save-streak">SAVE</button
             ><button class="btn-cancel" data-action="close-streak-form">
               CANCEL
             </button>
@@ -2579,8 +2753,10 @@
           </button>
           <div
             style="
+              font-family: &quot;Bebas Neue&quot;, sans-serif;
               font-size: 28px;
-                          "
+              letter-spacing: 2px;
+            "
           >
             Add Task
           </div>
@@ -2600,11 +2776,11 @@
             >Points on completion</label
           ><input id="tf-pts" class="form-input" type="number" min="1" />
           <div data-action="toggle-todo-repeat" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px;cursor:pointer;user-select:none;">
-            <span style="font-size:12px;font-weight: 600;color:var(--muted);">Repeats monthly</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Repeats Monthly</span>
             <div id="todo-repeat-cb" style="width:20px;height:20px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all 0.2s;">✓</div>
           </div>
           <div style="display: flex; gap: 8px; margin-top: 14px">
-            <button class="btn-save" data-action="save-todo-item">Save</button
+            <button class="btn-save" data-action="save-todo-item">SAVE</button
             ><button class="btn-cancel" data-action="close-todo-form">
               CANCEL
             </button>
@@ -2614,7 +2790,7 @@
       <!-- ══ TASKS PAGE ══ -->
       <div class="page" id="page-todo">
         <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
-          <button data-action="open-todo-form" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:12px;font-weight: 600;padding:6px 14px;cursor:pointer;">+ ADD TASK</button>
+          <button data-action="open-todo-form" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;padding:6px 14px;cursor:pointer;">+ ADD TASK</button>
         </div>
         <div id="todo-sections"></div>
       </div>
@@ -2622,20 +2798,20 @@
       <div class="page" id="page-settings">
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0 12px;">
           <button data-action="back-to-dashboard" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1;">‹</button>
-          <span style="font-size:22px;">⚙️ Settings</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;">⚙️ Settings</span>
         </div>
         <div class="form-card">
-          <div class="form-label" style="margin-top:0;">💪 Pushup goal</div>
-          <label class="form-label">Monthly rep goal (= 1 set)</label>
+          <div class="form-label" style="margin-top:0;">💪 Pushup Goal</div>
+          <label class="form-label">Monthly Rep Goal (= 1 set)</label>
           <input id="settings-pushup-goal" class="form-input" type="number" min="1" max="500" placeholder="e.g. 10" />
           <div style="font-size:12px;color:var(--muted);margin-top:6px;">Each completed set earns +5pts. Extra sets earn +5pts each.</div>
-          <div class="form-label">⚖️ Weight anchor date</div>
+          <div class="form-label">⚖️ Weight Anchor Date</div>
           <label class="form-label">Compare current weight against</label>
           <input id="settings-weight-anchor" class="form-input" type="date" />
           <div style="font-size:12px;color:var(--muted);margin-top:6px;">The dashboard weight card shows your change since this date.</div>
           <div style="display:flex;gap:8px;margin-top:14px;">
-            <button class="btn-save" data-action="save-settings">Save</button>
-            <button class="btn-cancel" data-action="back-to-dashboard">Cancel</button>
+            <button class="btn-save" data-action="save-settings">SAVE</button>
+            <button class="btn-cancel" data-action="back-to-dashboard">CANCEL</button>
           </div>
         </div>
       </div>
@@ -2671,10 +2847,13 @@
         >
           <span
             style="
+              font-family: 'Barlow Condensed', sans-serif;
               font-size: 12px;
-              font-weight: 600;
-                            color: var(--red);
-                          "
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: var(--red);
+              text-transform: uppercase;
+            "
             >Select meds to delete</span
           >
           <div style="display: flex; gap: 8px">
@@ -2685,9 +2864,11 @@
                 border: none;
                 border-radius: 8px;
                 color: white;
+                font-family: 'Barlow Condensed', sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -2699,9 +2880,11 @@
                 border: 1px solid var(--border2);
                 border-radius: 8px;
                 color: var(--muted);
+                font-family: 'Barlow Condensed', sans-serif;
                 font-size: 13px;
-                font-weight: 600;
-                                padding: 8px 14px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 8px 14px;
                 cursor: pointer;
               "
             >
@@ -2713,7 +2896,7 @@
           <div class="med-add-row">
             <input class="med-add-name" id="med-add-name" type="text" placeholder="Medication name…" />
             <input class="med-add-pts" id="med-add-pts" type="number" min="0" max="999" placeholder="pts" />
-            <button class="med-add-btn" data-action="add-med">Add</button>
+            <button class="med-add-btn" data-action="add-med">ADD</button>
           </div>
         </div>
         <div style="display: flex; gap: 8px; padding: 6px 14px 0">
@@ -2723,7 +2906,7 @@
             style="flex: 1; margin-bottom: 0"
             data-action="show-add-med"
           >
-            + Add medication</button
+            + Add Medication</button
           ><button
             class="paired-action-btn"
             id="btn-delete-med"
@@ -2750,20 +2933,20 @@
         <div class="med-sheet-head">
           <span class="med-sheet-title">🔥 Streaks</span>
           <div style="display:flex;align-items:center;gap:12px;">
-            <span id="streak-total" style="font-size:22px;line-height:1;color:var(--muted);"></span>
+            <span id="streak-total" style="font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:var(--muted);"></span>
             <button class="med-sheet-close" data-action="close-streaks">✕</button>
           </div>
         </div>
         <div class="med-list" id="weekly-streak-sections"></div>
         <div id="delete-streak-bar" style="display:none;margin:0 14px 8px;background:var(--card);border:1px solid var(--red);border-radius:12px;padding:12px 14px;flex-direction:row;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight: 600;color:var(--red);">Select streaks to delete</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;">Select streaks to delete</span>
           <div style="display:flex;gap:8px;">
-            <button data-action="confirm-delete-streak-items" style="background:var(--red);border:none;border-radius:8px;color:white;font-size:13px;font-weight: 600;padding:8px 14px;cursor:pointer;">Delete</button>
-            <button data-action="toggle-streak-delete-mode" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:13px;font-weight: 600;padding:8px 14px;cursor:pointer;">Cancel</button>
+            <button data-action="confirm-delete-streak-items" style="background:var(--red);border:none;border-radius:8px;color:white;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">DELETE</button>
+            <button data-action="toggle-streak-delete-mode" style="background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;padding:8px 14px;cursor:pointer;">CANCEL</button>
           </div>
         </div>
         <div style="display:flex;gap:8px;padding:6px 14px 0;">
-          <button class="add-btn paired-action-btn" style="flex:1;margin-bottom:0;" data-action="open-streak-form">+ Add custom streak</button>
+          <button class="add-btn paired-action-btn" style="flex:1;margin-bottom:0;" data-action="open-streak-form">+ Add Custom Streak</button>
           <button class="paired-action-btn" id="btn-delete-streak" data-action="toggle-streak-delete-mode" aria-label="Toggle streak delete mode" style="background:none;border:1px dashed var(--border2);border-radius:14px;color:var(--muted);padding:13px 16px;cursor:pointer;font-size:18px;">🗑</button>
         </div>
       </div>
@@ -2782,10 +2965,10 @@
               <input id="wt-weight" class="wt-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0.0" />
             </div>
             <div class="wt-field">
-              <span class="wt-label">Body fat&nbsp;%</span>
+              <span class="wt-label">Body Fat&nbsp;%</span>
               <input id="wt-bodyfat" class="wt-input" type="text" inputmode="decimal" autocomplete="off" placeholder="—" />
             </div>
-            <button class="wt-log-btn" data-action="save-weight">Log</button>
+            <button class="wt-log-btn" data-action="save-weight">LOG</button>
           </div>
           <div class="wt-summary" id="wt-summary"></div>
         </div>
@@ -2793,7 +2976,7 @@
           <div class="wt-chart-head">
             <div class="wt-legend">
               <span class="wt-lg-wt">Weight</span>
-              <span class="wt-lg-bf">Body fat</span>
+              <span class="wt-lg-bf">Body Fat</span>
             </div>
             <div class="wt-range-toggle">
               <button class="wt-range-btn active" id="wt-range-30" data-action="weight-range" data-range="30">30D</button>
@@ -2823,7 +3006,7 @@
               <div class="sl-field-val empty" id="sl-wake-val">— : —</div>
             </div>
           </div>
-          <button class="sl-log-btn" data-action="save-sleep">Log sleep</button>
+          <button class="sl-log-btn" data-action="save-sleep">LOG SLEEP</button>
           <div class="sl-summary" id="sl-summary"></div>
         </div>
         <div class="wt-chart-wrap">
@@ -2845,8 +3028,8 @@
           <div class="wheel" id="wheel-min"></div>
         </div>
         <div class="timepick-actions">
-          <button class="timepick-cancel" data-action="timepick-cancel">Cancel</button>
-          <button class="timepick-confirm" data-action="timepick-confirm">Log</button>
+          <button class="timepick-cancel" data-action="timepick-cancel">CANCEL</button>
+          <button class="timepick-confirm" data-action="timepick-confirm">LOG</button>
         </div>
       </div>
     </div>
@@ -2855,7 +3038,7 @@
       window.onerror = function(msg, src, line, col, err) {
         document.body.style.overflow = 'auto';
         document.body.insertAdjacentHTML('beforeend',
-          '<div style="position:fixed;top:0;left:0;right:0;bottom:0;padding:16px;background:#1a0008;color:#d6484f;font-family:monospace;font-size:12px;z-index:99999;overflow:auto;word-break:break-all;">'
+          '<div style="position:fixed;top:0;left:0;right:0;bottom:0;padding:16px;background:#1a0008;color:#ff3860;font-family:monospace;font-size:12px;z-index:99999;overflow:auto;word-break:break-all;">'
           + '<b>ERROR<\/b><br>' + msg + '<br>Line: ' + line + ' Col: ' + col + '<br>' + (err && err.stack ? err.stack : '') + '<\/div>'
         );
         return true;
@@ -4122,7 +4305,7 @@
         const div = document.createElement("div");
         div.className = "water-widget";
         div.innerHTML = `
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💧 Water<\/span><span id="water-pts" style="font-size:18px;color:${totalPts > 0 ? "var(--accent2)" : "var(--muted2)"}">${totalPts > 0 ? "+" + totalPts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="water-minus" data-action="water-adjust" data-delta="-1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="water-cups" style="font-size:40px;line-height:1;color:var(--accent2)">${cups}<\/div><div id="water-l" style="font-size: 12px;color:var(--muted);margin-top:2px">${l} L<\/div><\/div><button id="water-plus" data-action="water-adjust" data-delta="1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--accent2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div style="display:flex;gap:8px;margin-bottom:4px"><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-2l" style="height:100%;background:var(--accent2);border-radius:99px;width:${fill2l}%"><\/div><\/div><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-3l" style="height:100%;background:var(--gold);border-radius:99px;width:${fill3l}%"><\/div><\/div><\/div><div style="display:flex;justify-content:space-between;font-size: 12px"><span id="water-2l-label" style="color:${cups >= 8 ? "var(--accent2)" : "var(--muted)"}">2L — +5pts<\/span><span id="water-3l-label" style="color:${cups >= 12 ? "var(--gold)" : "var(--muted)"}">3L — +5pts bonus<\/span><\/div>`;
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💧 Water<\/span><span id="water-pts" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${totalPts > 0 ? "var(--accent2)" : "var(--muted2)"}">${totalPts > 0 ? "+" + totalPts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="water-minus" data-action="water-adjust" data-delta="-1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="water-cups" style="font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;color:var(--accent2)">${cups}<\/div><div id="water-l" style="font-size:11px;color:var(--muted);margin-top:2px">${l} L<\/div><\/div><button id="water-plus" data-action="water-adjust" data-delta="1" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--accent2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div style="display:flex;gap:8px;margin-bottom:4px"><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-2l" style="height:100%;background:var(--accent2);border-radius:99px;width:${fill2l}%"><\/div><\/div><div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="water-fill-3l" style="height:100%;background:var(--gold);border-radius:99px;width:${fill3l}%"><\/div><\/div><\/div><div style="display:flex;justify-content:space-between;font-size:10px"><span id="water-2l-label" style="color:${cups >= 8 ? "var(--accent2)" : "var(--muted)"}">2L — +5pts<\/span><span id="water-3l-label" style="color:${cups >= 12 ? "var(--gold)" : "var(--muted)"}">3L — +5pts bonus<\/span><\/div>`;
         if (!isEditable || deleteModeOn) {
           div.querySelectorAll("button").forEach((b) => {
             b.style.pointerEvents = "none";
@@ -4171,7 +4354,7 @@
         const progress = goal > 0 ? ((reps % goal) / goal) * 100 : 0;
         const div = document.createElement("div");
         div.className = "pushup-widget";
-        div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💪 Pushups<\/span><span id="pushup-pts" style="font-size:18px;color:${pts > 0 ? "var(--purple)" : "var(--muted2)"}">${pts > 0 ? "+" + pts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="pushup-minus" data-action="pushup-adjust" data-delta="-5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="pushup-reps-display" style="font-size:40px;line-height:1;color:var(--purple)">${reps}<\/div><div id="pushup-sets-label" style="font-size: 12px;color:var(--muted);margin-top:2px">${sets > 0 ? sets + " SET" + (sets > 1 ? "S" : "") : "goal: " + goal + " reps"}<\/div><\/div><button id="pushup-plus" data-action="pushup-adjust" data-delta="5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--purple);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div class="pushup-prog-track"><div id="pushup-prog-fill" class="pushup-prog-fill" style="width:${progress}%"><\/div><\/div><div style="font-size: 12px;color:var(--muted);margin-top:4px" id="pushup-prog-label">${reps % goal} \/ ${goal} reps to next set<\/div>`;
+        div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:var(--muted)">💪 Pushups<\/span><span id="pushup-pts" style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${pts > 0 ? "var(--purple)" : "var(--muted2)"}">${pts > 0 ? "+" + pts + " pts" : "0 pts"}<\/span><\/div><div style="display:flex;align-items:center;gap:16px;margin-bottom:8px"><button id="pushup-minus" data-action="pushup-adjust" data-delta="-5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">−<\/button><div style="flex:1;text-align:center"><div id="pushup-reps-display" style="font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;color:var(--purple)">${reps}<\/div><div id="pushup-sets-label" style="font-size:11px;color:var(--muted);margin-top:2px">${sets > 0 ? sets + " SET" + (sets > 1 ? "S" : "") : "goal: " + goal + " reps"}<\/div><\/div><button id="pushup-plus" data-action="pushup-adjust" data-delta="5" style="width:40px;height:40px;border-radius:10px;border:2px solid var(--border2);background:none;color:var(--purple);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">+<\/button><\/div><div class="pushup-prog-track"><div id="pushup-prog-fill" class="pushup-prog-fill" style="width:${progress}%"><\/div><\/div><div style="font-size:10px;color:var(--muted);margin-top:4px" id="pushup-prog-label">${reps % goal} \/ ${goal} reps to next set<\/div>`;
         if (!isEditable || deleteModeOn) {
           div.querySelectorAll("button").forEach((b) => {
             b.style.pointerEvents = "none";
@@ -4657,19 +4840,21 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
         DS = loadDayState(dateStr);
         const d = new Date(dateStr + "T12:00:00");
         document.getElementById("dayLabel").textContent = isToday
-          ? "Today"
+          ? "TODAY"
           : d
               .toLocaleDateString("en-US", {
                 weekday: "short",
                 month: "short",
                 day: "numeric",
-              });
+              })
+              .toUpperCase();
         document.getElementById("hDate").textContent = new Date()
           .toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
             day: "numeric",
-          });
+          })
+          .toUpperCase();
         const nextBtn = document.getElementById("btn-day-next");
         if (nextBtn) {
           nextBtn.style.opacity = isToday ? "0.2" : "1";
@@ -4709,9 +4894,10 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
         sun.setDate(mon.getDate() + 6);
         const fmt = (d) =>
           d
-            .toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            .toUpperCase();
         document.getElementById("wDateLabel").textContent = isCurrentWeek
-          ? "This week"
+          ? "THIS WEEK"
           : fmt(mon) + " – " + fmt(sun);
         const nextBtn = document.getElementById("btn-week-next");
         if (nextBtn) {
@@ -4970,7 +5156,7 @@ ${isDeleteMode ? '<div class="wdelete-sel">✕<\/div>' : ""}
         row.style.cssText =
           "background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:8px";
         row.innerHTML = `
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size: 12px;font-weight: 600;color:var(--muted)">CONDITION ${idx + 1}<\/span><button data-action="remove-streak-condition" data-idx="${idx}" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer">✕<\/button><\/div><select class="form-select sc-section-sel-${idx}" style="margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted)">CONDITION ${idx + 1}<\/span><button data-action="remove-streak-condition" data-idx="${idx}" style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer">✕<\/button><\/div><select class="form-select sc-section-sel-${idx}" style="margin-bottom:8px">
 ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
 <\/select><select class="form-select sc-item-sel-${idx}"><\/select>`;
         document.getElementById("sf-conditions").appendChild(row);
@@ -5186,16 +5372,16 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
           sgOrder.forEach((sg) => {
             if (sg !== "__none__") {
               const sgHeader = document.createElement("div");
-              sgHeader.style.cssText = "padding:8px 14px 4px;font-size: 12px;font-weight: 600;color:var(--muted);border-top:1px solid var(--border);";
+              sgHeader.style.cssText = "padding:8px 14px 4px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--border);";
               sgHeader.textContent = sg;
               body.appendChild(sgHeader);
             }
             subgroups[sg].forEach((t) => {
               const isDone = t.repeat ? !!monthDone[t.id] : false;
-              const repeatBadge = t.repeat ? `<span style="font-size: 12px;font-weight: 600;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 4px;margin-left:4px;">Monthly<\/span>` : "";
+              const repeatBadge = t.repeat ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 4px;margin-left:4px;">MONTHLY<\/span>` : "";
               const row = document.createElement("div");
               row.style.cssText = `display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;${isDone ? "opacity:0.4;" : ""}`;
-              row.innerHTML = `<div style="flex:1"><div style="font-size:14px;font-weight:600;${isDone ? "text-decoration:line-through" : ""}">${escapeHtml(t.name)}${repeatBadge}<\/div><div style="font-size:16px;color:var(--gold)">${t.pts.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">${!isDone ? `<button class="redeem-btn" data-action="complete-todo" data-id="${escapeHtml(t.id)}">DONE<\/button>` : `<span style="font-size:12px;color:var(--accent);">EARNED<\/span>`}<button data-action="delete-todo" data-id="${escapeHtml(t.id)}" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕<\/button><\/div>`;
+              row.innerHTML = `<div style="flex:1"><div style="font-size:14px;font-weight:600;${isDone ? "text-decoration:line-through" : ""}">${escapeHtml(t.name)}${repeatBadge}<\/div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)">${t.pts.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">${!isDone ? `<button class="redeem-btn" data-action="complete-todo" data-id="${escapeHtml(t.id)}">DONE<\/button>` : `<span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--accent);letter-spacing:1px">EARNED<\/span>`}<button data-action="delete-todo" data-id="${escapeHtml(t.id)}" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;line-height:1">✕<\/button><\/div>`;
               body.appendChild(row);
             });
           });
@@ -5273,7 +5459,7 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
           const node = document.createElement("div");
           node.className = "milestone-node";
           const pct = Math.min(100, Math.round((earned / m.threshold) * 100));
-          const progressText = m.unlocked ? "" : `<div style="font-size: 12px;color:var(--muted);margin-top:2px;">${earned.toLocaleString()} \/ ${m.threshold.toLocaleString()} pts (${pct}%)<\/div>`;
+          const progressText = m.unlocked ? "" : `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${earned.toLocaleString()} \/ ${m.threshold.toLocaleString()} pts (${pct}%)<\/div>`;
           node.innerHTML = `<div class="milestone-icon ${m.unlocked ? "unlocked" : ""}">${m.unlocked ? "\u2713" : "\uD83D\uDD12"}<\/div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:${m.unlocked ? "var(--gold)" : "var(--muted)"}">${escapeHtml(m.name)}<\/div>${progressText}<\/div><button data-action="delete-milestone" data-id="${escapeHtml(m.id)}" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;opacity:0.5">✕<\/button>`;
           tree.appendChild(node);
         });
@@ -5292,7 +5478,7 @@ ${sections.map((s) => `<option value="${s}">${s}<\/option>`).join("")}
 <div class="reward-row${isDeleteMode ? " delete-mode" : ""}${isDeleteMode && selectedRewardsForDelete.has(r.id) ? " selected" : ""}" ${isDeleteMode ? `data-action="toggle-reward-delete-select" data-id="${escapeHtml(r.id)}"` : ""}>
 ${isDeleteMode ? '<div class="rdelete-sel">✕<\/div>' : ""}
 <div class="reward-info" style="flex:1"><div class="reward-name">${escapeHtml(r.name)}<\/div><div class="reward-cost">${r.cost.toLocaleString()} pts<\/div><\/div><div style="display:flex;gap:6px;align-items:center">
-${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" data-id="${escapeHtml(r.id)}" data-cost="${r.cost}" data-name="${escapeHtml(r.name)}" ${allTime < r.cost ? "disabled" : ""}>Redeem<\/button>`}
+${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" data-id="${escapeHtml(r.id)}" data-cost="${r.cost}" data-name="${escapeHtml(r.name)}" ${allTime < r.cost ? "disabled" : ""}>REDEEM<\/button>`}
 <\/div><\/div>`,
           )
           .join("");
@@ -5315,13 +5501,13 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
         renderHeatmap(h);
         renderMonthCal();
         const sectionColors = {
-          "🌅 Morning": "#e9a23b",
-          "💪 Fitness": "#8fa3b8",
-          "🥗 Nutrition": "#e9a23b",
-          "💼 Work": "#8fa3b8",
-          "📚 School": "#8fa3b8",
-          "🌙 Evening": "#8fa3b8",
-          "⚡ Misc": "#8fa3b8",
+          "🌅 Morning": "#ffd700",
+          "💪 Fitness": "#8b5cf6",
+          "🥗 Nutrition": "#00f5a0",
+          "💼 Work": "#00d4ff",
+          "📚 School": "#ff6b35",
+          "🌙 Evening": "#a78bfa",
+          "⚡ Misc": "#7dd3fc",
         };
         const allSectionNames = [
           ...new Set([
@@ -5342,7 +5528,7 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
             e: emoji,
             n: label,
             v: sc.sections[sectionName] || 0,
-            c: sectionColors[sectionName] || "#8fa3b8",
+            c: sectionColors[sectionName] || "#8b5cf6",
           };
         });
         document.getElementById("dCats").innerHTML = cats
@@ -5393,16 +5579,16 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
             return { bg: "var(--bg3)", border: "1px solid var(--border2)" };
           if (pts > 0) {
             const p = pts / maxScore;
-            if (p < 0.25) return { bg: "#3a2f1a", border: "none" };
-            if (p < 0.5) return { bg: "#5e4620", border: "none" };
-            if (p < 0.75) return { bg: "#9a6e2a", border: "none" };
+            if (p < 0.25) return { bg: "#1a3a2a", border: "none" };
+            if (p < 0.5) return { bg: "#1f5c3a", border: "none" };
+            if (p < 0.75) return { bg: "#28844f", border: "none" };
             return { bg: "var(--accent)", border: "none" };
           }
           const p = pts / minScore;
-          if (p < 0.25) return { bg: "#3a1f21", border: "none" };
-          if (p < 0.5) return { bg: "#5e2428", border: "none" };
-          if (p < 0.75) return { bg: "#8f3238", border: "none" };
-          return { bg: "#d6484f", border: "none" };
+          if (p < 0.25) return { bg: "#2a1a1f", border: "none" };
+          if (p < 0.5) return { bg: "#5c1f2a", border: "none" };
+          if (p < 0.75) return { bg: "#84283c", border: "none" };
+          return { bg: "#ff3860", border: "none" };
         }
         heatEl.innerHTML = "";
         const monthsMap = {};
@@ -5431,7 +5617,8 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
             weekCol.appendChild(cell);
             if (cursor.getDate() === 1)
               monthsMap[col] = cursor
-                .toLocaleDateString("en-US", { month: "short" });
+                .toLocaleDateString("en-US", { month: "short" })
+                .toUpperCase();
             cursor.setDate(cursor.getDate() + 1);
             if (cursor > today) break;
           }
@@ -5511,44 +5698,44 @@ ${isDeleteMode ? "" : `<button class="redeem-btn" data-action="redeem-reward" da
                   tag = "";
                   const allSecs = [...new Set(getDailyItems().map((i) => i.section).filter(Boolean))];
                   const secMap = e.sections || {};
-                  sub = allSecs.map((k) => k.replace(/[^\w\s]/g, "").trim().split(" ").pop() + " " + (secMap[k] || 0)).join(", ");
+                  sub = allSecs.map((k) => k.replace(/[^\w\s]/g, "").trim().split(" ").pop() + ":" + (secMap[k] || 0)).join(" · ");
                 } else if (e.type === "weekly") {
                   desc = e.label || "Weekly task";
-                  tag = "Weekly";
+                  tag = "WEEKLY";
                 } else if (e.type === "streak") {
                   desc = e.label || "Streak";
-                  tag = "Streak";
+                  tag = "STREAK";
                 } else if (e.type === "todo") {
                   desc = e.label || (e.section ? e.section + " Task" : "Task");
-                  tag = "Task";
+                  tag = "TODO";
                   if (e.section) sub = e.section;
                 } else if (e.type === "redeem") {
                   desc = e.label || "Reward";
-                  tag = "Redeemed";
+                  tag = "REDEEMED";
                 } else if (e.type === "weight") {
                   desc = e.label || "Weight";
-                  tag = "Weight";
+                  tag = "WEIGHT";
                 } else if (e.type === "sleep") {
                   desc = e.label || "Sleep";
-                  tag = "Sleep";
+                  tag = "SLEEP";
                 }
                 desc = escapeHtml(desc);
                 sub = escapeHtml(sub);
                 tag = escapeHtml(tag);
                 const tagColors = {
-                  "Task": "color:#8fa3b8;background:rgba(143,163,184,0.1);",
-                  "Weekly": "color:#e9a23b;background:rgba(233,162,59,0.1);",
-                  "Streak": "color:#8fa3b8;background:rgba(233,162,59,0.1);",
-                  "Redeemed": "color:#8fa3b8;background:rgba(143,163,184,0.1);",
-                  "Weight": "color:#8fa3b8;background:rgba(143,163,184,0.1);",
-                  "Sleep": "color:#8fa3b8;background:rgba(143,163,184,0.12);"
+                  "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
+                  "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
+                  "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
+                  "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);",
+                  "WEIGHT": "color:#00d4ff;background:rgba(0,212,255,0.1);",
+                  "SLEEP": "color:#a78bfa;background:rgba(167,139,250,0.12);"
                 };
-                const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(143,163,184,0.15);";
+                const tagStyle = tagColors[tag] || "color:var(--purple);background:rgba(124,106,247,0.15);";
                 const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
                 return `<div class="hist-row"><div><div style="display:flex;align-items:center;gap:6px">
 ${tag ? `<span class="hist-tag" style="${tagStyle}">${tag}<\/span>` : ""}
 <span style="font-size:13px;color:var(--text)">${desc}<\/span><\/div>
-${sub ? `<div style="font-size: 12px;color:var(--muted);margin-top:3px">${sub}<\/div>` : ""}
+${sub ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">${sub}<\/div>` : ""}
 <\/div><div class="hist-pts" style="color:${ptsColor}">${e.pts >= 0 ? "+" : ""}${e.pts}<\/div><\/div>`;
               })
               .join("");
@@ -5603,7 +5790,7 @@ ${rows}
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const titleEl = document.getElementById("mcal-title");
-        if (titleEl) titleEl.textContent = new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+        if (titleEl) titleEl.textContent = new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const calScores = [];
         for (let d = 1; d <= daysInMonth; d++) {
@@ -5617,16 +5804,16 @@ ${rows}
           if (pts === undefined || pts === 0) return "var(--bg3)";
           if (pts > 0) {
             const p = pts / calMaxScore;
-            if (p < 0.25) return "rgba(58,47,26,0.45)";
-            if (p < 0.5)  return "rgba(94,70,32,0.5)";
-            if (p < 0.75) return "rgba(154,110,42,0.55)";
-            return "rgba(233,162,59,0.6)";
+            if (p < 0.25) return "rgba(26,58,42,0.45)";
+            if (p < 0.5)  return "rgba(31,92,58,0.5)";
+            if (p < 0.75) return "rgba(40,132,79,0.55)";
+            return "rgba(50,230,100,0.6)";
           }
           const p = pts / calMinScore;
-          if (p < 0.25) return "rgba(58,31,33,0.45)";
-          if (p < 0.5)  return "rgba(94,36,40,0.5)";
-          if (p < 0.75) return "rgba(143,50,56,0.55)";
-          return "rgba(214,72,79,0.6)";
+          if (p < 0.25) return "rgba(42,26,31,0.45)";
+          if (p < 0.5)  return "rgba(92,31,42,0.5)";
+          if (p < 0.75) return "rgba(132,40,60,0.55)";
+          return "rgba(255,56,96,0.6)";
         }
         const grid = document.getElementById("mcal-grid");
         if (!grid) return;
@@ -5656,7 +5843,7 @@ ${rows}
           const el = document.createElement("div");
           el.className = "month-cal-day" + (isFuture ? " future" : "") + (isSelected ? " selected" : "");
           el.style.background = isFuture ? "var(--bg3)" : calHeatColor(pts);
-          el.style.border = isFuture ? "1px solid var(--border2)" : pts !== undefined && pts < 0 ? "1px solid rgba(214,72,79,0.2)" : "1px solid var(--border)";
+          el.style.border = isFuture ? "1px solid var(--border2)" : pts !== undefined && pts < 0 ? "1px solid rgba(255,56,96,0.2)" : "1px solid var(--border)";
           if (isCalToday) { el.style.outline = "1.5px solid var(--accent2)"; el.style.outlineOffset = "1px"; }
           const numEl = document.createElement("div");
           numEl.className = "month-cal-daynum";
@@ -5689,7 +5876,7 @@ ${rows}
         mcalSelectedDate = dateStr;
         renderMonthCal();
         const d = new Date(dateStr + "T12:00:00");
-        expandTitle.textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+        expandTitle.textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
         const h = LS.history();
         const log = getPointLog();
         const sc = h[dateStr];
@@ -5700,24 +5887,24 @@ ${rows}
           const uniqSecs2 = allSecNames2.filter(function(s, i) { return allSecNames2.indexOf(s) === i; });
           const secMap2 = sc.sections || {};
           const subs = uniqSecs2.map(function(k) {
-            return escapeHtml(k.replace(/[^\w\s]/g, "").trim().split(" ").pop()) + " " + (secMap2[k] || 0);
-          }).join(", ");
-          html += '<div class="hist-row"><div><div style="font-size:13px;color:var(--text);">Daily habits<\/div>' +
-            (subs ? '<div style="font-size: 12px;color:var(--muted);margin-top:3px;">' + subs + '<\/div>' : '') +
+            return escapeHtml(k.replace(/[^\w\s]/g, "").trim().split(" ").pop()) + ":" + (secMap2[k] || 0);
+          }).join(" · ");
+          html += '<div class="hist-row"><div><div style="font-size:13px;color:var(--text);">Daily Habits<\/div>' +
+            (subs ? '<div style="font-size:11px;color:var(--muted);margin-top:3px;">' + subs + '<\/div>' : '') +
             '<\/div><div class="hist-pts" style="color:var(--accent);">' + (sc.total >= 0 ? "+" : "") + sc.total + '<\/div><\/div>';
         }
         const tagColors = {
-          "Task": "color:#8fa3b8;background:rgba(143,163,184,0.1);",
-          "Weekly": "color:#e9a23b;background:rgba(233,162,59,0.1);",
-          "Streak": "color:#8fa3b8;background:rgba(233,162,59,0.1);",
-          "Redeemed": "color:#8fa3b8;background:rgba(143,163,184,0.1);"
+          "TODO": "color:#00d4ff;background:rgba(0,212,255,0.1);",
+          "WEEKLY": "color:#ffd700;background:rgba(255,215,0,0.1);",
+          "STREAK": "color:#ff6b35;background:rgba(255,107,53,0.1);",
+          "REDEEMED": "color:#8b5cf6;background:rgba(139,92,246,0.1);"
         };
         dayLog.forEach(function(e) {
           let tag = "", desc = "";
-          if (e.type === "weekly") { tag = "Weekly"; desc = e.label || "Weekly task"; }
-          else if (e.type === "streak") { tag = "Streak"; desc = e.label || "Streak"; }
-          else if (e.type === "todo") { tag = "Task"; desc = e.label || "Task"; }
-          else if (e.type === "redeem") { tag = "Redeemed"; desc = e.label || "Reward"; }
+          if (e.type === "weekly") { tag = "WEEKLY"; desc = e.label || "Weekly task"; }
+          else if (e.type === "streak") { tag = "STREAK"; desc = e.label || "Streak"; }
+          else if (e.type === "todo") { tag = "TODO"; desc = e.label || "Task"; }
+          else if (e.type === "redeem") { tag = "REDEEMED"; desc = e.label || "Reward"; }
           else return;
           const tagStyle = tagColors[tag] || "";
           const ptsColor = e.pts >= 0 ? "var(--accent)" : "var(--red)";
@@ -6188,7 +6375,7 @@ ${rows}
           .sort((a, b) => a.date.localeCompare(b.date));
         if (!log.length) {
           latestEl.textContent = "\u2014";
-          deltaEl.textContent = "No readings yet";
+          deltaEl.textContent = "NO DATA";
           deltaEl.style.color = "var(--muted)";
           return;
         }
@@ -6210,7 +6397,7 @@ ${rows}
           delta < 0 ? "var(--accent)" : delta > 0 ? "var(--red)" : "var(--muted)";
         deltaEl.style.color = color;
         deltaEl.textContent =
-          arrow + " " + Math.abs(delta).toFixed(1) + " lb in " + days + " days";
+          arrow + " " + Math.abs(delta).toFixed(1) + " \u00b7 " + days + "d";
       }
       function renderWeightSummary() {
         const el = document.getElementById("wt-summary");
@@ -6417,7 +6604,7 @@ ${rows}
             (W - padR) +
             '" y2="' +
             padT +
-            '" stroke="#343a44" stroke-width="1" />',
+            '" stroke="#1e1e35" stroke-width="1" />',
         );
         p.push(
           '<line x1="' +
@@ -6428,7 +6615,7 @@ ${rows}
             (W - padR) +
             '" y2="' +
             (padT + plotH) +
-            '" stroke="#343a44" stroke-width="1" />',
+            '" stroke="#1e1e35" stroke-width="1" />',
         );
         // weight axis ticks (left)
         [wDataMax, (wDataMax + wDataMin) / 2, wDataMin].forEach((v) => {
@@ -6437,7 +6624,7 @@ ${rows}
               (padL - 5) +
               '" y="' +
               (yW(v) + 3).toFixed(1) +
-              '" text-anchor="end" fill="#e9a23b" font-size="9">' +
+              '" text-anchor="end" fill="#00f5a0" font-size="9" font-family="Barlow Condensed">' +
               v.toFixed(1) +
               "<\/text>",
           );
@@ -6450,7 +6637,7 @@ ${rows}
                 (W - padR + 5) +
                 '" y="' +
                 (yBF(v) + 3).toFixed(1) +
-                '" text-anchor="start" fill="#8fa3b8" font-size="9">' +
+                '" text-anchor="start" fill="#ff6b35" font-size="9" font-family="Barlow Condensed">' +
                 v.toFixed(1) +
                 "<\/text>",
             );
@@ -6464,7 +6651,7 @@ ${rows}
           p.push(
             '<polyline points="' +
               wLine +
-              '" fill="none" stroke="#e9a23b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
+              '" fill="none" stroke="#00f5a0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
           );
         }
         log.forEach((e) => {
@@ -6473,7 +6660,7 @@ ${rows}
               xOf(e.date).toFixed(1) +
               '" cy="' +
               yW(e.weight).toFixed(1) +
-              '" r="2.6" fill="#e9a23b" />',
+              '" r="2.6" fill="#00f5a0" />',
           );
         });
         // body fat line + points
@@ -6487,7 +6674,7 @@ ${rows}
             p.push(
               '<polyline points="' +
                 bfLine +
-                '" fill="none" stroke="#8fa3b8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
+                '" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />',
             );
           }
           bfPts.forEach((e) => {
@@ -6496,7 +6683,7 @@ ${rows}
                 xOf(e.date).toFixed(1) +
                 '" cy="' +
                 yBF(e.bodyfat).toFixed(1) +
-                '" r="2.6" fill="#8fa3b8" />',
+                '" r="2.6" fill="#ff6b35" />',
             );
           });
         }
@@ -6506,7 +6693,7 @@ ${rows}
             padL +
             '" y="' +
             (H - 8) +
-            '" text-anchor="start" fill="#6b717a" font-size="9">' +
+            '" text-anchor="start" fill="#555577" font-size="9" font-family="Barlow Condensed">' +
             fmtX(log[0].date) +
             "<\/text>",
         );
@@ -6516,7 +6703,7 @@ ${rows}
               (W - padR) +
               '" y="' +
               (H - 8) +
-              '" text-anchor="end" fill="#6b717a" font-size="9">' +
+              '" text-anchor="end" fill="#555577" font-size="9" font-family="Barlow Condensed">' +
               fmtX(log[log.length - 1].date) +
               "<\/text>",
           );
@@ -6559,7 +6746,7 @@ ${rows}
           const empty = document.createElement("div");
           empty.style.cssText =
             "color:var(--muted);font-size:14px;text-align:center;padding:24px 0;";
-          empty.textContent = "No medications yet. Tap + Add medication below.";
+          empty.textContent = "No medications yet. Tap + Add Medication below.";
           container.appendChild(empty);
           return;
         }
@@ -6702,8 +6889,8 @@ ${rows}
         if (btn)
           btn.textContent =
             selectedMedsForDelete.size > 0
-              ? `Delete (${selectedMedsForDelete.size})`
-              : "Delete";
+              ? `DELETE (${selectedMedsForDelete.size})`
+              : "DELETE";
       }
       function confirmDeleteMeds() {
         if (selectedMedsForDelete.size === 0) {
@@ -6942,14 +7129,14 @@ ${rows}
                 (W - padR) +
                 '" y2="' +
                 y.toFixed(1) +
-                '" stroke="#343a44" stroke-width="1" />',
+                '" stroke="#1e1e35" stroke-width="1" />',
             );
             p.push(
               '<text x="' +
                 (padL - 4) +
                 '" y="' +
                 (y + 3).toFixed(1) +
-                '" text-anchor="end" fill="#6b717a" font-size="8">' +
+                '" text-anchor="end" fill="#555577" font-size="8" font-family="Barlow Condensed">' +
                 Math.round(tv / 60) +
                 "h<\/text>",
             );
@@ -6960,7 +7147,7 @@ ${rows}
           const x = padL + i * (bw + gap);
           const bh = (d.dur / maxDur) * plotH;
           const y = padT + plotH - bh;
-          const col = d.dur > 0 ? "#8fa3b8" : "#2a2f37";
+          const col = d.dur > 0 ? "#a78bfa" : "#242440";
           p.push(
             '<rect x="' +
               x.toFixed(1) +
@@ -6980,9 +7167,9 @@ ${rows}
               (x + bw / 2).toFixed(1) +
               '" y="' +
               (H - (big ? 6 : 3)) +
-              '" text-anchor="middle" fill="#6b717a" font-size="' +
+              '" text-anchor="middle" fill="#555577" font-size="' +
               (big ? 9 : 8) +
-              '">' +
+              '" font-family="Barlow Condensed">' +
               dayLetters[dd.getDay()] +
               "<\/text>",
           );
@@ -6992,7 +7179,7 @@ ${rows}
                 (x + bw / 2).toFixed(1) +
                 '" y="' +
                 (y - 3).toFixed(1) +
-                '" text-anchor="middle" fill="#8fa3b8" font-size="8">' +
+                '" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="Barlow Condensed">' +
                 (d.dur / 60).toFixed(1) +
                 "<\/text>",
             );
@@ -7068,7 +7255,7 @@ ${rows}
         }
         if (n > 0) {
           el.innerHTML =
-            '7-day average <span style="color:#8fa3b8">' +
+            '7-day average <span style="color:#a78bfa">' +
             fmtDur(Math.round(sum / n)) +
             "<\/span> \u00b7 " +
             n +
@@ -7181,8 +7368,8 @@ ${rows}
         if (btn)
           btn.textContent =
             selectedForDelete.size > 0
-              ? `Delete (${selectedForDelete.size})`
-              : "Delete";
+              ? `DELETE (${selectedForDelete.size})`
+              : "DELETE";
       }
       function confirmDeleteItems() {
         if (selectedForDelete.size === 0) {
@@ -7230,8 +7417,8 @@ ${rows}
         if (btn)
           btn.textContent =
             selectedWeeklyForDelete.size > 0
-              ? `Delete (${selectedWeeklyForDelete.size})`
-              : "Delete";
+              ? `DELETE (${selectedWeeklyForDelete.size})`
+              : "DELETE";
         renderWeekly();
       }
       function confirmDeleteWeeklyItems() {
@@ -7316,8 +7503,8 @@ ${rows}
         if (btn)
           btn.textContent =
             selectedStreaksForDelete.size > 0
-              ? `Delete (${selectedStreaksForDelete.size})`
-              : "Delete";
+              ? `DELETE (${selectedStreaksForDelete.size})`
+              : "DELETE";
         renderStreaks();
       }
       function confirmDeleteStreakItems() {
@@ -7380,8 +7567,8 @@ ${rows}
         if (btn)
           btn.textContent =
             selectedRewardsForDelete.size > 0
-              ? `Delete (${selectedRewardsForDelete.size})`
-              : "Delete";
+              ? `DELETE (${selectedRewardsForDelete.size})`
+              : "DELETE";
         renderRewards();
       }
       function confirmDeleteRewardItems() {
@@ -7520,7 +7707,8 @@ ${rows}
             weekday: "short",
             month: "short",
             day: "numeric",
-          });
+          })
+          .toUpperCase();
         document.getElementById("hTotal").textContent = LS.allTime();
         const nextBtn = document.getElementById("btn-week-next");
         if (nextBtn) {
@@ -7556,7 +7744,8 @@ ${rows}
               weekday: "short",
               month: "short",
               day: "numeric",
-            });
+            })
+            .toUpperCase();
         loadViewDay();
         renderWeekly();
         renderStreaks();
